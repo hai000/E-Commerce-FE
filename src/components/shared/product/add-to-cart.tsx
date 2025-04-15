@@ -13,13 +13,13 @@ import useCartStore from '@/hooks/use-cart-store'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import {OrderItem} from "@/lib/model/order";
+import {IOrderItem} from "@/lib/response/order";
 
 export default function AddToCart({
                                       item,
                                       minimal = false,
                                   }: {
-    item: OrderItem
+    item: IOrderItem
     minimal?: boolean
 }) {
     const router = useRouter()

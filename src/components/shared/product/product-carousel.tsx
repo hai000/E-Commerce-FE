@@ -9,7 +9,7 @@ import {
     CarouselPrevious,
 } from '@/components/ui/carousel'
 import ProductCard from './product-card'
-import {IProduct} from "@/lib/model/product";
+import {IProduct} from "@/lib/response/product";
 
 export default function ProductSlider({
                                           title,

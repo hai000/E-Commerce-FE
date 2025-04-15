@@ -2,18 +2,19 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {Card, CardContent, CardFooter, CardHeader} from '@/components/ui/card'
 
 import Rating from './rating'
-import { formatNumber } from '@/lib/utils'
+import {formatNumber, generateId, round2} from '@/lib/utils'
 import ProductPrice from './product-price'
 import ImageHover from "@/components/shared/product/image-hover";
-import {IProduct} from "@/lib/model/product";
-
+import {IProduct} from "@/lib/response/product";
+import AddToCart from "@/components/shared/product/add-to-cart";
 const ProductCard = ({
                          product,
                          hideBorder = false,
                          hideDetails = false,
+                         hideAddToCart = false,
                      }: {
     product: IProduct
     hideDetails?: boolean
@@ -68,7 +69,26 @@ const ProductCard = ({
             />
         </div>
     )
-
+    const AddButton = () => (
+        <div className='w-full text-center'>
+            <AddToCart
+                minimal
+                item={{
+                    id: generateId(),
+                    productId: product.id,
+                    name: product.name,
+                    size: product.sizes[0].size,
+                    color: product.colors[0].colorName,
+                    countInStock: product.quantity,
+                    slug: product.slug,
+                    category: product.category,
+                    price: round2(product.defaultPrice),
+                    quantity: 1,
+                    image: product.images[0].imagePath,
+                }}
+            />
+        </div>
+    )
     return hideBorder ? (
         <div className='flex flex-col'>
             <ProductImage />
@@ -77,6 +97,7 @@ const ProductCard = ({
                     <div className='p-3 flex-1 text-center'>
                         <ProductDetails />
                     </div>
+                    {!hideAddToCart && <AddButton/>}
                 </>
             )}
         </div>
@@ -90,6 +111,9 @@ const ProductCard = ({
                     <CardContent className='p-3 flex-1  text-center'>
                         <ProductDetails />
                     </CardContent>
+                    <CardFooter className='p-3'>
+                        {!hideAddToCart && <AddButton/>}
+                    </CardFooter>
                 </>
             )}
         </Card>

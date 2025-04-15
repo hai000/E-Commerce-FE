@@ -1,10 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Cart, OrderItem } from "@/lib/model/order";
+import {ICart, IOrderItem} from "@/lib/response/order";
 import { calcDeliveryDateAndPrice } from "@/lib/api/order";
 
 // Khởi tạo trạng thái ban đầu của giỏ hàng
-const initialState: Cart = {
+const initialState: ICart = {
     items: [], // Danh sách sản phẩm
     itemsPrice: 0, // Tổng giá sản phẩm
     taxPrice: undefined, // Giá thuế
@@ -16,8 +16,11 @@ const initialState: Cart = {
 
 // Định nghĩa kiểu trạng thái giỏ hàng
 interface CartState {
-    cart: Cart
-    addItem: (item: OrderItem, quantity: number) => Promise<string> // Hàm thêm sản phẩm vào giỏ hàng
+    cart: ICart,
+    // reload: () => Promise<IOrderItem[]>,
+    addItem: (item: IOrderItem, quantity: number) => Promise<string> // Hàm thêm sản phẩm vào giỏ hàng
+    updateItem: (item: IOrderItem, quantity: number) => Promise<void>
+    removeItem: (item: IOrderItem) => void
 }
 
 // Tạo store giỏ hàng với Zustand và middleware persist
@@ -26,11 +29,11 @@ const useCartStore = create(
         (set, get) => ({
             cart: initialState, // Khởi tạo giỏ hàng
             // Hàm thêm sản phẩm vào giỏ hàng
-            addItem: async (item: OrderItem, quantity: number) => {
+            addItem: async (item: IOrderItem, quantity: number) => {
                 const { items } = get().cart // Lấy danh sách sản phẩm hiện tại
                 const existItem = items.find( // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
                     (x) =>
-                        x.product === item.product &&
+                        x.id === item.id &&
                         x.color === item.color &&
                         x.size === item.size
                 )
@@ -49,7 +52,7 @@ const useCartStore = create(
                 // Cập nhật danh sách sản phẩm trong giỏ hàng
                 const updatedCartItems = existItem
                     ? items.map((x) =>
-                        x.product === item.product &&
+                        x.id === item.id &&
                         x.color === item.color &&
                         x.size === item.size
                             ? { ...existItem, quantity: existItem.quantity + quantity } // Cập nhật số lượng nếu đã có
@@ -70,11 +73,56 @@ const useCartStore = create(
                 // Trả về clientId của sản phẩm vừa thêm vào
                 return updatedCartItems.find(
                     (x) =>
-                        x.product == item.product &&
+                        x.id == item.id &&
                         x.color == item.color &&
                         x.size == item.size
-                )?.clientId!
+                )?.id!
             },
+            updateItem: async (item: IOrderItem, quantity: number) => {
+                const { items } = get().cart
+                const exist = items.find(
+                    (x) =>
+                        x.id === item.id &&
+                        x.color === item.color &&
+                        x.size === item.size
+                )
+                if (!exist) return
+                const updatedCartItems = items.map((x) =>
+                    x.id === item.id &&
+                    x.color === item.color &&
+                    x.size === item.size
+                        ? { ...exist, quantity: quantity }
+                        : x
+                )
+                set({
+                    cart: {
+                        ...get().cart,
+                        items: updatedCartItems,
+                        ...(await calcDeliveryDateAndPrice({
+                            items: updatedCartItems,
+                        })),
+                    },
+                })
+            },
+            removeItem: async (item: IOrderItem) => {
+                const { items } = get().cart
+                const updatedCartItems = items.filter(
+                    (x) =>
+                        x.id !== item.id ||
+                        x.color !== item.color ||
+                        x.size !== item.size
+                )
+                set({
+                    cart: {
+                        ...get().cart,
+                        items: updatedCartItems,
+                        ...(await calcDeliveryDateAndPrice({
+                            items: updatedCartItems,
+                        })),
+                    },
+                })
+            },
+            // reload: () => Promise.resolve(null),
             // Hàm khởi tạo lại giỏ hàng
             init: () => set({ cart: initialState }),
         }),

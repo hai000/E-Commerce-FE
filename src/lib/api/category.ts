@@ -1,4 +1,4 @@
-import {Category} from "@/lib/model/category";
+import {Category} from "@/lib/response/category";
 import {callApiToArray} from "@/lib/utils";
 
 export async function getAllCategories() {

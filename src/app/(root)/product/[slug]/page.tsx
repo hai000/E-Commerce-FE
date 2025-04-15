@@ -30,11 +30,11 @@ export async function generateMetadata(props: {
 
 export default async function ProductDetails(props: {
     params: Promise<{ slug: string }>
-    searchParams: Promise<{ page: string; color: string; size: string }>
+    searchParams: Promise<{ page: string; colorId: string; sizeId: string; color:string,size:string }>
 }) {
     const searchParams = await props.searchParams
 
-    const { page, color, size } = searchParams
+    const { page, colorId, sizeId, color, size } = searchParams
 
     const params = await props.params
 
@@ -84,8 +84,10 @@ export default async function ProductDetails(props: {
                         <div>
                             <SelectVariant
                                 product={product}
+                                colorId={colorId || product.colors[0].id}
+                                sizeId={sizeId || product.sizes[0].id}
+                                color={color|| product.colors[0].colorName}
                                 size={size || product.sizes[0].size}
-                                color={color || product.colors[0].id}
                             />
                         </div>
                         <Separator className='my-2' />
@@ -113,29 +115,29 @@ export default async function ProductDetails(props: {
                                         Out of Stock
                                     </div>
                                 )}
+                                {product.quantity !== 0 && (
+                                    <div className='flex justify-center items-center'>
+                                        <AddToCart
+                                            item={{
+                                                id: generateId(),
+                                                productId: product.id,
+                                                name: product.name,
+                                                slug: product.slug,
+                                                category: product.category,
+                                                quantity: 1,
+                                                countInStock: product.quantity,
+                                                image: product.images[0].imagePath,
+                                                price: round2(product.defaultPrice),
+                                                sizeId: sizeId || product.sizes[0].id,
+                                                colorId: colorId || product.colors[0].id,
+                                                color: color || product.colors[0].colorName,
+                                                size: size || product.sizes[0].size
+                                            }}
+                                        />
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
-
-
-                        {product.quantity !== 0 && (
-                            <div className='flex justify-center items-center'>
-                                <AddToCart
-                                    item={{
-                                        clientId: generateId(),
-                                        product: product.id,
-                                        countInStock: product.quantity,
-                                        name: product.name,
-                                        slug: product.slug,
-                                        category: product.category.name,
-                                        price: round2(product.defaultPrice),
-                                        quantity: 1,
-                                        image: product.images[0].imagePath,
-                                        size: size || product.sizes[0].size,
-                                        color: color || product.colors[0].colorName,
-                                    }}
-                                />
-                            </div>
-                        )}
                     </div>
                 </div>
             </section>

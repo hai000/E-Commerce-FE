@@ -6,9 +6,16 @@ import {Card, CardContent} from "@/components/ui/card";
 import ProductSlider from "@/components/shared/product/product-carousel";
 import BrowsingHistoryList from "@/components/shared/browsing-history-list";
 import {getAllCategories} from "@/lib/api/category";
+import {login, register} from "@/lib/api/user";
+import {Category} from "@/lib/response/category";
 
 export default async function HomePage() {
-    const categories = (await getAllCategories()).slice(0, 4)
+    // const user= await login({
+    //     username: "hai",
+    //     password:"string",
+    // });
+    // console.log(user);
+    const categories = (await getAllCategories()).slice(0, 4) as Category[];
     const newArrivals = await getProductsForCard({
         tag: 'new-arrival',
         limit: 4,
@@ -28,7 +35,7 @@ export default async function HomePage() {
                 text: 'See More',
                 href: '/search',
             },
-            items: categories.map((category) => ({
+            items: categories.map((category: Category) => ({
                 name: category.name,
                 image: category.imagePath,
                 href: `/search?category=${category.name}`,

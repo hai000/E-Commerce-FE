@@ -1,6 +1,6 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import {HOST_API} from "@/lib/constants";
+import {type ClassValue, clsx} from "clsx"
+import {twMerge} from "tailwind-merge"
+import {GET_METHOD, HOST_API} from "@/lib/constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -36,25 +36,63 @@ export const round2 = (num: number) =>
 export const generateId = () =>
     Array.from({ length: 24 }, () => Math.floor(Math.random() * 10)).join('')
 
-export async function callApiToArray<T>(url:string): Promise<T[]> {
+export async function callApiToArray<T>(url:string, method?:string, data?:any): Promise<T[] | string> {
   try {
-    const response = await fetch(`${HOST_API}${url}`);
-    if (!response.ok) return [];
+    const options: RequestInit = {
+      method: method || GET_METHOD,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    if (data) {
+      options.body = JSON.stringify(data);
+    }
+    const response = await fetch(`${HOST_API}${url}`,options);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('HTTP Error:', response.status, errorText);
+      return []
+    }
     const result = await response.json();
-    return result.data as T[];
+    return result.data as T[] | string;
   } catch (error) {
     console.error('Error:', error);
     return [];
   }
 }
-export async function callApiToObject<T>(url:string): Promise<T|null> {
+export async function callApiGetStatus(url:string, method?:string, data?:any): Promise<boolean> {
   try {
-    const response = await fetch(`${HOST_API}${url}`);
-    if (!response.ok) return null;
+    const options: RequestInit = {
+      method: method || GET_METHOD,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    if (data) {
+      options.body = JSON.stringify(data);
+    }
+    const response = await fetch(`${HOST_API}${url}`,options);
     const result = await response.json();
-    return result.data as T;
+    return result.success;
   } catch (error) {
-    console.error('Error:', error);
-    return null;
+    return false;
+  }
+}
+export async function callApiToObject<T>(url:string, method?:string, data?:any): Promise<T|string> {
+  try {
+    const options: RequestInit = {
+      method: method || GET_METHOD,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    if (data) {
+      options.body = JSON.stringify(data);
+    }
+    const response = await fetch(`${HOST_API}${url}`,options);
+    const result = await response.json();
+    return result.data as T | string;
+  } catch (error) {
+    return error as string;
   }
 }

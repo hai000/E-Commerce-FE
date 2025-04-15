@@ -1,6 +1,6 @@
 'use server'
 
-import {IProduct} from "@/lib/model/product";
+import {IProduct} from "@/lib/response/product";
 import {products_fake} from "@/lib/data";
 import {PAGE_SIZE} from "@/lib/constants";
 

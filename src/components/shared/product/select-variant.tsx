@@ -1,17 +1,23 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import {IProduct} from "@/lib/model/product";
+import {IProduct} from "@/lib/response/product";
 
 export default function SelectVariant({
                                           product,
-                                          size,
+                                          colorId,
+                                          sizeId,
                                           color,
+                                          size,
                                       }: {
     product: IProduct
+    colorId: string
+    sizeId: string
     color: string
     size: string
 }) {
-    const selectedColor = color || product.colors[0].id
+    const selectedColorId = colorId || product.colors[0].id
+    const selectedSizeId = sizeId || product.sizes[0].id
+    const selectedColor = color || product.colors[0].colorName
     const selectedSize = size || product.sizes[0].size
 
     // @ts-ignore
@@ -25,7 +31,7 @@ export default function SelectVariant({
                             asChild
                             variant='outline'
                             className={
-                                selectedColor == colorObject.id ? 'border-2 border-primary' : 'border-2'
+                                selectedColorId == colorObject.id ? 'border-2 border-primary' : 'border-2'
                             }
                             key={colorObject.id}
                         >
@@ -33,7 +39,9 @@ export default function SelectVariant({
                                 replace
                                 scroll={false}
                                 href={`?${new URLSearchParams({
-                                    color: colorObject.id,
+                                    colorId: colorObject.id,
+                                    sizeId: selectedSizeId,
+                                    color: colorObject.colorName,
                                     size: selectedSize,
                                 })}`}
                                 key={colorObject.id}
@@ -56,14 +64,16 @@ export default function SelectVariant({
                             asChild
                             variant='outline'
                             className={
-                                selectedSize === sizeObject.size ? 'border-2  border-primary' : 'border-2  '
+                                selectedSizeId == sizeObject.id ? 'border-2  border-primary' : 'border-2  '
                             }
-                            key={sizeObject.size}
+                            key={sizeObject.id}
                         >
                             <Link
                                 replace
                                 scroll={false}
                                 href={`?${new URLSearchParams({
+                                    colorId: selectedColorId,
+                                    sizeId: sizeObject.id,
                                     color: selectedColor,
                                     size: sizeObject.size,
                                 })}`}

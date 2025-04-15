@@ -1,5 +1,5 @@
 import {HOST_API} from "@/lib/constants";
-import {ITag} from "@/lib/model/tag";
+import {ITag} from "@/lib/response/tag";
 import {callApiToArray} from "@/lib/utils";
 
 export async function getAllTags() {

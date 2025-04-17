@@ -1,6 +1,8 @@
 import {type ClassValue, clsx} from "clsx"
 import {twMerge} from "tailwind-merge"
 import {GET_METHOD, HOST_API} from "@/lib/constants";
+import {ILogin} from "@/lib/response/login";
+import type {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -35,8 +37,19 @@ export const round2 = (num: number) =>
 
 export const generateId = () =>
     Array.from({ length: 24 }, () => Math.floor(Math.random() * 10)).join('')
+export const generateHeaderAccessToken = (request:ILogin) =>{
+  return {
+    'Authorization': `Bearer ${request.accessToken}`,
+  };
+}
+export const getILogin = (cook:ReadonlyRequestCookies) =>{
+  return {
+    accessToken: cook.get('accessToken')?.value,
+    refreshToken: cook.get('refreshToken')?.value
+  }
 
-export async function callApiToArray<T>(url:string, method?:string, data?:any): Promise<T[] | string> {
+}
+export async function callApiToArray<T>({ url, method, data, headers }: ApiCallOptions): Promise<T[] | string> {
   try {
     const options: RequestInit = {
       method: method || GET_METHOD,
@@ -60,12 +73,19 @@ export async function callApiToArray<T>(url:string, method?:string, data?:any): 
     return [];
   }
 }
-export async function callApiGetStatus(url:string, method?:string, data?:any): Promise<boolean> {
+export interface ApiCallOptions {
+  url: string;
+  method?: string;
+  data?: any;
+  headers?: Record<string, string>; // Hoặc kiểu khác nếu cần
+}
+export async function callApiGetStatus({url, method, data, headers}: ApiCallOptions): Promise<boolean> {
   try {
     const options: RequestInit = {
       method: method || GET_METHOD,
       headers: {
         'Content-Type': 'application/json',
+        ...(headers ? headers : {})
       },
     };
     if (data) {
@@ -73,17 +93,19 @@ export async function callApiGetStatus(url:string, method?:string, data?:any): P
     }
     const response = await fetch(`${HOST_API}${url}`,options);
     const result = await response.json();
+    // console.log(result)
     return result.success;
   } catch (error) {
     return false;
   }
 }
-export async function callApiToObject<T>(url:string, method?:string, data?:any): Promise<T|string> {
+export async function callApiToObject<T>({ url, method, data, headers }: ApiCallOptions): Promise<T|string> {
   try {
     const options: RequestInit = {
       method: method || GET_METHOD,
       headers: {
         'Content-Type': 'application/json',
+        ...(headers ? headers : {})
       },
     };
     if (data) {

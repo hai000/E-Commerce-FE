@@ -1,26 +1,25 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import {ICart, IOrderItem} from "@/lib/response/order";
-import { calcDeliveryDateAndPrice } from "@/lib/api/order";
+import {create} from 'zustand'
+import {persist} from 'zustand/middleware'
+import {calcDeliveryDateAndPrice} from "@/lib/api/order";
+import {Cart, CartItem} from "@/lib/response/cart";
 
-// Khởi tạo trạng thái ban đầu của giỏ hàng
-const initialState: ICart = {
-    items: [], // Danh sách sản phẩm
-    itemsPrice: 0, // Tổng giá sản phẩm
-    taxPrice: undefined, // Giá thuế
-    shippingPrice: undefined, // Giá vận chuyển
-    totalPrice: 0, // Tổng giá (bao gồm thuế và vận chuyển)
-    paymentMethod: undefined, // Phương thức thanh toán
-    deliveryDateIndex: undefined, // Chỉ số ngày giao hàng
+
+const initialState: Cart = {
+    id: '',
+    userId: '',
+    createdAt: null,
+    updatedAt: null,
+    cartItems: [],
+    itemsPrice: 0,
 }
 
-// Định nghĩa kiểu trạng thái giỏ hàng
 interface CartState {
-    cart: ICart,
-    // reload: () => Promise<IOrderItem[]>,
-    addItem: (item: IOrderItem, quantity: number) => Promise<string> // Hàm thêm sản phẩm vào giỏ hàng
-    updateItem: (item: IOrderItem, quantity: number) => Promise<void>
-    removeItem: (item: IOrderItem) => void
+    cart: Cart,
+    reloadCart: () => Promise<void>,
+    init: () => Promise<void>,
+    addItem: (item: CartItem, quantity: number) => Promise<string>
+    updateItem: (item: CartItem, quantity: number) => Promise<void>
+    removeItem: (item: CartItem) => void
 }
 
 // Tạo store giỏ hàng với Zustand và middleware persist
@@ -28,107 +27,139 @@ const useCartStore = create(
     persist<CartState>(
         (set, get) => ({
             cart: initialState, // Khởi tạo giỏ hàng
-            // Hàm thêm sản phẩm vào giỏ hàng
-            addItem: async (item: IOrderItem, quantity: number) => {
-                const { items } = get().cart // Lấy danh sách sản phẩm hiện tại
-                const existItem = items.find( // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-                    (x) =>
-                        x.id === item.id &&
-                        x.color === item.color &&
-                        x.size === item.size
-                )
-
-                // Kiểm tra số lượng sản phẩm trong kho
-                if (existItem) {
-                    if (existItem.countInStock < quantity + existItem.quantity) {
-                        throw new Error('Không đủ hàng trong kho') // Thông báo nếu không đủ hàng
-                    }
+            addItem: async (item: CartItem, quantity: number) => {
+                const res = await addItem(item, quantity);
+                if (typeof res === "string") {
+                    throw new Error(res)
                 } else {
-                    if (item.countInStock < item.quantity) {
-                        throw new Error('Không đủ hàng trong kho') // Thông báo nếu không đủ hàng
-                    }
+                    await get().reloadCart()
+                    return res.id
                 }
-
-                // Cập nhật danh sách sản phẩm trong giỏ hàng
-                const updatedCartItems = existItem
-                    ? items.map((x) =>
-                        x.id === item.id &&
-                        x.color === item.color &&
-                        x.size === item.size
-                            ? { ...existItem, quantity: existItem.quantity + quantity } // Cập nhật số lượng nếu đã có
-                            : x
+            },
+            updateItem: async (item: CartItem, quantity: number) => {
+                const res = await updateItem(item,quantity)
+                if (typeof res === "string") {
+                    throw new Error(
+                        res
                     )
-                    : [...items, { ...item, quantity }] // Thêm sản phẩm mới nếu chưa có
-
-                // Cập nhật trạng thái giỏ hàng và tính toán giá
-                set({
-                    cart: {
-                        ...get().cart,
-                        items: updatedCartItems,
-                        ...(await calcDeliveryDateAndPrice({
-                            items: updatedCartItems,
-                        })),
-                    },
-                })
-                // Trả về clientId của sản phẩm vừa thêm vào
-                return updatedCartItems.find(
-                    (x) =>
-                        x.id == item.id &&
-                        x.color == item.color &&
-                        x.size == item.size
-                )?.id!
+                } else {
+                    get().reloadCart()
+                }
             },
-            updateItem: async (item: IOrderItem, quantity: number) => {
-                const { items } = get().cart
-                const exist = items.find(
-                    (x) =>
-                        x.id === item.id &&
-                        x.color === item.color &&
-                        x.size === item.size
-                )
-                if (!exist) return
-                const updatedCartItems = items.map((x) =>
-                    x.id === item.id &&
-                    x.color === item.color &&
-                    x.size === item.size
-                        ? { ...exist, quantity: quantity }
-                        : x
-                )
-                set({
-                    cart: {
-                        ...get().cart,
-                        items: updatedCartItems,
-                        ...(await calcDeliveryDateAndPrice({
-                            items: updatedCartItems,
-                        })),
-                    },
-                })
+            removeItem: async (item: CartItem) => {
+                const res = await deleteItem(item)
+                if (res) {
+                    get().reloadCart()
+                } else {
+                    throw new Error(
+                        `Delete item failed`
+                    )
+                }
             },
-            removeItem: async (item: IOrderItem) => {
-                const { items } = get().cart
-                const updatedCartItems = items.filter(
-                    (x) =>
-                        x.id !== item.id ||
-                        x.color !== item.color ||
-                        x.size !== item.size
-                )
-                set({
-                    cart: {
-                        ...get().cart,
-                        items: updatedCartItems,
-                        ...(await calcDeliveryDateAndPrice({
-                            items: updatedCartItems,
-                        })),
-                    },
-                })
+            reloadCart: async () => {
+                const myCart = await getMyCart()
+                if (typeof myCart === "string") {
+                    set({
+                        cart: initialState,
+                    })
+                    throw new Error(
+                        `Can't update cart \n ${myCart}`
+                    )
+                } else {
+                    get().init()
+                    const all_prices = myCart.cartItems.reduce((prePrice, item) => prePrice + item.cartItemQuantity*item.price, 0)
+                    set({
+                        cart: {
+                            ...get().cart,
+                            itemsPrice: all_prices,
+                            cartItems: myCart.cartItems,
+                        },
+                    })
+                }
             },
-            // reload: () => Promise.resolve(null),
-            // Hàm khởi tạo lại giỏ hàng
-            init: () => set({ cart: initialState }),
+            init: async () => {
+                set({
+                    cart: initialState,
+                })
+            }
         }),
         {
             name: 'cart-store', // Tên lưu trữ cho giỏ hàng
         }
     )
 )
+
+async function getMyCart() {
+    const request = {
+        action: 'getCart',
+    }
+    const response = await fetch('/api/auth/cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+    });
+    const json = await response.json();
+    if (typeof json === "string") {
+        return json
+    } else {
+        return json as Cart
+    }
+}
+
+async function deleteItem(item: CartItem) {
+    const request = {
+        action: 'deleteItem',
+        cartItemId: item.id
+    }
+    const response = await fetch('/api/auth/cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+    });
+    const json = await response.json();
+    return json as boolean
+}
+async function updateItem(item: CartItem,quantity: number) {
+    const request = {
+        action: 'updateItem',
+        cartItemId: item.id,
+        quantity: quantity
+    }
+    const response = await fetch('/api/auth/cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+    });
+    const json = await response.json();
+    return json as CartItem | string;
+}
+async function addItem(item: CartItem, quantity: number) {
+    const request = {
+        productId: item.productId,
+        quantity: `${quantity}`,
+        productSize: item.size.id,
+        productColor: item.color.id,
+        action: 'addItem',
+    }
+    const response = await fetch('/api/auth/cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+    });
+    const json = await response.json();
+    if (typeof json === "string") {
+        return json
+    } else {
+        return json as CartItem
+    }
+}
+
 export default useCartStore

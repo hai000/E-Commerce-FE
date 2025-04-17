@@ -1,5 +1,4 @@
 'use client'
-import cookie from 'cookie';
 import {redirect, useSearchParams} from 'next/navigation'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
@@ -12,6 +11,7 @@ import {login} from "@/lib/api/user";
 import {toast} from "@/hooks/use-toast";
 import {UserSignInSchema} from "@/lib/validator";
 import { zodResolver } from '@hookform/resolvers/zod'
+import useCartStore from "@/hooks/use-cart-store";
 const signInDefaultValues =
     process.env.NODE_ENV === 'development'
         ? {
@@ -24,6 +24,7 @@ const signInDefaultValues =
         }
 
 export default function CredentialsSignInForm() {
+    const {reloadCart} = useCartStore()
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get('callbackUrl') || '/'
 
@@ -35,7 +36,6 @@ export default function CredentialsSignInForm() {
     const {control, handleSubmit} = form
     const onSubmit = async (data: IUserLoginRequest) => {
         const user = await login(data)
-        // Kiểm tra nếu 'user' là một chuỗi (lỗi), hiển thị thông báo
         if (typeof user === 'string') {
             toast({
                 title: 'Error',
@@ -51,7 +51,8 @@ export default function CredentialsSignInForm() {
                 },
                 body: JSON.stringify(tokens),
             });
-            console.log('Cookies đã được lưu');
+            reloadCart()
+            console.log('Set up successfully');
             redirect(callbackUrl)
         }
     }

@@ -2,7 +2,6 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import SeparatorWithOr from '@/components/shared/separator-or'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
 import CredentialsSignInForm from './credentials-signin-form'
 import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/constants'
@@ -10,6 +9,7 @@ import {auth} from "@/lib/api/user";
 import {Toaster} from "@/components/ui/toaster";
 import {cookies} from "next/headers";
 import {redirect} from "next/navigation";
+import {getILogin} from "@/lib/utils";
 export const metadata: Metadata = {
     title: 'Sign In',
 }
@@ -23,7 +23,8 @@ export default async function SignIn(props: {
 
     const { callbackUrl = '/' } = searchParams
     const cook = await cookies()
-    const session = await auth(cook)
+    const iLogin = getILogin(cook)
+    const session = await auth(iLogin)
     if (session) {
         return redirect(callbackUrl)
     }

@@ -17,7 +17,7 @@ const ProductPrice = ({
     plain?: boolean
 }) => {
     const discountPercent = Math.round(100 - (price / listPrice) * 100)
-    const stringValue = price.toString()
+    const stringValue = `${price}`
     const [intValue, floatValue] = stringValue.includes('.')
         ? stringValue.split('.')
         : [stringValue, '']

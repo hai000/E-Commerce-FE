@@ -1,12 +1,11 @@
 import { HomeCard } from '@/components/shared/home/home-card'
 import { HomeCarousel } from '@/components/shared/home/home-carousel'
-import { getProductsByTag, getProductsForCard} from "@/lib/api/product";
+import {getAllProduct, getProductsForCard} from "@/lib/api/product";
 import data from "@/lib/data";
 import {Card, CardContent} from "@/components/ui/card";
 import ProductSlider from "@/components/shared/product/product-carousel";
 import BrowsingHistoryList from "@/components/shared/browsing-history-list";
 import {getAllCategories} from "@/lib/api/category";
-import {login, register} from "@/lib/api/user";
 import {Category} from "@/lib/response/category";
 
 export default async function HomePage() {
@@ -66,7 +65,7 @@ export default async function HomePage() {
             },
         },
     ]
-    const todaysDeals = await getProductsByTag({ tag: 'todays-deal' })
+    const todaysDeals = await getAllProduct()
     return (
         <>
             <HomeCarousel items={data.carousels} />
@@ -74,7 +73,9 @@ export default async function HomePage() {
                 <HomeCard cards={cards} />
                 <Card className='w-full rounded-none'>
                     <CardContent className='p-4 items-center gap-3'>
-                        <ProductSlider title={"Today's Deals"} products={todaysDeals} />
+                        {typeof todaysDeals ==="string" ? <div/>:
+                            <ProductSlider title={"Today's Deals"} products={todaysDeals}
+                            />}
                     </CardContent>
                 </Card>
             </div>

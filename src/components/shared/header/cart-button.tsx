@@ -9,14 +9,13 @@ import useCartStore from '@/hooks/use-cart-store'
 export default function CartButton() {
     const isMounted = useIsMounted()
     const {
-        cart: { items },
+        cart: { cartItems },
     } = useCartStore()
-    const cartItemsCount = items.reduce((a, c) => a + c.quantity, 0)
+    const cartItemsCount = cartItems.reduce((a, c) => a + c.cartItemQuantity, 0)
     return (
         <Link href='/cart' className='px-1 header-button'>
             <div className='flex items-end text-xs relative'>
                 <ShoppingCartIcon className='h-8 w-8' />
-
                 {isMounted && (
                     <span
                         className={cn(

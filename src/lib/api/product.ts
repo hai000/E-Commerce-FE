@@ -3,7 +3,10 @@
 import {IProduct} from "@/lib/response/product";
 import {products_fake} from "@/lib/data";
 import {PAGE_SIZE} from "@/lib/constants";
-
+import {callApiToArray, callApiToObject} from "@/lib/utils";
+export async function getAllProduct() {
+   return callApiToArray<IProduct>({url: '/identity/product/getALl'})
+}
 export async function getProductsForCard({
                                              tag,
                                              limit = 4,
@@ -34,10 +37,8 @@ export async function getProductsByTag({
     return JSON.parse(JSON.stringify(products)) as IProduct[]
 }
 
-export async function getProductBySlug(slug: string) {
-    const product = products_fake[0]
-    if (!product) throw new Error('Product not found')
-    return JSON.parse(JSON.stringify(product)) as IProduct
+export async function getProductById(id: string) {
+    return callApiToObject<IProduct>({url: `/identity/product/getById/${id}`})
 }
 // GET RELATED PRODUCTS: PRODUCTS WITH SAME CATEGORY
 export async function getRelatedProductsByCategory({

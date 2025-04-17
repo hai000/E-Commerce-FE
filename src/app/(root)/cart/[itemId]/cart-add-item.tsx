@@ -1,22 +1,21 @@
 'use client'
 import ProductPrice from '@/components/shared/product/product-price'
-import { buttonVariants } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-import { CheckCircle2Icon } from 'lucide-react'
+import {buttonVariants} from '@/components/ui/button'
+import {Card, CardContent} from '@/components/ui/card'
+import {cn} from '@/lib/utils'
+import {CheckCircle2Icon} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import {notFound} from 'next/navigation'
 import useCartStore from '@/hooks/use-cart-store'
-import { FREE_SHIPPING_MIN_PRICE } from '@/lib/constants'
+import {FREE_SHIPPING_MIN_PRICE} from '@/lib/constants'
 import BrowsingHistoryList from '@/components/shared/browsing-history-list'
 
-export default function CartAddItem({ itemId }: { itemId: string }) {
+export default function CartAddItem({itemId}: { itemId: string }) {
     const {
-        cart: { items, itemsPrice },
+        cart: {cartItems, itemsPrice},
     } = useCartStore()
-    const item = items.find((x) => x.id === itemId)
-
+    const item = cartItems.find((x) => x.id == itemId)
     if (!item) return notFound()
     return (
         <div>
@@ -25,8 +24,8 @@ export default function CartAddItem({ itemId }: { itemId: string }) {
                     <CardContent className='flex h-full items-center justify-center  gap-3 py-4'>
                         <Link href={`/product/${item.slug}`}>
                             <Image
-                                src={item.image}
-                                alt={item.name}
+                                src={item.images[0]}
+                                alt={item.productName}
                                 width={80}
                                 height={80}
                                 style={{
@@ -37,17 +36,20 @@ export default function CartAddItem({ itemId }: { itemId: string }) {
                         </Link>
                         <div>
                             <h3 className='text-xl font-bold flex gap-2 my-2'>
-                                <CheckCircle2Icon className='h-6 w-6 text-green-700' />
+                                <CheckCircle2Icon className='h-6 w-6 text-green-700'/>
                                 Added to cart
                             </h3>
-                            <p className='text-sm'>
+                            {item.color?.colorName ? <p className='text-sm'>
                                 <span className='font-bold'> Color: </span>{' '}
-                                {item.color ?? '-'}
-                            </p>
-                            <p className='text-sm'>
-                                <span className='font-bold'> Size: </span>{' '}
-                                {item.size ?? '-'}
-                            </p>
+                                {item.color.colorName ?? '-'}
+                            </p> : <div/>}
+                            {
+                                item.size?.size ? <p className='text-sm'>
+                                    <span className='font-bold'> Size: </span>{' '}
+                                    {item.size.size ?? '-'}
+                                </p> : <div/>
+                            }
+
                         </div>
                     </CardContent>
                 </Card>
@@ -80,19 +82,19 @@ export default function CartAddItem({ itemId }: { itemId: string }) {
                             <div className='lg:border-l lg:border-muted lg:pl-3 flex flex-col items-center gap-3  '>
                                 <div className='flex gap-3'>
                                     <span className='text-lg font-bold'>Cart Subtotal:</span>
-                                    <ProductPrice className='text-2xl' price={itemsPrice} />
+                                    <ProductPrice className='text-2xl' price={itemsPrice}/>
                                 </div>
                                 <Link
                                     href='/checkout'
                                     className={cn(buttonVariants(), 'rounded-full w-full')}
                                 >
                                     Proceed to checkout (
-                                    {items.reduce((a, c) => a + c.quantity, 0)} items)
+                                    {cartItems.reduce((a, c) => a + c.cartItemQuantity, 0)} items)
                                 </Link>
                                 <Link
                                     href='/cart'
                                     className={cn(
-                                        buttonVariants({ variant: 'outline' }),
+                                        buttonVariants({variant: 'outline'}),
                                         'rounded-full w-full'
                                     )}
                                 >
@@ -104,7 +106,7 @@ export default function CartAddItem({ itemId }: { itemId: string }) {
                 </Card>
             </div>
 
-            <BrowsingHistoryList />
+            <BrowsingHistoryList/>
         </div>
     )
 }

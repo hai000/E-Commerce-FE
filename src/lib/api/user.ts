@@ -1,26 +1,33 @@
-import {callApiGetStatus, callApiToObject} from "@/lib/utils";
-import {POST_METHOD} from "@/lib/constants";
+'use server'
+import {callApiGetStatus, callApiToObject, generateHeaderAccessToken} from "@/lib/utils";
+import {DOMAIN, POST_METHOD} from "@/lib/constants";
 import {IUser} from "@/lib/response/user";
 import {IUserLoginRequest, IUserRegisterRequest} from "@/lib/request/user";
 import {ILogin} from "@/lib/response/login";
-import {redirect} from "next/navigation";
+
 export async function login(request: IUserLoginRequest) {
-    return callApiToObject<ILogin>('/identity/user/login', POST_METHOD, request);
+    return callApiToObject<ILogin>({url: '/identity/user/login',method: POST_METHOD, data: request});
 }
 export async function register(request:IUserRegisterRequest) {
-    return callApiToObject<IUser>('/identity/user/register', POST_METHOD, request);
+    return callApiToObject<IUser>({url: '/identity/user/register', method: POST_METHOD, data: request});
 }
-export const logOut = async () => {
-    redirect("")
+export async function logOut(){
+    return {
+        redirect: "",
+    }
+}
+export async function getInfo(request:ILogin) {
+    return callApiToObject<IUser>({url:`/identity/user/getInfo`,headers: generateHeaderAccessToken(request)});
 }
 async function checkValidToken(request:ILogin) {
-    return callApiGetStatus('/identity/user/validToken', POST_METHOD, request);
+    return callApiGetStatus({url:'/identity/user/validToken',method: POST_METHOD, data:request});
 }
-export async function auth(cookieStore:any) {
-    const accessToken = cookieStore.get('accessToken')
-    const refreshToken = cookieStore.get('refreshToken')
-    if (accessToken&&refreshToken) {
-       return await checkValidToken({accessToken: accessToken.value, refreshToken:refreshToken.value})
+export async function auth(data: {
+    accessToken?: string;
+    refreshToken?: string;
+}) {
+    if (data.accessToken&&data.refreshToken) {
+       return await checkValidToken({accessToken: data.accessToken, refreshToken:data.refreshToken})
     }else {
         return false
     }

@@ -5,7 +5,7 @@ import React from 'react'
 import {Card, CardContent, CardFooter, CardHeader} from '@/components/ui/card'
 
 import Rating from './rating'
-import {formatNumber, generateId, round2} from '@/lib/utils'
+import {formatNumber, round2} from '@/lib/utils'
 import ProductPrice from './product-price'
 import ImageHover from "@/components/shared/product/image-hover";
 import {IProduct} from "@/lib/response/product";
@@ -22,7 +22,7 @@ const ProductCard = ({
     hideAddToCart?: boolean
 }) => {
     const ProductImage = () => (
-        <Link href={`/product/${product.slug}`}>
+        <Link href={`/product/${product.id}`}>
             <div className='relative h-52'>
                 {product.images.length > 1 ? (
                     <ImageHover
@@ -48,7 +48,7 @@ const ProductCard = ({
         <div className='flex-1 space-y-2'>
             <p className='font-bold'>{product.brand}</p>
             <Link
-                href={`/product/${product.slug}`}
+                href={`/product/${product.id}`}
                 className='overflow-hidden text-ellipsis'
                 style={{
                     display: '-webkit-box',
@@ -74,17 +74,21 @@ const ProductCard = ({
             <AddToCart
                 minimal
                 item={{
-                    id: generateId(),
+                    id: '',
                     productId: product.id,
-                    name: product.name,
-                    size: product.sizes[0].size,
-                    color: product.colors[0].colorName,
-                    countInStock: product.quantity,
+                    productName: product.name,
+                    size: product.sizes[0],
+                    color: product.colors[0],
+                    productQuantity: product.quantity,
                     slug: product.slug,
                     category: product.category,
                     price: round2(product.defaultPrice),
-                    quantity: 1,
-                    image: product.images[0].imagePath,
+                    cartItemQuantity: 1,
+                    images: product.images.map(x=> x.imagePath),
+                    description: product.description,
+                    brand: product.brand,
+                    discount:product.defaultDiscount,
+                    published: product.published
                 }}
             />
         </div>

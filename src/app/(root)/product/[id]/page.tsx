@@ -1,10 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card'
 import {
-    getProductBySlug,
+    getProductById,
     getRelatedProductsByCategory,
 } from '@/lib/api/product'
 import AddToCart from '@/components/shared/product/add-to-cart'
-import { generateId, round2 } from '@/lib/utils'
 import SelectVariant from '@/components/shared/product/select-variant'
 import ProductPrice from '@/components/shared/product/product-price'
 import ProductGallery from '@/components/shared/product/product-gallery'
@@ -13,13 +12,15 @@ import Rating from "@/components/shared/product/rating";
 import ProductSlider from "@/components/shared/product/product-carousel";
 import BrowsingHistoryList from "@/components/shared/browsing-history-list";
 import AddToBrowsingHistory from "@/components/shared/product/add-to-browsing-history";
+import {IProductColor, IProductSize} from "@/lib/response/product";
+import {Toaster} from "@/components/ui/toaster";
 
 export async function generateMetadata(props: {
-    params: Promise<{ slug: string }>
+    params: Promise<{ id: string }>
 }) {
     const params = await props.params
-    const product = await getProductBySlug(params.slug)
-    if (!product) {
+    const product = await getProductById(params.id)
+    if (typeof product === "string") {
         return { title: 'Product not found' }
     }
     return {
@@ -29,19 +30,26 @@ export async function generateMetadata(props: {
 }
 
 export default async function ProductDetails(props: {
-    params: Promise<{ slug: string }>
-    searchParams: Promise<{ page: string; colorId: string; sizeId: string; color:string,size:string }>
+    params: Promise<{ id: string }>,
+    searchParams: Promise<{page: string; colorId: string; sizeId: string; color:string,size:string }>
 }) {
-    const searchParams = await props.searchParams
+    const {page, colorId, sizeId, color, size } = await props.searchParams
+    const colorNow = {
+        id: colorId,
+        colorName: color,
+        color: '',
+    } as unknown as IProductColor
+    const sizeNow = {
+        id: sizeId,
+        size: size,
+        description: '',
+    } as unknown as IProductSize
+    const { id } = await props.params
 
-    const { page, colorId, sizeId, color, size } = searchParams
-
-    const params = await props.params
-
-    const { slug } = params
-
-    const product = await getProductBySlug(slug)
-
+    const product = await getProductById(id)
+    if (typeof product === 'string') {
+        return<div>Product not found or an error occurred.</div>
+    }
     const relatedProducts = await getRelatedProductsByCategory({
         categoryId: product.category.id,
         productId: product.id,
@@ -84,10 +92,10 @@ export default async function ProductDetails(props: {
                         <div>
                             <SelectVariant
                                 product={product}
-                                colorId={colorId || product.colors[0].id}
-                                sizeId={sizeId || product.sizes[0].id}
-                                color={color|| product.colors[0].colorName}
-                                size={size || product.sizes[0].size}
+                                colorId={colorId ||  (product.colors[0] ? product.colors[0].id:'') }
+                                sizeId={sizeId || (product.sizes[0] ? product.sizes[0].id:'')}
+                                color={color||(product.colors[0] ? product.colors[0].colorName:'')}
+                                size={size || (product.sizes[0] ? product.sizes[0].size:'')}
                             />
                         </div>
                         <Separator className='my-2' />
@@ -119,19 +127,21 @@ export default async function ProductDetails(props: {
                                     <div className='flex justify-center items-center'>
                                         <AddToCart
                                             item={{
-                                                id: generateId(),
+                                                id: '',
                                                 productId: product.id,
-                                                name: product.name,
+                                                productName: product.name,
                                                 slug: product.slug,
+                                                price: product.defaultPrice,
+                                                discount: product.defaultDiscount,
+                                                published: product.published,
                                                 category: product.category,
-                                                quantity: 1,
-                                                countInStock: product.quantity,
-                                                image: product.images[0].imagePath,
-                                                price: round2(product.defaultPrice),
-                                                sizeId: sizeId || product.sizes[0].id,
-                                                colorId: colorId || product.colors[0].id,
-                                                color: color || product.colors[0].colorName,
-                                                size: size || product.sizes[0].size
+                                                color: colorNow || product.colors[0],
+                                                size: sizeNow || product.sizes[0],
+                                                images: product.images.map(x => x.imagePath),
+                                                description: product.description,
+                                                brand: product.brand,
+                                                cartItemQuantity: product.quantity,
+                                                productQuantity: product.quantity,
                                             }}
                                         />
                                     </div>
@@ -152,6 +162,7 @@ export default async function ProductDetails(props: {
             <section>
                 <BrowsingHistoryList className='mt-10' />
             </section>
+            <Toaster/>
         </div>
     )
 }

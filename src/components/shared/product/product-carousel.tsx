@@ -33,7 +33,7 @@ export default function ProductSlider({
 
                     {products.map((product) => (
                         <CarouselItem
-                            key={product.slug}
+                            key={`${product.id}`}
                             className={
                                 hideDetails
                                     ? 'md:basis-1/4 lg:basis-1/6'

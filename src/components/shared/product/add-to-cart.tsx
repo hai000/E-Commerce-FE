@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { Button } from '@/components/ui/button'
@@ -13,13 +12,13 @@ import useCartStore from '@/hooks/use-cart-store'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import {IOrderItem} from "@/lib/response/order";
+import {CartItem} from "@/lib/response/cart";
 
 export default function AddToCart({
                                       item,
                                       minimal = false,
                                   }: {
-    item: IOrderItem
+    item: CartItem
     minimal?: boolean
 }) {
     const router = useRouter()
@@ -67,7 +66,7 @@ export default function AddToCart({
                     <SelectValue>Quantity: {quantity}</SelectValue>
                 </SelectTrigger>
                 <SelectContent position='popper'>
-                    {Array.from({ length: item.countInStock }).map((_, i) => (
+                    {Array.from({ length: item.productQuantity }).map((_, i) => (
                         <SelectItem key={i + 1} value={`${i + 1}`}>
                             {i + 1}
                         </SelectItem>

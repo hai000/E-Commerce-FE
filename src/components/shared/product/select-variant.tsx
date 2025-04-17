@@ -15,12 +15,10 @@ export default function SelectVariant({
     color: string
     size: string
 }) {
-    const selectedColorId = colorId || product.colors[0].id
-    const selectedSizeId = sizeId || product.sizes[0].id
-    const selectedColor = color || product.colors[0].colorName
-    const selectedSize = size || product.sizes[0].size
-
-    // @ts-ignore
+    const selectedColorId = colorId
+    const selectedSizeId = sizeId
+    const selectedColor = color
+    const selectedSize = size
     return (
         <>
             {product.colors.length > 0 && (

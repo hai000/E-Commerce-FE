@@ -7,6 +7,7 @@ import SignUpForm from './signup-form'
 import {auth} from "@/lib/api/user";
 import {cookies} from "next/headers";
 import {Toaster} from "@/components/ui/toaster";
+import {getILogin} from "@/lib/utils";
 
 export const metadata: Metadata = {
     title: 'Sign Up',
@@ -21,7 +22,8 @@ export default async function SignUpPage(props: {
 
     const { callbackUrl } = searchParams
     const cook = await cookies()
-    const session = await auth(cook)
+    const iLogin = getILogin(cook)
+    const session = await auth(iLogin)
     if (session) {
         return redirect(callbackUrl || '/')
     }

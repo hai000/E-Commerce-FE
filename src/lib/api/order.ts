@@ -1,16 +1,18 @@
 import { round2 } from '../utils'
 import { FREE_SHIPPING_MIN_PRICE } from '../constants'
-import {IOrderItem} from "@/lib/response/order";
+import {CartItem} from "@/lib/response/cart";
+import {ShippingAddress} from "@/lib/request/location";
 
 
 export const calcDeliveryDateAndPrice = async ({
                                                    items,
                                                }: {
-    deliveryDateIndex?: number
-    items: IOrderItem[]
+    items: CartItem[]
+    deliveryDateIndex?: ShippingAddress
+
 }) => {
     const itemsPrice = round2(
-        items.reduce((acc, item) => acc + item.price * item.quantity, 0)
+        items.reduce((acc, item) => acc + item.price * item.cartItemQuantity, 0)
     )
 
     const shippingPrice = itemsPrice > FREE_SHIPPING_MIN_PRICE ? 0 : 5

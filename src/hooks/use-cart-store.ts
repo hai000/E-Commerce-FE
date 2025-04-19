@@ -2,6 +2,7 @@ import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
 import {calcDeliveryDateAndPrice} from "@/lib/api/order";
 import {Cart, CartItem} from "@/lib/response/cart";
+import {ShippingAddress} from "@/lib/request/location";
 
 
 const initialState: Cart = {
@@ -11,6 +12,12 @@ const initialState: Cart = {
     updatedAt: null,
     cartItems: [],
     itemsPrice: 0,
+    paymentMethod: undefined,
+    shippingAddress: undefined,
+    deliveryDateIndex: undefined,
+    shippingPrice: 0,
+    taxPrice: 0,
+    totalPrice: 0
 }
 
 interface CartState {
@@ -19,7 +26,10 @@ interface CartState {
     init: () => Promise<void>,
     addItem: (item: CartItem, quantity: number) => Promise<string>
     updateItem: (item: CartItem, quantity: number) => Promise<void>
-    removeItem: (item: CartItem) => void
+    removeItem: (item: CartItem) => void,
+    setShippingAddress: (shippingAddress: ShippingAddress) => Promise<void>
+    setPaymentMethod: (paymentMethod: string) => void
+    setDeliveryDateIndex: (index: number) => Promise<void>
 }
 
 // Tạo store giỏ hàng với Zustand và middleware persist
@@ -81,8 +91,47 @@ const useCartStore = create(
                 set({
                     cart: initialState,
                 })
-            }
+            },
+            setShippingAddress: async (shippingAddress: ShippingAddress) => {
+                const { cartItems } = get().cart
+                set({
+                    cart: {
+                        ...get().cart,
+                        shippingAddress,
+                        ...(await calcDeliveryDateAndPrice({
+                            items: cartItems,
+                            deliveryDateIndex: shippingAddress,
+                        })),
+                    },
+                })
+            },
+            setPaymentMethod: (paymentMethod: string) => {
+                set({
+                    cart: {
+                        ...get().cart,
+                        paymentMethod,
+                    },
+                })
+            },
+            setDeliveryDateIndex: async (index: number) => {
+                const { cartItems, shippingAddress } = get().cart
+
+                set({
+                    cart: {
+                        ...get().cart,
+                    },
+                })
+            },
+            clearCart: () => {
+                set({
+                    cart: {
+                        ...get().cart,
+                        cartItems: [],
+                    },
+                })
+            },
         }),
+
         {
             name: 'cart-store', // Tên lưu trữ cho giỏ hàng
         }

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import {auth} from "@/lib/api/user";
 import {cookies} from "next/headers";
 import {getILogin} from "@/lib/utils";
+import CheckoutForm from "@/app/checkout/checkout-form";
 export const metadata: Metadata = {
     title: 'Checkout',
 }
@@ -13,5 +14,5 @@ export default async function CheckoutPage() {
     if (!session) {
         redirect('/sign-in?callbackUrl=/checkout');
     }
-    return <div>Checkout Form</div>
+    return <CheckoutForm/>
 }

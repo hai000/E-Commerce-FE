@@ -9,6 +9,8 @@ import {Button} from "@/components/ui/button";
 import ProductPrice from "@/components/shared/product/product-price";
 import BrowsingHistoryList from "@/components/shared/browsing-history-list";
 import React from "react";
+import {router} from "next/client";
+import {useRouter} from "next/navigation";
 
 export default function CartPageClient() {
     const {
@@ -16,6 +18,7 @@ export default function CartPageClient() {
         updateItem,
         removeItem,
     } = useCartStore()
+    const router = useRouter()
     return (<div>
             <div className='grid grid-cols-1 md:grid-cols-4  md:gap-4'>
                 {cartItems.length === 0 ? (
@@ -172,7 +175,7 @@ export default function CartPageClient() {
                     </span>{' '}
                                     </div>
                                     <Button
-                                        onClick={() => {}}
+                                        onClick={() => router.push('/checkout')}
                                         className='rounded-full w-full'
                                     >
                                         Proceed to Checkout

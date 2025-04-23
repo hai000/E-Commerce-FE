@@ -1,22 +1,28 @@
+"use client"
 import React from 'react'
 import {Toaster} from "@/components/ui/toaster";
 import {HeaderDashboard} from "@/app/dashboard/components/header-dashboard";
 import {Search} from "@/app/dashboard/components/search";
 import {AdminNav} from "@/app/dashboard/components/admin-nav";
 
+import {redirect, usePathname} from "next/navigation";
+
 export default function DashboardLayout({
                                             children,
                                         }: {
     children: React.ReactNode
 }) {
+
+    const pathname = usePathname();
+    const pathAfterDashboard = pathname.split('/dashboard/')[1];
+    // console.log(pathAfterDashboard);
     return (
         <div className='flex flex-col min-h-screen'>
-            <div className="hidden flex-col md:flex">
+            <div className="flex-col flex-row">
                 <div className="border-b">
-                    <div className="flex h-16 items-center px-4">
-                        <HeaderDashboard className="mx-6"/>
-                        <div className="ml-auto flex items-center space-x-4">
-                            <Search/>
+                    <div className="bg-primary  text-white flex pt-4 pb-4 justify-between items-center px-4 md:flex-wrap flex-wrap">
+                        <HeaderDashboard property={pathAfterDashboard} className=" mx-6"/>
+                        <div className="mx-6 flex items-center md:space-x-4 ">
                             <AdminNav/>
                         </div>
                     </div>

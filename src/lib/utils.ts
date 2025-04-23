@@ -63,7 +63,7 @@ export async function callApiToArray<T>({ url, method, data, headers }: ApiCallO
     const response = await fetch(`${HOST_API}${url}`,options);
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('HTTP Error:', response.status, errorText);
+      // console.error('HTTP Error:', response.status, errorText);
       return []
     }
     const result = await response.json();

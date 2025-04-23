@@ -26,8 +26,8 @@ export interface IProduct {
 }
 export interface IProductDetail {
     id: string
-    productColor: IProductColor
-    productSize:IProductSize
+    color: IProductColor
+    size:IProductSize
     discount: number
     price: number
     quantity: number

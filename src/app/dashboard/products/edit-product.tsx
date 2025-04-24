@@ -1,3 +1,4 @@
+'use client'
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {cn} from "@/lib/utils";
 import {IProduct, IProductDetail, IProductSize} from "@/lib/response/product";
@@ -6,11 +7,14 @@ import {TabsContent} from "@/components/ui/tabs";
 import * as React from "react";
 import EditTabDescriptionContent from "@/app/dashboard/products/edit-component";
 import {Button} from "@/components/ui/button";
+import {useEditProduct} from "@/hooks/use-edit-product";
+import {useEffect} from "react";
 
 export function EditDescriptionProduct({
                                            className,
                                            product,
                                        }: { className?: string, product?: IProduct }) {
+
     return (
         <>
             <TabsContent value="descriptions" className="space-y-4">
@@ -44,8 +48,11 @@ export function EditDescriptionProduct({
 export function EditDetailProduct({
                                className,
                                product,
-                           }: { className?: string, product?: IProduct }) {
-
+                           }: { className?: string, product: IProduct }) {
+    const {init} = useEditProduct()
+    useEffect(() => {
+        init(product.id)
+    }, []);
     return (
         <>
             <TabsContent value="details" className="space-y-4">

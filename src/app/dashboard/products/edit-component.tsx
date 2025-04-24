@@ -1,18 +1,17 @@
 'use client'
-import {IProduct, IProductDetail, IProductSize} from "@/lib/response/product";
+import {IProduct, IProductSize} from "@/lib/response/product";
 import {Card} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import * as React from "react";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {Check, ChevronsUpDown} from "lucide-react"
 
 import {Button} from "@/components/ui/button"
 import {Category} from "@/lib/response/category";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
-import {getProductDetailById} from "@/lib/api/product-detail";
-import {toast} from "@/hooks/use-toast";
+import {useEditProduct} from "@/hooks/use-edit-product";
 
 
 export default function EditTabDescriptionContent({
@@ -35,7 +34,7 @@ export default function EditTabDescriptionContent({
                 <p className="p-2 text-lg font-semibold">Category</p>
                 <Card className={" rounded-md p-4 space-y-2"}>
                     <p className="text-sm text-muted-foreground">Product category</p>
-                    <Combobox categories={[category]}/>
+                    <Combobox categoryIdSelected={product.category.id} categories={[category]}/>
                 </Card>
             </div>
         </div>
@@ -47,55 +46,24 @@ export function EditTabDetailContent({
                                      }: {
     product: IProduct
 }) {
-    const [colorId, setColorId] = useState(product.colors[0].id)
-    const [sizeId, setSizeId] = useState("")
-    const [productDetails, setProductDetails] = useState([] as IProductDetail[])
-    const [sizes, setSizes] = useState([] as IProductSize[])
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                if (!colorId) {
-                    return;
-                }
-                const response = await getProductDetailById({
-                    productId: product.id,
-                });
-                if (typeof response === "string") {
-                    toast({
-                        title: 'Error',
-                        description: response,
-                        variant: 'destructive',
-                    })
-                } else {
-                    setProductDetails(response)
-                }
-            } catch (error) {
-                console.log("Error fetching data:", error);
-            }
-        };
-        fetchData()
-    }, []);
-    useEffect(() => {
-        setSizes(productDetails.filter(productDetail => productDetail?.color.id == colorId).map(products => products.size))
-        setSizeId(sizes[0]?.id)
-    }, [colorId]);
+    const {updateCurrentProduct, editProduct, setColorSelected, setSizeSelected} = useEditProduct()
     return (
         <div className="space-y-4 w-full">
             <div className="">
                 <p className="p-2 text-lg font-semibold">Detail</p>
-                <Card className={"rounded-md p-4 space-y-2"}>
+                <Card className={"rounded-md p-4 space-y-4"}>
                     <div className={product.colors?.length > 0 ? "" : "hidden"}>
-                        <p className={"text-sm text-muted-foreground"}>Color</p>
+                        <p className={"text-sm"}>Color</p>
                         {product.colors.length > 0 && (
                             <div className='space-x-2 space-y-2'>
                                 {product.colors.map(colorObject => (
                                     <Button
                                         onClick={() => {
-                                            setColorId(colorObject.id)
+                                            setColorSelected(colorObject)
                                         }}
                                         variant='outline'
                                         className={
-                                            colorObject.id == colorId ? 'border-2 border-primary' : 'border-2'
+                                            colorObject.id == editProduct.colorSelected?.id ? 'border-2 border-primary' : 'border-2'
                                         }
                                         key={colorObject.id}
                                     >
@@ -110,18 +78,18 @@ export function EditTabDetailContent({
                             </div>
                         )}
                     </div>
-                    <div className={sizes.length > 0 ? "" : "hidden"}>
-                        <p className={"text-sm text-muted-foreground"}>Size</p>
-                        {sizes.length > 0 && (
+                    <div className={editProduct.sizes.length > 0 ? "" : "hidden"}>
+                        <p className={"text-sm"}>Size</p>
+                        {editProduct.sizes.length > 0 && (
                             <div className='space-x-2 space-y-2'>
-                                {sizes.map(sizeObject => (
+                                {editProduct.sizes.map((sizeObject: IProductSize) => (
                                     <Button
                                         onClick={() => {
-                                            setSizeId(sizeObject.id)
+                                            setSizeSelected(sizeObject)
                                         }}
                                         variant='outline'
                                         className={
-                                            sizeObject.id == sizeId ? 'border-2 border-primary' : 'border-2'
+                                            sizeObject.id == editProduct.sizeSelected?.id ? 'border-2 border-primary' : 'border-2'
                                         }
                                         key={sizeObject.id}
                                     >
@@ -129,25 +97,34 @@ export function EditTabDetailContent({
                                             className='h-3 w-3 rounded-full border border-muted-foreground'
                                         ></div>
                                         {sizeObject.size}
-                                        {/*</Link>*/}
                                     </Button>
                                 ))}
                             </div>
                         )}
                     </div>
+                    <p className={"text-sm "}>Price</p>
+
+                    <Input type={"number"} onChange={(event) => {
+                        updateCurrentProduct({
+                            discount: 0,
+                            price: parseFloat(event.target.value),
+                            quantity: 0
+                        })
+                    }
+                    }  value={editProduct.curProduct ? editProduct.curProduct.price : 0}/>
                 </Card>
             </div>
         </div>
     )
 }
 
-function Combobox({categories}: { categories: Category[] }) {
+function Combobox({categoryIdSelected, categories}: { categoryIdSelected: string, categories: Category[] }) {
     const [open, setOpen] = useState(false);
-    const [id, setId] = useState("");
+    const [id, setId] = useState(categoryIdSelected);
     // console.log(id)
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild className="font-normal">
                 <Button
                     variant="outline"
                     role="combobox"

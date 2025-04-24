@@ -12,7 +12,6 @@ export default async function ProductsPage(props: {
     }
 ) {
     const searchParams = await props.searchParams
-
     const { id = "" } = searchParams
     const products = await getAllProduct()
     if (typeof products === "string") {
@@ -48,10 +47,14 @@ export default async function ProductsPage(props: {
                             Detail
                         </TabsTrigger>
                     </TabsList>
-                    <EditDescriptionProduct className="h-full" product={productSelected}/>
-                    <EditDetailProduct className="h-full" product={productSelected}/>
-                </Tabs>
+                    {productSelected && (
+                        <div>
+                            <EditDescriptionProduct className="h-full" product={productSelected}/>
+                            <EditDetailProduct className="h-full" product={productSelected}/>
+                        </div>
+                    )}
 
+                </Tabs>
             </div>
     )
 }

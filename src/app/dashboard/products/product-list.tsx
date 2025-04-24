@@ -1,3 +1,4 @@
+'use client'
 import {ProductCard} from "@/app/dashboard/products/product-card";
 import {cn} from "@/lib/utils";
 import {IProduct} from "@/lib/response/product";

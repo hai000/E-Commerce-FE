@@ -6,26 +6,23 @@ import {ShippingAddress} from "@/lib/request/location";
 
 export const calcDeliveryDateAndPrice = async ({
                                                    items,
+                                                   shippingPrice,
+                                                   deliveryDateIndex
                                                }: {
-    items: CartItem[]
-    deliveryDateIndex?: ShippingAddress
+    items: CartItem[],
+    shippingPrice: number,
+    deliveryDateIndex: number
 
 }) => {
-    const itemsPrice = round2(
-        items.reduce((acc, item) => acc + item.price * item.cartItemQuantity, 0)
-    )
-
-    const shippingPrice = itemsPrice > FREE_SHIPPING_MIN_PRICE ? 0 : 5
-    const taxPrice = round2(itemsPrice * 0.15)
+    const itemsPrice = items.reduce((prePrice, item) => item.isChecked? prePrice + item.cartItemQuantity*item.price: 0, 0)
     const totalPrice = round2(
         itemsPrice +
-        (shippingPrice ? round2(shippingPrice) : 0) +
-        (taxPrice ? round2(taxPrice) : 0)
+        (shippingPrice ? round2(shippingPrice) : 0)
     )
     return {
+        deliveryDateIndex,
         itemsPrice,
         shippingPrice,
-        taxPrice,
-        totalPrice,
+        totalPrice: totalPrice,
     }
 }

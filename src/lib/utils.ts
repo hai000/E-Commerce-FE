@@ -55,6 +55,7 @@ export async function callApiToArray<T>({ url, method, data, headers }: ApiCallO
       method: method || GET_METHOD,
       headers: {
         'Content-Type': 'application/json',
+        ...(headers ? headers : {})
       },
     };
     if (data) {
@@ -120,10 +121,17 @@ export async function callApiToObject<T>({ url, method, data, headers }: ApiCall
 }
 
 
-export function calculateFutureDate(days: number) {
+export function calculateFutureDate(days: string | null) {
   const currentDate = new Date()
-  currentDate.setDate(currentDate.getDate() + days)
-  return currentDate
+  if (typeof days === 'string') {
+    const match = /\d+/.exec(days)
+    if (match) {
+      currentDate.setDate(currentDate.getDate() + (parseInt(match[0])/24))
+      return currentDate
+    }
+  }
+  return null
+
 }
 export function getMonthName(yearAndMonth: string) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -151,7 +159,7 @@ export function timeUntilMidnight(): { hours: number; minutes: number } {
   return { hours, minutes }
 }
 
-export const formatDateTime = (dateString: Date) => {
+export const formatDateTime = (dateString: Date | null) => {
   const dateTimeOptions: Intl.DateTimeFormatOptions = {
     month: 'short', // abbreviated month name (e.g., 'Oct')
     year: 'numeric', // abbreviated month name (e.g., 'Oct')
@@ -171,18 +179,18 @@ export const formatDateTime = (dateString: Date) => {
     minute: 'numeric', // numeric minute (e.g., '30')
     hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
   }
-  const formattedDateTime: string = new Date(dateString).toLocaleString(
+  const formattedDateTime: string = dateString ? new Date(dateString).toLocaleString(
       'en-US',
       dateTimeOptions
-  )
-  const formattedDate: string = new Date(dateString).toLocaleString(
+  ) : "Can't load date"
+  const formattedDate: string =dateString ? new Date(dateString).toLocaleString(
       'en-US',
       dateOptions
-  )
-  const formattedTime: string = new Date(dateString).toLocaleString(
+  ) : "Can't load date"
+  const formattedTime: string =dateString ? new Date(dateString).toLocaleString(
       'en-US',
       timeOptions
-  )
+  ) : "Can't load date"
   return {
     dateTime: formattedDateTime,
     dateOnly: formattedDate,

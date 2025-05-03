@@ -1,58 +1,41 @@
 'use client'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import {
-    calculateFutureDate,
-    formatDateTime,
-    timeUntilMidnight,
-} from '@/lib/utils'
-import { ShippingAddressSchema } from '@/lib/validator'
-import { zodResolver } from '@hookform/resolvers/zod'
+import {Button} from '@/components/ui/button'
+import {Card, CardContent, CardFooter} from '@/components/ui/card'
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage,} from '@/components/ui/form'
+import {Input} from '@/components/ui/input'
+import {Label} from '@/components/ui/label'
+import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from '@/components/ui/select'
+import {calculateFutureDate, cn, formatDateTime, timeUntilMidnight,} from '@/lib/utils'
+import {ShippingAddressSchema} from '@/lib/validator'
+import {zodResolver} from '@hookform/resolvers/zod'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import {useRouter} from 'next/navigation'
+import {useEffect, useState} from 'react'
+import {SubmitHandler, useForm} from 'react-hook-form'
 import CheckoutFooter from './checkout-footer'
 import useIsMounted from '@/hooks/use-is-mounted'
 import Link from 'next/link'
 import useCartStore from '@/hooks/use-cart-store'
 import ProductPrice from '@/components/shared/product/product-price'
-import {
-    APP_NAME,
-    AVAILABLE_DELIVERY_DATES,
-    AVAILABLE_PAYMENT_METHODS,
-    DEFAULT_PAYMENT_METHOD,
-} from '@/lib/constants'
+import {APP_NAME, AVAILABLE_PAYMENT_METHODS, DEFAULT_PAYMENT_METHOD,} from '@/lib/constants'
 import {ShippingAddress} from "@/lib/request/location";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import {Check, ChevronsUpDown} from "lucide-react";
+import {Command, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
+import {useLocationStore} from "@/hooks/use-location";
+import {Address, InfoShippingAddress} from "@/lib/response/address";
+import {getInfoShips} from "@/lib/api/address";
 
 const shippingAddressDefaultValues =
     process.env.NODE_ENV === 'development'
         ? {
-            fullName: 'Basir',
-            street: '1911, 65 Sherbrooke Est',
-            city: 'Montreal',
-            province: 'Quebec',
-            phone: '4181234567',
-            postalCode: 'H2X 1C4',
-            country: 'Canada',
+            fullName: 'Admin',
+            street: '123456789',
+            city: '',
+            district: '',
+            phone: '0123456789',
+            ward: '',
         }
         : {
             fullName: '',
@@ -60,19 +43,31 @@ const shippingAddressDefaultValues =
             city: '',
             province: '',
             phone: '',
-            postalCode: '',
             country: '',
         }
-
-const CheckoutForm = () => {
+const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
+    const {
+        location,
+        init,
+        setProvinceSelected,
+        setDistrictSelected,
+        setWardSelected,
+        setMyAddresses
+    } = useLocationStore()
+    if (!location.isInitialized) {
+        init()
+    }
+    useEffect(() => {
+        if (allAddress) {
+            setMyAddresses(allAddress)
+        }
+    }, []);
     const router = useRouter()
-
     const {
         cart: {
             cartItems,
             itemsPrice,
             shippingPrice,
-            taxPrice,
             totalPrice,
             shippingAddress,
             deliveryDateIndex,
@@ -90,23 +85,27 @@ const CheckoutForm = () => {
         resolver: zodResolver(ShippingAddressSchema),
         defaultValues: shippingAddress || shippingAddressDefaultValues,
     })
-    const onSubmitShippingAddress: SubmitHandler<ShippingAddress> = (values) => {
-        setShippingAddress(values)
+    const onSubmitShippingAddress: SubmitHandler<ShippingAddress> = async (values) => {
+        const infoShips = await getInfoShips(location.myAddressSelected?.id)
+        let priceShip = 0
+        if (typeof infoShips !== "string") {
+            setInfoShips(infoShips)
+            priceShip = parseInt(infoShips[0].gia_cuoc)
+        }
+        setShippingAddress(values,priceShip)
         setIsAddressSelected(true)
     }
-
     useEffect(() => {
         if (!isMounted || !shippingAddress) return
         shippingAddressForm.setValue('fullName', shippingAddress.fullName)
         shippingAddressForm.setValue('street', shippingAddress.street)
         shippingAddressForm.setValue('city', shippingAddress.city)
-        shippingAddressForm.setValue('country', shippingAddress.country)
-        shippingAddressForm.setValue('postalCode', shippingAddress.postalCode)
-        shippingAddressForm.setValue('province', shippingAddress.province)
+        shippingAddressForm.setValue('district', shippingAddress.district)
+        shippingAddressForm.setValue('ward', shippingAddress.ward)
         shippingAddressForm.setValue('phone', shippingAddress.phone)
     }, [cartItems, isMounted, router, shippingAddress, shippingAddressForm])
-
     const [isAddressSelected, setIsAddressSelected] = useState<boolean>(false)
+    const [infoShips, setInfoShips] = useState<InfoShippingAddress[]>([])
     const [isPaymentMethodSelected, setIsPaymentMethodSelected] =
         useState<boolean>(false)
     const [isDeliveryDateSelected, setIsDeliveryDateSelected] =
@@ -119,8 +118,8 @@ const CheckoutForm = () => {
         setIsAddressSelected(true)
         setIsPaymentMethodSelected(true)
     }
-    const handleSelectShippingAddress = () => {
-        shippingAddressForm.handleSubmit(onSubmitShippingAddress)()
+    const handleSelectShippingAddress = async () => {
+       await shippingAddressForm.handleSubmit(onSubmitShippingAddress)()
     }
     const CheckoutSummary = () => (
         <Card>
@@ -174,7 +173,7 @@ const CheckoutForm = () => {
                         <div className='flex justify-between'>
                             <span>Items:</span>
                             <span>
-                <ProductPrice price={itemsPrice} plain />
+                <ProductPrice price={itemsPrice} plain/>
               </span>
                         </div>
                         <div className='flex justify-between'>
@@ -185,24 +184,14 @@ const CheckoutForm = () => {
                 ) : shippingPrice === 0 ? (
                     'FREE'
                 ) : (
-                    <ProductPrice price={shippingPrice} plain />
-                )}
-              </span>
-                        </div>
-                        <div className='flex justify-between'>
-                            <span> Tax:</span>
-                            <span>
-                {taxPrice === undefined ? (
-                    '--'
-                ) : (
-                    <ProductPrice price={taxPrice} plain />
+                    <ProductPrice price={shippingPrice} plain/>
                 )}
               </span>
                         </div>
                         <div className='flex justify-between  pt-4 font-bold text-lg'>
                             <span> Order Total:</span>
                             <span>
-                <ProductPrice price={totalPrice} plain />
+                <ProductPrice price={totalPrice} plain/>
               </span>
                         </div>
                     </div>
@@ -225,9 +214,9 @@ const CheckoutForm = () => {
                                 </div>
                                 <div className='col-span-5 '>
                                     <p>
-                                        {shippingAddress.fullName} <br />
-                                        {shippingAddress.street} <br />
-                                        {`${shippingAddress.city}, ${shippingAddress.province}, ${shippingAddress.postalCode}, ${shippingAddress.country}`}
+                                        {shippingAddress.fullName} <br/>
+                                        {shippingAddress.street} <br/>
+                                        {`${shippingAddress.city}, ${shippingAddress.district}, ${shippingAddress.ward}`}
                                     </p>
                                 </div>
                                 <div className='col-span-2'>
@@ -267,7 +256,7 @@ const CheckoutForm = () => {
                                                     <FormField
                                                         control={shippingAddressForm.control}
                                                         name='fullName'
-                                                        render={({ field }) => (
+                                                        render={({field}) => (
                                                             <FormItem className='w-full'>
                                                                 <FormLabel>Full Name</FormLabel>
                                                                 <FormControl>
@@ -276,16 +265,16 @@ const CheckoutForm = () => {
                                                                         {...field}
                                                                     />
                                                                 </FormControl>
-                                                                <FormMessage />
+                                                                <FormMessage/>
                                                             </FormItem>
                                                         )}
                                                     />
                                                 </div>
-                                                <div>
+                                                <div className='flex flex-col gap-5 md:flex-row'>
                                                     <FormField
                                                         control={shippingAddressForm.control}
                                                         name='street'
-                                                        render={({ field }) => (
+                                                        render={({field}) => (
                                                             <FormItem className='w-full'>
                                                                 <FormLabel>Address</FormLabel>
                                                                 <FormControl>
@@ -294,79 +283,14 @@ const CheckoutForm = () => {
                                                                         {...field}
                                                                     />
                                                                 </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                </div>
-                                                <div className='flex flex-col gap-5 md:flex-row'>
-                                                    <FormField
-                                                        control={shippingAddressForm.control}
-                                                        name='city'
-                                                        render={({ field }) => (
-                                                            <FormItem className='w-full'>
-                                                                <FormLabel>City</FormLabel>
-                                                                <FormControl>
-                                                                    <Input placeholder='Enter city' {...field} />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={shippingAddressForm.control}
-                                                        name='province'
-                                                        render={({ field }) => (
-                                                            <FormItem className='w-full'>
-                                                                <FormLabel>Province</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder='Enter province'
-                                                                        {...field}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={shippingAddressForm.control}
-                                                        name='country'
-                                                        render={({ field }) => (
-                                                            <FormItem className='w-full'>
-                                                                <FormLabel>Country</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder='Enter country'
-                                                                        {...field}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                </div>
-                                                <div className='flex flex-col gap-5 md:flex-row'>
-                                                    <FormField
-                                                        control={shippingAddressForm.control}
-                                                        name='postalCode'
-                                                        render={({ field }) => (
-                                                            <FormItem className='w-full'>
-                                                                <FormLabel>Postal Code</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder='Enter postal code'
-                                                                        {...field}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
+                                                                <FormMessage/>
                                                             </FormItem>
                                                         )}
                                                     />
                                                     <FormField
                                                         control={shippingAddressForm.control}
                                                         name='phone'
-                                                        render={({ field }) => (
+                                                        render={({field}) => (
                                                             <FormItem className='w-full'>
                                                                 <FormLabel>Phone number</FormLabel>
                                                                 <FormControl>
@@ -375,10 +299,221 @@ const CheckoutForm = () => {
                                                                         {...field}
                                                                     />
                                                                 </FormControl>
-                                                                <FormMessage />
+                                                                <FormMessage/>
                                                             </FormItem>
                                                         )}
                                                     />
+                                                </div>
+                                                <div className='flex flex-col gap-5 md:flex-row'>
+                                                    {!location.provinces || !location.districts || !location.wards ?
+                                                        (<p>Can't load page</p>) : (
+                                                            <>
+                                                                <FormField
+                                                                    control={shippingAddressForm.control}
+                                                                    name='city'
+                                                                    render={({field}) => (
+                                                                        <FormItem className='w-full'>
+                                                                            <FormLabel>City</FormLabel>
+                                                                            <FormControl>
+                                                                                <Popover>
+                                                                                    <PopoverTrigger asChild>
+                                                                                        <FormControl>
+                                                                                            <Button
+                                                                                                variant="outline"
+                                                                                                role="combobox"
+                                                                                                className={cn(
+                                                                                                    "w-[250px] justify-between",
+                                                                                                    !field.value && "text-muted-foreground"
+                                                                                                )}
+                                                                                            >
+                                                                                                {field.value && field.value != ""
+                                                                                                    ? location.provinces?.find(
+                                                                                                        (province) => location.provinceSelected?.id == province.id
+                                                                                                    )?.name
+                                                                                                    : "Select city"}
+                                                                                                <ChevronsUpDown
+                                                                                                    className="opacity-50"/>
+                                                                                            </Button>
+                                                                                        </FormControl>
+                                                                                    </PopoverTrigger>
+                                                                                    <PopoverContent
+                                                                                        className="w-[200px] p-0">
+                                                                                        <Command>
+                                                                                            <CommandInput
+                                                                                                placeholder="Search city..."
+                                                                                                className="h-9"
+                                                                                            />
+                                                                                            <CommandList>
+                                                                                                <CommandGroup>
+                                                                                                    {location.provinces?.map((province) => (
+                                                                                                        <CommandItem
+                                                                                                            value={province.id}
+                                                                                                            key={province.id}
+                                                                                                            onSelect={() => {
+                                                                                                                setProvinceSelected(province)
+                                                                                                                shippingAddressForm.setValue("city", province.name)
+                                                                                                                shippingAddressForm.setValue('district', '')
+                                                                                                                shippingAddressForm.setValue('ward', '')
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            {province.name}
+                                                                                                            <Check
+                                                                                                                className={cn(
+                                                                                                                    "ml-auto",
+                                                                                                                    province.id == location.provinceSelected?.id
+                                                                                                                        ? "opacity-100"
+                                                                                                                        : "opacity-0"
+                                                                                                                )}
+                                                                                                            />
+                                                                                                        </CommandItem>
+                                                                                                    ))}
+                                                                                                </CommandGroup>
+                                                                                            </CommandList>
+                                                                                        </Command>
+                                                                                    </PopoverContent>
+                                                                                </Popover>
+                                                                            </FormControl>
+                                                                            <FormMessage/>
+                                                                        </FormItem>
+                                                                    )}
+                                                                />
+                                                                <FormField
+                                                                    control={shippingAddressForm.control}
+                                                                    name='district'
+                                                                    render={({field}) => (
+                                                                        <FormItem className='w-full'>
+                                                                            <FormLabel>District</FormLabel>
+                                                                            <FormControl>
+                                                                                <Popover>
+                                                                                    <PopoverTrigger asChild>
+                                                                                        <FormControl>
+                                                                                            <Button
+                                                                                                variant="outline"
+                                                                                                role="combobox"
+                                                                                                className={cn(
+                                                                                                    "w-[250px] justify-between",
+                                                                                                    !field.value && "text-muted-foreground"
+                                                                                                )}
+                                                                                            >
+                                                                                                {field.value && field.value != ""
+                                                                                                    ? location.districtByProvince?.find(
+                                                                                                        (district) => location.districtSelected?.id == district.id
+                                                                                                    )?.name
+                                                                                                    : "Select district"}
+                                                                                                <ChevronsUpDown
+                                                                                                    className="opacity-50"/>
+                                                                                            </Button>
+                                                                                        </FormControl>
+                                                                                    </PopoverTrigger>
+                                                                                    <PopoverContent
+                                                                                        className="w-[200px] p-0">
+                                                                                        <Command>
+                                                                                            <CommandInput
+                                                                                                placeholder="Search district..."
+                                                                                                className="h-9"
+                                                                                            />
+                                                                                            <CommandList>
+                                                                                                <CommandGroup>
+                                                                                                    {location.districtByProvince?.map((district) => (
+                                                                                                        <CommandItem
+                                                                                                            value={district.id}
+                                                                                                            key={district.id}
+                                                                                                            onSelect={() => {
+                                                                                                                setDistrictSelected(district)
+                                                                                                                shippingAddressForm.setValue('district', district.name)
+                                                                                                                shippingAddressForm.setValue('ward', '')
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            {district.name}
+                                                                                                            <Check
+                                                                                                                className={cn(
+                                                                                                                    "ml-auto",
+                                                                                                                    district.id == location.districtSelected?.id
+                                                                                                                        ? "opacity-100"
+                                                                                                                        : "opacity-0"
+                                                                                                                )}
+                                                                                                            />
+                                                                                                        </CommandItem>
+                                                                                                    ))}
+                                                                                                </CommandGroup>
+                                                                                            </CommandList>
+                                                                                        </Command>
+                                                                                    </PopoverContent>
+                                                                                </Popover>
+                                                                            </FormControl>
+                                                                            <FormMessage/>
+                                                                        </FormItem>
+                                                                    )}
+                                                                />
+                                                                <FormField
+                                                                    control={shippingAddressForm.control}
+                                                                    name='ward'
+                                                                    render={({field}) => (
+                                                                        <FormItem className='w-full'>
+                                                                            <FormLabel>Ward</FormLabel>
+                                                                            <FormControl>
+                                                                                <Popover>
+                                                                                    <PopoverTrigger asChild>
+                                                                                        <FormControl>
+                                                                                            <Button
+                                                                                                variant="outline"
+                                                                                                role="combobox"
+                                                                                                className={cn(
+                                                                                                    "w-[250px] justify-between",
+                                                                                                    !field.value && "text-muted-foreground"
+                                                                                                )}
+                                                                                            >
+                                                                                                {field.value && field.value != ""
+                                                                                                    ? location.wardsByDistrict?.find(
+                                                                                                        (ward) => location.wardSelected?.id == ward.id
+                                                                                                    )?.name
+                                                                                                    : "Select ward"}
+                                                                                                <ChevronsUpDown
+                                                                                                    className="opacity-50"/>
+                                                                                            </Button>
+                                                                                        </FormControl>
+                                                                                    </PopoverTrigger>
+                                                                                    <PopoverContent
+                                                                                        className="w-[200px] p-0">
+                                                                                        <Command>
+                                                                                            <CommandInput
+                                                                                                placeholder="Search ward..."
+                                                                                                className="h-9"
+                                                                                            />
+                                                                                            <CommandList>
+                                                                                                <CommandGroup>
+                                                                                                    {location.wardsByDistrict?.map((ward) => (
+                                                                                                        <CommandItem
+                                                                                                            value={ward.id}
+                                                                                                            key={ward.id}
+                                                                                                            onSelect={() => {
+                                                                                                                setWardSelected(ward)
+                                                                                                                shippingAddressForm.setValue("ward", ward.name)
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            {ward.name}
+                                                                                                            <Check
+                                                                                                                className={cn(
+                                                                                                                    "ml-auto",
+                                                                                                                    ward.id == location.wardSelected?.id
+                                                                                                                        ? "opacity-100"
+                                                                                                                        : "opacity-0"
+                                                                                                                )}
+                                                                                                            />
+                                                                                                        </CommandItem>
+                                                                                                    ))}
+                                                                                                </CommandGroup>
+                                                                                            </CommandList>
+                                                                                        </Command>
+                                                                                    </PopoverContent>
+                                                                                </Popover>
+                                                                            </FormControl>
+                                                                            <FormMessage/>
+                                                                        </FormItem>
+                                                                    )}
+                                                                />
+                                                            </>
+                                                        )}
                                                 </div>
                                             </CardContent>
                                             <CardFooter className='  p-4'>
@@ -477,8 +612,8 @@ const CheckoutForm = () => {
                                         {
                                             formatDateTime(
                                                 calculateFutureDate(
-                                                    AVAILABLE_DELIVERY_DATES[deliveryDateIndex]
-                                                        .daysToDeliver
+                                                    infoShips[deliveryDateIndex]
+                                                        .thoi_gian
                                                 )
                                             ).dateOnly
                                         }
@@ -517,8 +652,8 @@ const CheckoutForm = () => {
                           {
                               formatDateTime(
                                   calculateFutureDate(
-                                      AVAILABLE_DELIVERY_DATES[deliveryDateIndex!]
-                                          .daysToDeliver
+                                      infoShips[deliveryDateIndex!]
+                                          .thoi_gian
                                   )
                               ).dateOnly
                           }
@@ -547,7 +682,7 @@ const CheckoutForm = () => {
                                                                 {item.productName}, {item.color.colorName}, {item.size.size}
                                                             </p>
                                                             <p className='font-bold'>
-                                                                <ProductPrice price={item.price} plain />
+                                                                <ProductPrice price={item.price} plain/>
                                                             </p>
 
                                                             <Select
@@ -586,46 +721,39 @@ const CheckoutForm = () => {
                                                     <ul>
                                                         <RadioGroup
                                                             value={
-                                                                AVAILABLE_DELIVERY_DATES[deliveryDateIndex!]
-                                                                    .name
+                                                                infoShips[deliveryDateIndex!]
+                                                                    .ten_dichvu
                                                             }
-                                                            onValueChange={(value) =>
-                                                                setDeliveryDateIndex(
-                                                                    AVAILABLE_DELIVERY_DATES.findIndex(
-                                                                        (address) => address.name === value
-                                                                    )!
-                                                                )
+                                                            onValueChange={(value) => {
+                                                                const index = infoShips.findIndex((address) => address.ten_dichvu === value)!
+                                                                setDeliveryDateIndex(index, parseInt(infoShips[index].gia_cuoc))
+                                                            }
                                                             }
                                                         >
-                                                            {AVAILABLE_DELIVERY_DATES.map((dd) => (
-                                                                <div key={dd.name} className='flex'>
+                                                            {infoShips.map((infoShipping: InfoShippingAddress) => (
+                                                                <div key={infoShipping.ten_dichvu} className='flex'>
                                                                     <RadioGroupItem
-                                                                        value={dd.name}
-                                                                        id={`address-${dd.name}`}
+                                                                        value={infoShipping.ten_dichvu}
+                                                                        id={`address-${infoShipping.ten_dichvu}`}
                                                                     />
                                                                     <Label
                                                                         className='pl-2 space-y-2 cursor-pointer'
-                                                                        htmlFor={`address-${dd.name}`}
+                                                                        htmlFor={`address-${infoShipping.ten_dichvu}`}
                                                                     >
                                                                         <div className='text-green-700 font-semibold'>
                                                                             {
                                                                                 formatDateTime(
-                                                                                    calculateFutureDate(dd.daysToDeliver)
+                                                                                    calculateFutureDate(
+                                                                                        infoShipping.thoi_gian
+                                                                                    )
                                                                                 ).dateOnly
                                                                             }
                                                                         </div>
                                                                         <div>
-                                                                            {(dd.freeShippingMinPrice > 0 &&
-                                                                            itemsPrice >= dd.freeShippingMinPrice
-                                                                                ? 0
-                                                                                : dd.shippingPrice) === 0 ? (
-                                                                                'FREE Shipping'
-                                                                            ) : (
-                                                                                <ProductPrice
-                                                                                    price={dd.shippingPrice}
-                                                                                    plain
-                                                                                />
-                                                                            )}
+                                                                            <ProductPrice
+                                                                                price={parseInt(infoShipping.gia_cuoc)}
+                                                                                plain
+                                                                            />
                                                                         </div>
                                                                     </Label>
                                                                 </div>
@@ -648,21 +776,23 @@ const CheckoutForm = () => {
                     {isPaymentMethodSelected && isAddressSelected && (
                         <div className='mt-6'>
                             <div className='block md:hidden'>
-                                <CheckoutSummary />
+                                <CheckoutSummary/>
                             </div>
 
                             <Card className='hidden md:block '>
-                                <CardContent className='p-4 flex flex-col md:flex-row justify-between items-center gap-3'>
+                                <CardContent
+                                    className='p-4 flex flex-col md:flex-row justify-between items-center gap-3'>
                                     <Button onClick={handlePlaceOrder} className='rounded-full'>
                                         Place Your Order
                                     </Button>
                                     <div className='flex-1'>
                                         <p className='font-bold text-lg'>
-                                            Order Total: <ProductPrice price={totalPrice} plain />
+                                            Order Total: <ProductPrice price={totalPrice} plain/>
                                         </p>
                                         <p className='text-xs'>
                                             {' '}
-                                            By placing your order, you agree to {APP_NAME}&apos;s <Link href='/page/privacy-policy'>
+                                            By placing your order, you agree to {APP_NAME}&apos;s <Link
+                                            href='/page/privacy-policy'>
                                             privacy notice
                                         </Link> and
                                             <Link href='/page/conditions-of-use'>
@@ -676,10 +806,10 @@ const CheckoutForm = () => {
                             </Card>
                         </div>
                     )}
-                    <CheckoutFooter />
+                    <CheckoutFooter/>
                 </div>
                 <div className='hidden md:block'>
-                    <CheckoutSummary />
+                    <CheckoutSummary/>
                 </div>
             </div>
         </main>

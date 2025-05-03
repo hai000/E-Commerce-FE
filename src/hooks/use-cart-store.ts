@@ -3,7 +3,7 @@ import {persist} from 'zustand/middleware'
 import {calcDeliveryDateAndPrice} from "@/lib/api/order";
 import {Cart, CartItem} from "@/lib/response/cart";
 import {ShippingAddress} from "@/lib/request/location";
-
+const initCartChecked = [] as CartChecked[]
 
 const initialState: Cart = {
     id: '',
@@ -14,29 +14,34 @@ const initialState: Cart = {
     itemsPrice: 0,
     paymentMethod: undefined,
     shippingAddress: undefined,
-    deliveryDateIndex: undefined,
+    deliveryDateIndex: 0,
     shippingPrice: 0,
-    taxPrice: 0,
-    totalPrice: 0
+    totalPrice: 0,
 }
-
+interface CartChecked{
+    idCartItem: string,
+    isChecked: boolean,
+}
 interface CartState {
     cart: Cart,
+    cartChecked: CartChecked[],
+    checkCartItems: (isChecked: boolean, cartItemId: string) => void,
     reloadCart: () => Promise<void>,
     init: () => Promise<void>,
     addItem: (item: CartItem, quantity: number) => Promise<string>
     updateItem: (item: CartItem, quantity: number) => Promise<void>
     removeItem: (item: CartItem) => void,
-    setShippingAddress: (shippingAddress: ShippingAddress) => Promise<void>
+    setShippingAddress: (shippingAddress: ShippingAddress,priceShip:number) => Promise<void>
     setPaymentMethod: (paymentMethod: string) => void
-    setDeliveryDateIndex: (index: number) => Promise<void>
+    setDeliveryDateIndex: (index: number, price: number) => Promise<void>
 }
 
 // Tạo store giỏ hàng với Zustand và middleware persist
 const useCartStore = create(
     persist<CartState>(
         (set, get) => ({
-            cart: initialState, // Khởi tạo giỏ hàng
+            cart: initialState,
+            cartChecked: initCartChecked,
             addItem: async (item: CartItem, quantity: number) => {
                 const res = await addItem(item, quantity);
                 if (typeof res === "string") {
@@ -45,6 +50,28 @@ const useCartStore = create(
                     await get().reloadCart()
                     return res.id
                 }
+            },
+            checkCartItems: (isChecked, cartItemId) => {
+                const existingCartChecked = get().cartChecked.find(cartItem => cartItem.idCartItem === cartItemId);
+
+                if (existingCartChecked) {
+                    // Cập nhật trạng thái isChecked
+                    set(state => ({
+                        cartChecked: state.cartChecked.map(cartChecked =>
+                            cartChecked.idCartItem == cartItemId
+                                ? { ...cartChecked, isChecked } // Cập nhật giá trị isChecked
+                                : cartChecked
+                        ),
+                    }));
+                } else {
+                    set(state => ({
+                        cartChecked: [
+                            ...state.cartChecked,
+                            { idCartItem: cartItemId, isChecked },
+                        ],
+                    }));
+                }
+                get().reloadCart()
             },
             updateItem: async (item: CartItem, quantity: number) => {
                 const res = await updateItem(item,quantity)
@@ -77,7 +104,17 @@ const useCartStore = create(
                     )
                 } else {
                     get().init()
-                    const all_prices = myCart.cartItems.reduce((prePrice, item) => prePrice + item.cartItemQuantity*item.price, 0)
+                    const cartItems = myCart.cartItems
+                    const cartChecked = get().cartChecked
+                    cartItems.forEach((cartItem) => {
+                        for (let i = 0; i < cartChecked.length; i++) {
+                            if (cartChecked[i].idCartItem == cartItem.id) {
+                                cartItem.isChecked = cartChecked[i].isChecked
+                                break;
+                            }
+                        }
+                    })
+                    const all_prices = myCart.cartItems.reduce((prePrice, item) => item.isChecked? prePrice + item.cartItemQuantity*item.price: 0, 0)
                     set({
                         cart: {
                             ...get().cart,
@@ -92,16 +129,18 @@ const useCartStore = create(
                     cart: initialState,
                 })
             },
-            setShippingAddress: async (shippingAddress: ShippingAddress) => {
+            setShippingAddress: async (shippingAddress: ShippingAddress, priceShip: number) => {
                 const { cartItems } = get().cart
                 set({
                     cart: {
                         ...get().cart,
-                        shippingAddress,
+                        shippingAddress: shippingAddress,
                         ...(await calcDeliveryDateAndPrice({
                             items: cartItems,
-                            deliveryDateIndex: shippingAddress,
+                            shippingPrice: priceShip,
+                            deliveryDateIndex: 0,
                         })),
+
                     },
                 })
             },
@@ -113,12 +152,17 @@ const useCartStore = create(
                     },
                 })
             },
-            setDeliveryDateIndex: async (index: number) => {
-                const { cartItems, shippingAddress } = get().cart
-
+            setDeliveryDateIndex: async (index: number, priceShip: number) => {
+                const { cartItems } = get().cart
                 set({
                     cart: {
                         ...get().cart,
+                        ...(await calcDeliveryDateAndPrice({
+                            items: cartItems,
+                            deliveryDateIndex: index,
+                            shippingPrice: priceShip
+                        })),
+
                     },
                 })
             },
@@ -137,7 +181,6 @@ const useCartStore = create(
         }
     )
 )
-
 async function getMyCart() {
     const request = {
         action: 'getCart',

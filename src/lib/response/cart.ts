@@ -11,10 +11,10 @@ export interface Cart{
     updatedAt: Date | null
     paymentMethod?: string,
     shippingAddress?: ShippingAddress,
-    deliveryDateIndex?: number,
+    deliveryDateIndex: number,
     shippingPrice: number,
-    taxPrice: number,
-    totalPrice: number
+    totalPrice: number,
+
 }
 export interface CartItem {
     id: string,
@@ -31,5 +31,6 @@ export interface CartItem {
     description:string,
     brand:string,
     cartItemQuantity:number,
-    productQuantity:number
+    productQuantity:number,
+    isChecked?: boolean
 }

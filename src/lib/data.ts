@@ -22,7 +22,7 @@ const data = {
         },
         {
             name: 'Customer Service',
-            href: '/page/customer-service',
+            href: '/page/customers-service',
         },
         {
             name: 'About Us',

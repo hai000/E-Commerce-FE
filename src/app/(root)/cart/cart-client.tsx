@@ -9,13 +9,17 @@ import {Button} from "@/components/ui/button";
 import ProductPrice from "@/components/shared/product/product-price";
 import BrowsingHistoryList from "@/components/shared/browsing-history-list";
 import React from "react";
+import {useRouter} from "next/navigation";
+import {Checkbox} from "@/components/ui/checkbox";
 
 export default function CartPageClient() {
     const {
         cart: { cartItems, itemsPrice },
+        checkCartItems,
         updateItem,
         removeItem,
     } = useCartStore()
+    const router = useRouter()
     return (<div>
             <div className='grid grid-cols-1 md:grid-cols-4  md:gap-4'>
                 {cartItems.length === 0 ? (
@@ -40,8 +44,15 @@ export default function CartPageClient() {
                                     {cartItems.map((item) => (
                                         <div
                                             key={item.id}
-                                            className='flex flex-col md:flex-row justify-between py-4 border-b gap-4'
+                                            className='flex flex-col md:flex-row justify-between md:items-center lg:items-center py-4 border-b gap-4'
                                         >
+                                                <Checkbox className='w-9 h-9 align-items: center' defaultChecked={item.isChecked} onCheckedChange={(checkedState) => {
+                                                    if (typeof checkedState.valueOf() == "boolean") {
+                                                        checkCartItems(checkedState.valueOf() as boolean, item.id)
+                                                    }
+
+                                                }} id={item.id}/>
+
                                             <Link href={`/product/${item.productId}`}>
                                                 <div className='relative w-40 h-40'>
                                                     <Image
@@ -172,7 +183,7 @@ export default function CartPageClient() {
                     </span>{' '}
                                     </div>
                                     <Button
-                                        onClick={() => {}}
+                                        onClick={() => router.push('/checkout')}
                                         className='rounded-full w-full'
                                     >
                                         Proceed to Checkout

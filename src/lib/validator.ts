@@ -39,3 +39,12 @@ export const UserSignUpSchema = UserSignInSchema.extend({
     message: "Passwords don't match",
     path: ['confirmPassword'],
 })
+
+export const ShippingAddressSchema = z.object({
+    fullName: z.string().min(1, 'Full name is required'),
+    street: z.string().min(1, 'Address is required'),
+    city: z.string().min(1, 'City is required'),
+    district: z.string().min(1, 'District is required'),
+    phone: Phone,
+    ward: z.string().min(1, 'Ward is required'),
+})

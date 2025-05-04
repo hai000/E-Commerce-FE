@@ -1,5 +1,6 @@
 import {Category} from "@/lib/response/category";
 import {IProductColor, IProductImage, IProductSize} from "@/lib/response/product";
+import {ShippingAddress} from "@/lib/request/location";
 
 export interface Cart{
     id: string,
@@ -8,6 +9,12 @@ export interface Cart{
     cartItems:CartItem[]
     createdAt: Date | null
     updatedAt: Date | null
+    paymentMethod?: string,
+    shippingAddress?: ShippingAddress,
+    deliveryDateIndex: number,
+    shippingPrice: number,
+    totalPrice: number,
+
 }
 export interface CartItem {
     id: string,
@@ -24,5 +31,6 @@ export interface CartItem {
     description:string,
     brand:string,
     cartItemQuantity:number,
-    productQuantity:number
+    productQuantity:number,
+    isChecked?: boolean
 }

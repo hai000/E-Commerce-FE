@@ -4,7 +4,7 @@ import {Toaster} from "@/components/ui/toaster";
 import {HeaderDashboard} from "@/app/dashboard/components/header-dashboard";
 import {AdminNav} from "@/app/dashboard/components/admin-nav";
 
-import {redirect, usePathname} from "next/navigation";
+import { usePathname} from "next/navigation";
 
 export default function DashboardLayout({
                                             children,

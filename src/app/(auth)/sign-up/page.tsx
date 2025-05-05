@@ -4,10 +4,8 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 import SignUpForm from './signup-form'
-import {auth} from "@/lib/api/user";
-import {cookies} from "next/headers";
 import {Toaster} from "@/components/ui/toaster";
-import {getILogin} from "@/lib/utils";
+import {auth} from "@/app/auth";
 
 export const metadata: Metadata = {
     title: 'Sign Up',
@@ -21,9 +19,7 @@ export default async function SignUpPage(props: {
     const searchParams = await props.searchParams
 
     const { callbackUrl } = searchParams
-    const cook = await cookies()
-    const iLogin = getILogin(cook)
-    const session = await auth(iLogin)
+    const session = await auth()
     if (session) {
         return redirect(callbackUrl || '/')
     }

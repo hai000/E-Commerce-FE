@@ -1,8 +1,8 @@
 import {type ClassValue, clsx} from "clsx"
 import {twMerge} from "tailwind-merge"
 import {GET_METHOD, HOST_API} from "@/lib/constants";
-import {ILogin} from "@/lib/response/login";
 import type {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import {Session} from "@auth/core/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -37,9 +37,14 @@ export const round2 = (num: number) =>
 
 export const generateId = () =>
     Array.from({ length: 24 }, () => Math.floor(Math.random() * 10)).join('')
-export const generateHeaderAccessToken = (request:ILogin) =>{
+export const generateHeaderAccessToken = (session:Session) =>{
   return {
-    'Authorization': `Bearer ${request.accessToken}`,
+    'Authorization': `Bearer ${session.accessToken}`,
+  };
+}
+export const generateHeaderAccessTokenString = (accessToken:string) =>{
+  return {
+    'Authorization': `Bearer ${accessToken}`,
   };
 }
 export const getILogin = (cook:ReadonlyRequestCookies) =>{
@@ -63,7 +68,7 @@ export async function callApiToArray<T>({ url, method, data, headers }: ApiCallO
     }
     const response = await fetch(`${HOST_API}${url}`,options);
     if (!response.ok) {
-      const errorText = await response.text();
+      // const errorText = await response.text();
       // console.error('HTTP Error:', response.status, errorText);
       return []
     }
@@ -77,7 +82,7 @@ export async function callApiToArray<T>({ url, method, data, headers }: ApiCallO
 export interface ApiCallOptions {
   url: string;
   method?: string;
-  data?: any;
+  data?: unknown;
   headers?: Record<string, string>; // Hoặc kiểu khác nếu cần
 }
 export async function callApiGetStatus({url, method, data, headers}: ApiCallOptions): Promise<boolean> {
@@ -97,6 +102,7 @@ export async function callApiGetStatus({url, method, data, headers}: ApiCallOpti
     // console.log(result)
     return result.success;
   } catch (error) {
+    console.log(error)
     return false;
   }
 }
@@ -120,7 +126,9 @@ export async function callApiToObject<T>({ url, method, data, headers }: ApiCall
   }
 }
 
-
+export function formatId(id: string) {
+  return `..${id.substring(id.length - 6)}`
+}
 export function calculateFutureDate(days: string | null) {
   const currentDate = new Date()
   if (typeof days === 'string') {

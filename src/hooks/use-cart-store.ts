@@ -1,8 +1,13 @@
+'use client'
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
 import {calcDeliveryDateAndPrice} from "@/lib/api/order";
 import {Cart, CartItem} from "@/lib/response/cart";
 import {ShippingAddress} from "@/lib/request/location";
+import {InfoShippingAddress} from "@/lib/response/address";
+import {CreateOrderRequest} from "@/lib/request/order";
+import {addToCart, deleteCartItem, getMyCart, updateCartItem} from "@/lib/api/cart";
+
 const initCartChecked = [] as CartChecked[]
 
 const initialState: Cart = {
@@ -18,20 +23,24 @@ const initialState: Cart = {
     shippingPrice: 0,
     totalPrice: 0,
 }
-interface CartChecked{
+
+interface CartChecked {
     idCartItem: string,
     isChecked: boolean,
 }
+
 interface CartState {
     cart: Cart,
     cartChecked: CartChecked[],
     checkCartItems: (isChecked: boolean, cartItemId: string) => void,
     reloadCart: () => Promise<void>,
     init: () => Promise<void>,
+    clearCart: () => void,
+    createOrder: (addressId: string, deliveryMethod: InfoShippingAddress, freeshipVcId: string | null, productVcId: string | null) => CreateOrderRequest,
     addItem: (item: CartItem, quantity: number) => Promise<string>
     updateItem: (item: CartItem, quantity: number) => Promise<void>
     removeItem: (item: CartItem) => void,
-    setShippingAddress: (shippingAddress: ShippingAddress,priceShip:number) => Promise<void>
+    setShippingAddress: (shippingAddress: ShippingAddress, priceShip: number) => Promise<void>
     setPaymentMethod: (paymentMethod: string) => void
     setDeliveryDateIndex: (index: number, price: number) => Promise<void>
 }
@@ -43,7 +52,14 @@ const useCartStore = create(
             cart: initialState,
             cartChecked: initCartChecked,
             addItem: async (item: CartItem, quantity: number) => {
-                const res = await addItem(item, quantity);
+                const res = await addToCart(
+                    {
+                        productId: item.productId,
+                        quantity: `${quantity}`,
+                        productSize: item.size.id,
+                        productColor: item.color.id,
+                    }
+                )
                 if (typeof res === "string") {
                     throw new Error(res)
                 } else {
@@ -59,7 +75,7 @@ const useCartStore = create(
                     set(state => ({
                         cartChecked: state.cartChecked.map(cartChecked =>
                             cartChecked.idCartItem == cartItemId
-                                ? { ...cartChecked, isChecked } // Cập nhật giá trị isChecked
+                                ? {...cartChecked, isChecked} // Cập nhật giá trị isChecked
                                 : cartChecked
                         ),
                     }));
@@ -67,14 +83,15 @@ const useCartStore = create(
                     set(state => ({
                         cartChecked: [
                             ...state.cartChecked,
-                            { idCartItem: cartItemId, isChecked },
+                            {idCartItem: cartItemId, isChecked},
                         ],
                     }));
                 }
                 get().reloadCart()
             },
             updateItem: async (item: CartItem, quantity: number) => {
-                const res = await updateItem(item,quantity)
+                const res = await updateCartItem({quantity: quantity,
+                cartItemId: item.id})
                 if (typeof res === "string") {
                     throw new Error(
                         res
@@ -84,8 +101,8 @@ const useCartStore = create(
                 }
             },
             removeItem: async (item: CartItem) => {
-                const res = await deleteItem(item)
-                if (res) {
+                const res = await deleteCartItem(item.id)
+                if (res === true) {
                     get().reloadCart()
                 } else {
                     throw new Error(
@@ -100,7 +117,7 @@ const useCartStore = create(
                         cart: initialState,
                     })
                     throw new Error(
-                        `Can't update cart \n ${myCart}`
+                        `Can't update cart! \n ${myCart}`
                     )
                 } else {
                     get().init()
@@ -114,7 +131,7 @@ const useCartStore = create(
                             }
                         }
                     })
-                    const all_prices = myCart.cartItems.reduce((prePrice, item) => item.isChecked? prePrice + item.cartItemQuantity*item.price: 0, 0)
+                    const all_prices = myCart.cartItems.reduce((prePrice, item) => item.isChecked ? prePrice + item.cartItemQuantity * item.price : 0, 0)
                     set({
                         cart: {
                             ...get().cart,
@@ -123,6 +140,17 @@ const useCartStore = create(
                         },
                     })
                 }
+
+            },
+            createOrder: (addressId, deliveryMethod, freeshipVcId, productVcId) => {
+                const cartCheckedFromCart = get().cart.cartItems.filter(cartItem => cartItem.isChecked)
+                return {
+                    cartItemIds: cartCheckedFromCart.map(cartItem => cartItem.id),
+                    addressId: addressId,
+                    deliveryMethod: deliveryMethod,
+                    freeshipVcId: freeshipVcId,
+                    productVcId: productVcId,
+                } as CreateOrderRequest
             },
             init: async () => {
                 set({
@@ -130,7 +158,7 @@ const useCartStore = create(
                 })
             },
             setShippingAddress: async (shippingAddress: ShippingAddress, priceShip: number) => {
-                const { cartItems } = get().cart
+                const {cartItems} = get().cart
                 set({
                     cart: {
                         ...get().cart,
@@ -153,7 +181,7 @@ const useCartStore = create(
                 })
             },
             setDeliveryDateIndex: async (index: number, priceShip: number) => {
-                const { cartItems } = get().cart
+                const {cartItems} = get().cart
                 set({
                     cart: {
                         ...get().cart,
@@ -167,12 +195,7 @@ const useCartStore = create(
                 })
             },
             clearCart: () => {
-                set({
-                    cart: {
-                        ...get().cart,
-                        cartItems: [],
-                    },
-                })
+
             },
         }),
 
@@ -181,77 +204,7 @@ const useCartStore = create(
         }
     )
 )
-async function getMyCart() {
-    const request = {
-        action: 'getCart',
-    }
-    const response = await fetch('/api/auth/cart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-    });
-    const json = await response.json();
-    if (typeof json === "string") {
-        return json
-    } else {
-        return json as Cart
-    }
-}
 
-async function deleteItem(item: CartItem) {
-    const request = {
-        action: 'deleteItem',
-        cartItemId: item.id
-    }
-    const response = await fetch('/api/auth/cart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-    });
-    const json = await response.json();
-    return json as boolean
-}
-async function updateItem(item: CartItem,quantity: number) {
-    const request = {
-        action: 'updateItem',
-        cartItemId: item.id,
-        quantity: quantity
-    }
-    const response = await fetch('/api/auth/cart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-    });
-    const json = await response.json();
-    return json as CartItem | string;
-}
-async function addItem(item: CartItem, quantity: number) {
-    const request = {
-        productId: item.productId,
-        quantity: `${quantity}`,
-        productSize: item.size.id,
-        productColor: item.color.id,
-        action: 'addItem',
-    }
-    const response = await fetch('/api/auth/cart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-    });
-    const json = await response.json();
-    if (typeof json === "string") {
-        return json
-    } else {
-        return json as CartItem
-    }
-}
+
 
 export default useCartStore

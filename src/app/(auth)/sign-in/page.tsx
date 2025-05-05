@@ -5,11 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import CredentialsSignInForm from './credentials-signin-form'
 import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/constants'
-import {auth} from "@/lib/api/user";
 import {Toaster} from "@/components/ui/toaster";
-import {cookies} from "next/headers";
 import {redirect} from "next/navigation";
-import {getILogin} from "@/lib/utils";
+import {auth} from "@/app/auth";
 export const metadata: Metadata = {
     title: 'Sign In',
 }
@@ -20,15 +18,11 @@ export default async function SignIn(props: {
     }>
 }) {
     const searchParams = await props.searchParams
-
     const { callbackUrl = '/' } = searchParams
-    const cook = await cookies()
-    const iLogin = getILogin(cook)
-    const session = await auth(iLogin)
+    const session = await auth()
     if (session) {
         return redirect(callbackUrl)
     }
-
     return (
         <div className='w-full'>
             <Card>

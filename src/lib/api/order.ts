@@ -1,7 +1,82 @@
-import { round2 } from '../utils'
-import { FREE_SHIPPING_MIN_PRICE } from '../constants'
+'use server'
+import {callApiToArray, callApiToObject, generateHeaderAccessToken, round2} from '../utils'
 import {CartItem} from "@/lib/response/cart";
-import {ShippingAddress} from "@/lib/request/location";
+import {Order} from "@/lib/response/order";
+import {CreateOrderRequest} from "@/lib/request/order";
+import {POST_METHOD} from "@/lib/constants";
+import {auth} from "@/app/auth";
+import {paypal} from "@/lib/paypal";
+import {revalidatePath} from "next/cache";
+export async function createMyOrder(createOrderRequest:CreateOrderRequest) {
+    const session = await auth()
+    if (!session) {
+        return 'Session timeout';
+    }
+    return callApiToObject<Order>({url:'/identity/order/add',method: POST_METHOD,data: createOrderRequest,headers: generateHeaderAccessToken(session)})
+}
+
+export async function getAllOrders() {
+    return callApiToArray<Order>({url:'/identity/order/getAll'})
+}
+
+export async function getMyOrders() {
+    const session = await auth()
+    if (!session) {
+        return 'Session timeout';
+    }
+    return callApiToArray<Order>({url:'/identity/order/getMyOrders',headers: generateHeaderAccessToken(session)})
+}
+export async function getOrderById(orderId: string) {
+    return callApiToObject<Order>({url:`/identity/order/getById/${orderId}`})
+}
+
+export async function createPayPalOrder(orderId: string) {
+    try {
+        const orderRes = await getOrderById(orderId);
+        if (typeof orderRes !== "string") {
+            const paypalOrder = await paypal.createOrder(orderRes.totalPrice)
+            return {
+                success: true,
+                message: 'PayPal order created successfully',
+                data: paypalOrder.id,
+            }
+        } else {
+            throw new Error('Order not found')
+        }
+    } catch (err) {
+        return { success: false, message: err }
+    }
+}
+
+export async function approvePayPalOrder(
+    orderId: string,
+    data: { orderID: string }
+) {
+    try {
+        const order = await getOrderById(orderId);
+        if (typeof order === 'string') throw new Error('Order not found')
+
+        const captureData = await paypal.capturePayment(data.orderID)
+        if (
+            !captureData ||
+            captureData.status !== 'COMPLETED'
+        )
+            throw new Error('Error in paypal payment')
+        order.totalPayment = order.totalPrice - parseFloat(captureData.purchase_units[0]?.payments?.captures[0]?.amount?.value)
+        console.log(order.totalPayment)
+        // await order.save()
+        // await sendPurchaseReceipt({ order })
+        revalidatePath(`/account/orders/${orderId}`)
+        return {
+            success: true,
+            message: 'Your order has been successfully paid by PayPal',
+        }
+    } catch (err) {
+        return { success: false, message: err }
+    }
+}
+
+
 
 
 export const calcDeliveryDateAndPrice = async ({

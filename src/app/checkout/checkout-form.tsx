@@ -26,8 +26,11 @@ import {Command, CommandGroup, CommandInput, CommandItem, CommandList} from "@/c
 import {useLocationStore} from "@/hooks/use-location";
 import {Address, InfoShippingAddress} from "@/lib/response/address";
 import {getInfoShips} from "@/lib/api/address";
+import {toast} from "@/hooks/use-toast";
+import {createMyOrder} from "@/lib/api/order";
 
-const shippingAddressDefaultValues =
+
+let shippingAddressDefaultValues =
     process.env.NODE_ENV === 'development'
         ? {
             fullName: 'Admin',
@@ -41,9 +44,9 @@ const shippingAddressDefaultValues =
             fullName: '',
             street: '',
             city: '',
-            province: '',
             phone: '',
-            country: '',
+            district: '',
+            ward: '',
         }
 const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
     const {
@@ -60,6 +63,14 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
     useEffect(() => {
         if (allAddress) {
             setMyAddresses(allAddress)
+            const addressDef = allAddress[0]
+            shippingAddressDefaultValues = {
+                ...shippingAddressDefaultValues,
+                city: addressDef.province.name,
+                district: addressDef.district.name,
+                ward: addressDef.ward.name,
+
+            }
         }
     }, []);
     const router = useRouter()
@@ -73,11 +84,13 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
             deliveryDateIndex,
             paymentMethod = DEFAULT_PAYMENT_METHOD,
         },
+        createOrder,
         setShippingAddress,
         setPaymentMethod,
         updateItem,
         removeItem,
         setDeliveryDateIndex,
+        reloadCart
     } = useCartStore()
     const isMounted = useIsMounted()
 
@@ -85,14 +98,15 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
         resolver: zodResolver(ShippingAddressSchema),
         defaultValues: shippingAddress || shippingAddressDefaultValues,
     })
+
     const onSubmitShippingAddress: SubmitHandler<ShippingAddress> = async (values) => {
         const infoShips = await getInfoShips(location.myAddressSelected?.id)
         let priceShip = 0
         if (typeof infoShips !== "string") {
             setInfoShips(infoShips)
-            priceShip = parseInt(infoShips[0].gia_cuoc)
+            priceShip = parseInt(infoShips[indexInfoShips].gia_cuoc)
         }
-        setShippingAddress(values,priceShip)
+        setShippingAddress(values, priceShip)
         setIsAddressSelected(true)
     }
     useEffect(() => {
@@ -106,20 +120,42 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
     }, [cartItems, isMounted, router, shippingAddress, shippingAddressForm])
     const [isAddressSelected, setIsAddressSelected] = useState<boolean>(false)
     const [infoShips, setInfoShips] = useState<InfoShippingAddress[]>([])
+    const [indexInfoShips, setIndexInfoShips] = useState<number>(0)
     const [isPaymentMethodSelected, setIsPaymentMethodSelected] =
         useState<boolean>(false)
     const [isDeliveryDateSelected, setIsDeliveryDateSelected] =
         useState<boolean>(false)
-
     const handlePlaceOrder = async () => {
-        // TODO: place order
+        if (location.myAddressSelected?.id) {
+            const createOrderTemp = createOrder(
+                location.myAddressSelected.id,
+                infoShips[indexInfoShips],
+                '',
+                ''
+            )
+            const res = await createMyOrder(createOrderTemp)
+            if (typeof res === 'string') {
+                toast({
+                    description: res,
+                    variant: 'destructive',
+                })
+            } else {
+                toast({
+                    description: 'Successfully created order',
+                    variant: 'success',
+                })
+                await reloadCart()
+                router.push(`/checkout/${res.orderId}`)
+
+            }
+        }
     }
     const handleSelectPaymentMethod = () => {
         setIsAddressSelected(true)
         setIsPaymentMethodSelected(true)
     }
     const handleSelectShippingAddress = async () => {
-       await shippingAddressForm.handleSubmit(onSubmitShippingAddress)()
+        await shippingAddressForm.handleSubmit(onSubmitShippingAddress)()
     }
     const CheckoutSummary = () => (
         <Card>
@@ -726,6 +762,7 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
                                                             }
                                                             onValueChange={(value) => {
                                                                 const index = infoShips.findIndex((address) => address.ten_dichvu === value)!
+                                                                setIndexInfoShips(index)
                                                                 setDeliveryDateIndex(index, parseInt(infoShips[index].gia_cuoc))
                                                             }
                                                             }

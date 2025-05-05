@@ -1,7 +1,7 @@
 'use client'
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {cn} from "@/lib/utils";
-import {IProduct, IProductDetail, IProductSize} from "@/lib/response/product";
+import {IProduct} from "@/lib/response/product";
 import {EditTabDetailContent} from "@/app/dashboard/products/edit-component";
 import {TabsContent} from "@/components/ui/tabs";
 import * as React from "react";

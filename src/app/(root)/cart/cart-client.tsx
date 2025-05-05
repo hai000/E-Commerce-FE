@@ -11,10 +11,11 @@ import BrowsingHistoryList from "@/components/shared/browsing-history-list";
 import React from "react";
 import {useRouter} from "next/navigation";
 import {Checkbox} from "@/components/ui/checkbox";
+import {toast} from "@/hooks/use-toast";
 
 export default function CartPageClient() {
     const {
-        cart: { cartItems, itemsPrice },
+        cart: {cartItems, itemsPrice},
         checkCartItems,
         updateItem,
         removeItem,
@@ -46,12 +47,14 @@ export default function CartPageClient() {
                                             key={item.id}
                                             className='flex flex-col md:flex-row justify-between md:items-center lg:items-center py-4 border-b gap-4'
                                         >
-                                                <Checkbox className='w-9 h-9 align-items: center' defaultChecked={item.isChecked} onCheckedChange={(checkedState) => {
-                                                    if (typeof checkedState.valueOf() == "boolean") {
-                                                        checkCartItems(checkedState.valueOf() as boolean, item.id)
-                                                    }
+                                            <Checkbox className='w-9 h-9 align-items: center'
+                                                      defaultChecked={item.isChecked}
+                                                      onCheckedChange={(checkedState) => {
+                                                          if (typeof checkedState.valueOf() == "boolean") {
+                                                              checkCartItems(checkedState.valueOf() as boolean, item.id)
+                                                          }
 
-                                                }} id={item.id}/>
+                                                      }} id={item.id}/>
 
                                             <Link href={`/product/${item.productId}`}>
                                                 <div className='relative w-40 h-40'>
@@ -85,7 +88,7 @@ export default function CartPageClient() {
                                                         item.size ? <p className='text-sm'>
                                                             <span className='font-bold'>Size: </span>{' '}
                                                             {item.size.size}
-                                                        </p>: <div/>
+                                                        </p> : <div/>
                                                     }
 
                                                 </div>
@@ -183,7 +186,24 @@ export default function CartPageClient() {
                     </span>{' '}
                                     </div>
                                     <Button
-                                        onClick={() => router.push('/checkout')}
+                                        onClick={() => {
+                                            const hasBuy = cartItems.find(cartItem => cartItem.isChecked)
+                                            if (hasBuy) {
+                                                toast({
+                                                    title: 'Success',
+                                                    description: "Let's check out.",
+                                                    variant: 'success',
+                                                })
+                                                router.push('/checkout')
+                                            }else {
+                                                toast({
+                                                    title: 'Error',
+                                                    description: "Please select your item.",
+                                                    variant: 'destructive',
+                                                })
+                                            }
+                                        }
+                                        }
                                         className='rounded-full w-full'
                                     >
                                         Proceed to Checkout

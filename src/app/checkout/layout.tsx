@@ -2,6 +2,7 @@ import { HelpCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import {Toaster} from "@/components/ui/toaster";
 
 export default function CheckoutLayout({
                                            children,
@@ -35,6 +36,7 @@ export default function CheckoutLayout({
                 </div>
             </header>
             {children}
+            <Toaster/>
         </div>
     )
 }

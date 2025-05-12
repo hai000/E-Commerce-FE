@@ -1,4 +1,4 @@
-import {IProduct, IProductColor, IProductDetail, IProductSize} from "@/lib/response/product";
+import {IProductColor, IProductDetail, IProductSize} from "@/lib/response/product";
 import {create} from "zustand/index";
 import {persist} from "zustand/middleware";
 import {getProductDetailById} from "@/lib/api/product-detail";

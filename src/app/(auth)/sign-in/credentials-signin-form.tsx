@@ -7,11 +7,13 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage,} from '@
 import {useForm} from 'react-hook-form'
 import {APP_NAME} from '@/lib/constants'
 import {IUserLoginRequest} from "@/lib/request/user";
-import {login} from "@/lib/api/user";
 import {toast} from "@/hooks/use-toast";
 import {UserSignInSchema} from "@/lib/validator";
-import { zodResolver } from '@hookform/resolvers/zod'
+import {zodResolver} from '@hookform/resolvers/zod'
 import useCartStore from "@/hooks/use-cart-store";
+import {isRedirectError} from "next/dist/client/components/redirect-error";
+import {signInWithCredentials} from "@/lib/api/user";
+
 const signInDefaultValues =
     process.env.NODE_ENV === 'development'
         ? {
@@ -35,37 +37,55 @@ export default function CredentialsSignInForm() {
 
     const {control, handleSubmit} = form
     const onSubmit = async (data: IUserLoginRequest) => {
-        const user = await login(data)
-        if (typeof user === 'string') {
+        try {
+            await signInWithCredentials({
+                username: data.username,
+                password: data.password,
+            })
+            await reloadCart()
+            redirect(callbackUrl)
+        } catch (e) {
+            if (isRedirectError(e)) {
+                throw e
+            }
+            console.log(e)
             toast({
                 title: 'Error',
-                description: user,
+                description: "Invalid credentials.",
                 variant: 'destructive',
             })
-        } else {
-            const tokens = { accessToken: user.accessToken, refreshToken: user.refreshToken };
-            await fetch('/api/auth/set-cookies', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(tokens),
-            });
-            reloadCart()
-            console.log('Set up successfully');
-            redirect(callbackUrl)
         }
+
+        // if (typeof user === 'string') {
+        //     toast({
+        //         title: 'Error',
+        //         description: user,
+        //         variant: 'destructive',
+        //     })
+        // } else {
+        //     const tokens = { accessToken: user.accessToken, refreshToken: user.refreshToken };
+        //     await fetch('/api/auth/set-cookies', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify(tokens),
+        //     });
+        //     reloadCart()
+        //     console.log('Set up successfully');
+        //     redirect(callbackUrl)
+        // }
     }
 
     return (
         <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <input type="hidden" name="callbackUrl" value={callbackUrl} />
+                <input type="hidden" name="callbackUrl" value={callbackUrl}/>
                 <div className="space-y-6">
                     <FormField
                         control={control}
                         name="username"
-                        render={({ field }) => (
+                        render={({field}) => (
                             <FormItem className="w-full">
                                 <FormLabel>Username</FormLabel>
                                 <FormControl>
@@ -74,7 +94,7 @@ export default function CredentialsSignInForm() {
                                         {...field}
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage/>
                             </FormItem>
                         )}
                     />
@@ -82,7 +102,7 @@ export default function CredentialsSignInForm() {
                     <FormField
                         control={control}
                         name="password"
-                        render={({ field }) => (
+                        render={({field}) => (
                             <FormItem className="w-full">
                                 <FormLabel>Password</FormLabel>
                                 <FormControl>
@@ -92,7 +112,7 @@ export default function CredentialsSignInForm() {
                                         {...field}
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage/>
                             </FormItem>
                         )}
                     />

@@ -1,35 +1,43 @@
 'use server'
-import {callApiGetStatus, callApiToObject, generateHeaderAccessToken} from "@/lib/utils";
-import {DOMAIN, POST_METHOD} from "@/lib/constants";
+import {callApiToObject, generateHeaderAccessTokenString} from "@/lib/utils";
+import {POST_METHOD} from "@/lib/constants";
 import {IUser} from "@/lib/response/user";
 import {IUserLoginRequest, IUserRegisterRequest} from "@/lib/request/user";
 import {ILogin} from "@/lib/response/login";
+import {signIn, signOut} from "@/app/auth";
+import {redirect} from "next/navigation";
 
 export async function login(request: IUserLoginRequest) {
     return callApiToObject<ILogin>({url: '/identity/user/login',method: POST_METHOD, data: request});
 }
+export async function signInWithCredentials(user: IUserLoginRequest) {
+    return await signIn('credentials', { ...user, redirect: false })
+}
+export async function refreshToken(request:{refreshToken?: string}) {
+    if (!request.refreshToken) {
+        return 'Refresh token is not valid';
+    }
+    return callApiToObject<ILogin>({url: '/identity/user/refreshToken',method: POST_METHOD, data: request});
+}
 export async function register(request:IUserRegisterRequest) {
     return callApiToObject<IUser>({url: '/identity/user/register', method: POST_METHOD, data: request});
 }
-export async function logOut(){
-    return {
-        redirect: "",
-    }
+export const SignOut = async () => {
+    const redirectTo = await signOut({ redirect: false })
+    redirect(redirectTo.redirect)
 }
-export async function getInfo(request:ILogin) {
-    return callApiToObject<IUser>({url:`/identity/user/getInfo`,headers: generateHeaderAccessToken(request)});
-}
-async function checkValidToken(request:ILogin) {
-    return callApiGetStatus({url:'/identity/user/validToken',method: POST_METHOD, data:request});
-}
-export async function auth(data: {
-    accessToken?: string;
-    refreshToken?: string;
+export async function getInfo({
+    accessToken,
+                              }: {
+    accessToken: string;
 }) {
-    if (data.accessToken&&data.refreshToken) {
-       return await checkValidToken({accessToken: data.accessToken, refreshToken:data.refreshToken})
-    }else {
-        return false
-    }
-
+    return callApiToObject<IUser>({url:`/identity/user/getInfo`,headers: generateHeaderAccessTokenString(accessToken)});
 }
+// async function checkValidToken() {
+//     const session = await auth()
+//     if (!session) {
+//         return 'Session timeout';
+//     }
+//     return callApiGetStatus({url:'/identity/user/validToken',method: POST_METHOD,headers: generateHeaderAccessToken(session)});
+// }
+

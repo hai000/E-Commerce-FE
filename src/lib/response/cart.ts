@@ -1,5 +1,5 @@
 import {Category} from "@/lib/response/category";
-import {IProductColor, IProductImage, IProductSize} from "@/lib/response/product";
+import {IProductColor, IProductSize} from "@/lib/response/product";
 import {ShippingAddress} from "@/lib/request/location";
 
 export interface Cart{

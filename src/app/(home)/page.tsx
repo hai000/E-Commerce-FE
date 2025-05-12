@@ -9,11 +9,6 @@ import {getAllCategories} from "@/lib/api/category";
 import {Category} from "@/lib/response/category";
 
 export default async function HomePage() {
-    // const user= await login({
-    //     username: "hai",
-    //     password:"string",
-    // });
-    // console.log(user);
     const categories = (await getAllCategories()).slice(0, 4) as Category[];
     const newArrivals = await getProductsForCard({
         tag: 'new-arrival',

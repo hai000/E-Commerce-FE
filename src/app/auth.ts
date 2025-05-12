@@ -55,7 +55,7 @@ const providers: Provider[] = [
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: providers,
     callbacks: {
-        jwt: async ({ token,account, user }) => {
+        jwt: async ({ token, user }) => {
             if (token?.accessToken) {
                 try {
                     const decodedToken = jwtDecode<JwtPayload>(token.accessToken as string);
@@ -69,7 +69,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
 
             if (user) {
-                // @ts-ignore
                 const decodedToken = jwtDecode<JwtPayload>(user.accessToken)
                 return {
                     ...token,
@@ -78,12 +77,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     email: user.email,
                     accessToken: user.accessToken,
                     refreshToken: user.refreshToken,
-                    // @ts-ignore
+                    // @ts-expect-error Expected type mismatch due to legacy code
                     accessTokenExpires: decodedToken.exp*1000,
                     role: user.role
                 };
             }
-            // @ts-ignore
+            // @ts-expect-error Expected type mismatch due to legacy code
             if (Date.now() < token.accessTokenExpires) {
                 console.log('token is not expired');
                 //token is valid

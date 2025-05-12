@@ -1,7 +1,6 @@
 'use server'
 import {callApiGetStatus, callApiToObject, generateHeaderAccessToken} from "@/lib/utils";
 import {Cart, CartItem} from "@/lib/response/cart";
-import {ILogin} from "@/lib/response/login";
 import {DELETE_METHOD, POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {auth} from "@/app/auth";
 

@@ -86,18 +86,17 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
         init()
     }
     useEffect(() => {
-        if (allAddress) {
-            setMyAddresses(allAddress)
-            const addressDef = allAddress[0]
+        if (allAddress && allAddress.length > 0) {
+            setMyAddresses(allAddress);
+            const addressDef = allAddress[0];
             shippingAddressDefaultValues = {
                 ...shippingAddressDefaultValues,
-                city: addressDef.province.name,
-                district: addressDef.district.name,
-                ward: addressDef.ward.name,
-
-            }
+                city: addressDef.province?.name || '', // Thêm kiểm tra nullish
+                district: addressDef.district?.name || '', // Thêm kiểm tra nullish
+                ward: addressDef.ward?.name || '', // Thêm kiểm tra nullish
+            };
         }
-    }, []);
+    }, [allAddress, setMyAddresses]);
 
     const isMounted = useIsMounted()
 
@@ -350,7 +349,7 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
                                                 </div>
                                                 <div className='flex flex-col gap-5 md:flex-row'>
                                                     {!location.provinces || !location.districts || !location.wards ?
-                                                        (<p>Can't load page</p>) : (
+                                                        ( `<p>Can't load page</p>`) : (
                                                             <>
                                                                 <FormField
                                                                     control={shippingAddressForm.control}

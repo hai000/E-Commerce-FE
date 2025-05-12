@@ -2,8 +2,6 @@
 
 import {Card, CardContent} from '@/components/ui/card'
 import {useToast} from '@/hooks/use-toast'
-import {formatDateTime} from '@/lib/utils'
-
 import CheckoutFooter from '../checkout-footer'
 import {redirect, useRouter} from 'next/navigation'
 import {Button} from '@/components/ui/button'

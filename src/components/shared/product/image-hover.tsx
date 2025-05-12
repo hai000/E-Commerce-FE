@@ -12,14 +12,17 @@ const ImageHover = ({
     alt: string
 }) => {
     const [isHovered, setIsHovered] = useState(false)
-    let hoverTimeout: any
+    let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
     const handleMouseEnter = () => {
         hoverTimeout = setTimeout(() => setIsHovered(true), 1000)
     }
 
     const handleMouseLeave = () => {
-        clearTimeout(hoverTimeout)
-        setIsHovered(false)
+        if (hoverTimeout) {
+            clearTimeout(hoverTimeout);
+            setIsHovered(false);
+            hoverTimeout = null;
+        }
     }
 
     return (

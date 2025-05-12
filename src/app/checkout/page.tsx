@@ -13,5 +13,6 @@ export default async function CheckoutPage() {
         redirect('/sign-in?callbackUrl=/checkout');
     }
     const allAddress = await getMyAddresses()
+
     return (<CheckoutForm allAddress={typeof allAddress === "string"? undefined : allAddress}/>)
 }

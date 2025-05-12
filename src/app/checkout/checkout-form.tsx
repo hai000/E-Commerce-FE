@@ -49,6 +49,31 @@ let shippingAddressDefaultValues =
             ward: '',
         }
 const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
+    const router = useRouter()
+    const {
+        cart: {
+            cartItems,
+            itemsPrice,
+            shippingPrice,
+            totalPrice,
+            shippingAddress,
+            deliveryDateIndex,
+            paymentMethod = DEFAULT_PAYMENT_METHOD,
+        },
+        cartChecked,
+        createOrder,
+        setShippingAddress,
+        setPaymentMethod,
+        updateItem,
+        removeItem,
+        setDeliveryDateIndex,
+        clearCart
+    } = useCartStore()
+    useEffect(() => {
+        if (cartChecked.length == 0) {
+            router.push('/cart');
+        }
+    }, []);
     const {
         location,
         init,
@@ -73,25 +98,7 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
             }
         }
     }, []);
-    const router = useRouter()
-    const {
-        cart: {
-            cartItems,
-            itemsPrice,
-            shippingPrice,
-            totalPrice,
-            shippingAddress,
-            deliveryDateIndex,
-            paymentMethod = DEFAULT_PAYMENT_METHOD,
-        },
-        createOrder,
-        setShippingAddress,
-        setPaymentMethod,
-        updateItem,
-        removeItem,
-        setDeliveryDateIndex,
-        reloadCart
-    } = useCartStore()
+
     const isMounted = useIsMounted()
 
     const shippingAddressForm = useForm<ShippingAddress>({
@@ -117,7 +124,7 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
         shippingAddressForm.setValue('district', shippingAddress.district)
         shippingAddressForm.setValue('ward', shippingAddress.ward)
         shippingAddressForm.setValue('phone', shippingAddress.phone)
-    }, [cartItems, isMounted, router, shippingAddress, shippingAddressForm])
+    }, [cartItems ,isMounted, router, shippingAddress, shippingAddressForm])
     const [isAddressSelected, setIsAddressSelected] = useState<boolean>(false)
     const [infoShips, setInfoShips] = useState<InfoShippingAddress[]>([])
     const [indexInfoShips, setIndexInfoShips] = useState<number>(0)
@@ -126,6 +133,7 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
     const [isDeliveryDateSelected, setIsDeliveryDateSelected] =
         useState<boolean>(false)
     const handlePlaceOrder = async () => {
+        // order
         if (location.myAddressSelected?.id) {
             const createOrderTemp = createOrder(
                 location.myAddressSelected.id,
@@ -144,7 +152,7 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
                     description: 'Successfully created order',
                     variant: 'success',
                 })
-                await reloadCart()
+                await clearCart()
                 router.push(`/checkout/${res.orderId}`)
 
             }
@@ -235,8 +243,8 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
             </CardContent>
         </Card>
     )
-
-    return (
+    console.log(cartChecked)
+    return (cartChecked.length === 0 || !cartChecked) ? null :(
         <main className='max-w-6xl mx-auto highlight-link'>
             <div className='grid md:grid-cols-4 gap-6'>
                 <div className='md:col-span-3'>

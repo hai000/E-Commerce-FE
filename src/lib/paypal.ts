@@ -1,6 +1,8 @@
+import {Address} from "@/lib/response/address";
+
 const base = process.env.PAYPAL_API_URL || 'https://api-m.sandbox.paypal.com'
 export const paypal = {
-    createOrder: async function createOrder(price: number) {
+    createOrder: async function createOrder( price: number) {
         const accessToken = await generateAccessToken()
         const url = `${base}/v2/checkout/orders`
         const response = await fetch(url, {
@@ -17,8 +19,12 @@ export const paypal = {
                             currency_code: 'USD',
                             value: price,
                         },
+
                     },
                 ],
+                application_context: {
+                    shipping_preference: "NO_SHIPPING"
+                }
             }),
         })
         return handleResponse(response)
@@ -39,7 +45,7 @@ export const paypal = {
 }
 
 async function generateAccessToken() {
-    const { PAYPAL_CLIENT_ID, PAYPAL_APP_SECRET } = process.env
+    const {PAYPAL_CLIENT_ID, PAYPAL_APP_SECRET} = process.env
     const auth = Buffer.from(PAYPAL_CLIENT_ID + ':' + PAYPAL_APP_SECRET).toString(
         'base64'
     )

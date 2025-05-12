@@ -35,7 +35,7 @@ interface CartState {
     checkCartItems: (isChecked: boolean, cartItemId: string) => void,
     reloadCart: () => Promise<void>,
     init: () => Promise<void>,
-    clearCart: () => void,
+    clearCart: () => Promise<void>,
     createOrder: (addressId: string, deliveryMethod: InfoShippingAddress, freeshipVcId: string | null, productVcId: string | null) => CreateOrderRequest,
     addItem: (item: CartItem, quantity: number) => Promise<string>
     updateItem: (item: CartItem, quantity: number) => Promise<void>
@@ -194,8 +194,12 @@ const useCartStore = create(
                     },
                 })
             },
-            clearCart: () => {
-
+            clearCart: async () => {
+                set({
+                    ...get().cart,
+                    cartChecked: []
+                })
+                await get().reloadCart()
             },
         }),
 

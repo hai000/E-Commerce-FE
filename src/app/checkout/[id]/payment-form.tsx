@@ -23,6 +23,7 @@ export default function OrderPaymentForm({
     const router = useRouter()
     const {toast} = useToast()
     const {isPaid,paymentMethod} = {isPaid: order.totalPayment <= 0,paymentMethod: 'PayPal' }
+    console.log(order.orderItems[0])
     if (isPaid) {
         redirect(`/account/orders/${order.orderId}`)
     }
@@ -51,35 +52,36 @@ export default function OrderPaymentForm({
         const res = await approvePayPalOrder(order.orderId, data)
         toast({
             description: res.message as string,
-            variant: res.success ? 'default' : 'destructive',
+            variant: res.success ? 'success' : 'destructive',
         })
     }
-
+    const priceShip = parseFloat(order.deliveryMethod.gia_cuoc)-(order.shipDecrease)
+    const itemsPrice = order.orderItems.reduce((pre, item) => pre + item.quantity*item.originalPrice*((100-item.discount)/100) ,0)
     const CheckoutSummary = () => (
         <Card>
             <CardContent className='p-4'>
                 <div>
-                    <div className='text-lg font-bold'>Order Summary</div>
+                    {/*<div className='text-lg font-bold'>Order Summary</div>*/}
                     <div className='space-y-2'>
-              {/*          <div className='flex justify-between'>*/}
-              {/*              <span>Items:</span>*/}
-              {/*              <span>*/}
-              {/*  {' '}*/}
-              {/*                  <ProductPrice price={order.totalPrice} plain/>*/}
-              {/*</span>*/}
-              {/*          </div>*/}
-              {/*          <div className='flex justify-between'>*/}
-              {/*              <span>Shipping & Handling:</span>*/}
-              {/*              <span>*/}
-              {/*  {shippingPrice === undefined ? (*/}
-              {/*      '--'*/}
-              {/*  ) : shippingPrice === 0 ? (*/}
-              {/*      'FREE'*/}
-              {/*  ) : (*/}
-              {/*      <ProductPrice price={shippingPrice} plain/>*/}
-              {/*  )}*/}
-              {/*</span>*/}
-              {/*          </div>*/}
+                        <div className='flex justify-between'>
+                            <span>Items:</span>
+                            <span>
+                {' '}
+                                <ProductPrice price={itemsPrice} plain/>
+              </span>
+                        </div>
+                        <div className='flex justify-between'>
+                            <span>Shipping & Handling:</span>
+                            <span>
+                {priceShip === undefined ? (
+                    '--'
+                ) : priceShip == 0 ? (
+                    'FREE'
+                ) : (
+                    <ProductPrice price={priceShip} plain/>
+                )}
+              </span>
+                        </div>
               {/*          <div className='flex justify-between'>*/}
               {/*              <span> Tax:</span>*/}
               {/*              <span>*/}
@@ -137,7 +139,7 @@ export default function OrderPaymentForm({
                             <div className='col-span-2'>
                                 <p>
                                     {order.receiverAddress.houseNumber} <br/>
-                                    {`${order.receiverAddress.ward}, ${order.receiverAddress.district}, ${order.receiverAddress.province}`}
+                                    {`${order.receiverAddress.ward.name}, ${order.receiverAddress.district.name}, ${order.receiverAddress.province.name}`}
                                 </p>
                             </div>
                         </div>
@@ -161,13 +163,12 @@ export default function OrderPaymentForm({
                         </div>
                         <div className='col-span-2'>
                             <p>
-                                Delivery in:
-                                {order.deliveryMethod.thoi_gian}
+                                Delivery in: {order.deliveryMethod.thoi_gian}
                             </p>
                             <ul>
                                 {order.orderItems.map((item) => (
                                     <li key={item.productId}>
-                                        {item.productName} x {item.quantity} = {item.quantity*item.originalPrice*item.discount}
+                                        {item.productName} ({item.originalPrice}) x {item.quantity} = {item.quantity*item.originalPrice*((100-item.discount)/100)} {(100-item.discount) ==0? '' : `(-${(item.discount)}%)`}
                                     </li>
                                 ))}
                             </ul>

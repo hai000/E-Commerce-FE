@@ -56,8 +56,8 @@ const useCartStore = create(
                     {
                         productId: item.productId,
                         quantity: `${quantity}`,
-                        productSize: item.size.id,
-                        productColor: item.color.id,
+                        productSize: item.size?.id || '',
+                        productColor: item.color?.id || '',
                     }
                 )
                 if (typeof res === "string") {

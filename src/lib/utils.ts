@@ -125,7 +125,9 @@ export async function callApiToObject<T>({ url, method, data, headers }: ApiCall
     return error as string;
   }
 }
-
+export function isValidHexColor(code: string): boolean {
+  return /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(code);
+}
 export function formatId(id: string) {
   return `..${id.substring(id.length - 6)}`
 }

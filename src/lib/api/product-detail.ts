@@ -1,4 +1,3 @@
-'use client'
 import {callApiToArray} from "@/lib/utils";
 import {IProductDetail} from "@/lib/response/product";
 

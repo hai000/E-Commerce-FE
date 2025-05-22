@@ -25,8 +25,8 @@ export interface CartItem {
     discount:number,
     published:boolean,
     category:Category,
-    color:IProductColor
-    size: IProductSize,
+    color?:IProductColor
+    size?: IProductSize,
     images:string[],
     description:string,
     brand:string,

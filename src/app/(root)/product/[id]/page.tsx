@@ -34,16 +34,16 @@ export default async function ProductDetails(props: {
     searchParams: Promise<{page: string; colorId: string; sizeId: string; color:string,size:string }>
 }) {
     const {page, colorId, sizeId, color, size } = await props.searchParams
-    const colorNow = {
+    const colorNow = colorId ? {
         id: colorId,
         colorName: color,
         color: '',
-    } as unknown as IProductColor
-    const sizeNow = {
+    } as unknown as IProductColor : undefined
+    const sizeNow = sizeId ? {
         id: sizeId,
         size: size,
         description: '',
-    } as unknown as IProductSize
+    } as unknown as IProductSize : undefined
     const { id } = await props.params
 
     const product = await getProductById(id)
@@ -92,10 +92,10 @@ export default async function ProductDetails(props: {
                         <div>
                             <SelectVariant
                                 product={product}
-                                colorId={colorId ||  (product.colors[0] ? product.colors[0].id:'') }
-                                sizeId={sizeId || (product.sizes[0] ? product.sizes[0].id:'')}
-                                color={color||(product.colors[0] ? product.colors[0].colorName:'')}
-                                size={size || (product.sizes[0] ? product.sizes[0].size:'')}
+                                colorId={colorId || product.colors?.[0]?.id || '' }
+                                sizeId={sizeId || product.sizes?.[0]?.id || ''}
+                                color={color||product.colors?.[0]?.colorName || ''}
+                                size={size || product.sizes?.[0]?.size || ''}
                             />
                         </div>
                         <Separator className='my-2' />
@@ -135,8 +135,8 @@ export default async function ProductDetails(props: {
                                                 discount: product.defaultDiscount,
                                                 published: product.published,
                                                 category: product.category,
-                                                color: colorNow || product.colors[0],
-                                                size: sizeNow || product.sizes[0],
+                                                color: colorNow || product.colors?.[0],
+                                                size: sizeNow || product.sizes?.[0],
                                                 images: product.images.map(x => x.imagePath),
                                                 description: product.description,
                                                 brand: product.brand,

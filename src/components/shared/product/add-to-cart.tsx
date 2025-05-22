@@ -31,9 +31,9 @@ export default function AddToCart({
     return minimal ? (
         <Button
             className='rounded-full w-auto'
-            onClick={() => {
+            onClick={ async () => {
                 try {
-                    addItem(item, 1)
+                    await addItem(item, 1)
                     toast({
                         description: 'Added to Cart',
                         action: (
@@ -98,13 +98,14 @@ export default function AddToCart({
             </Button>
             <Button
                 variant='secondary'
-                onClick={() => {
+                onClick={async () => {
                     try {
-                        addItem(item, quantity)
+                        await addItem(item, quantity)
                         router.push(`/checkout`)
                     } catch (
                         // @ts-expect-error Expected type mismatch due to legacy code
                         error: Error) {
+                        console.log("Error in 108 add-to-cart.tsx" )
                         toast({
                             variant: 'destructive',
                             description: error.message,

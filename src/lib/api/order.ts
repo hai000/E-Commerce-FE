@@ -64,6 +64,7 @@ export async function approvePayPalOrder(
             throw new Error('Error in paypal payment')
         order.totalPayment = order.totalPrice - parseFloat(captureData.purchase_units[0]?.payments?.captures[0]?.amount?.value)
         console.log(order.totalPayment)
+        console.log(captureData)
         // await order.save()
         // await sendPurchaseReceipt({ order })
         revalidatePath(`/account/orders/${orderId}`)

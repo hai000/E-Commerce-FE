@@ -45,7 +45,7 @@ export default async function OrdersPage(props: {
                             <TableHead>Date</TableHead>
                             <TableHead>Total</TableHead>
                             <TableHead>Paid</TableHead>
-                            <TableHead>Delivered</TableHead>
+                            <TableHead>Status</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -76,8 +76,7 @@ export default async function OrdersPage(props: {
                                         : 'No'}
                                 </TableCell>
                                 <TableCell>
-                                    {order.status==2 ? 'Yes'
-                                        : 'No'}
+                                    {order.status.statusName}
                                 </TableCell>
                                 <TableCell>
                                     <Link href={`/account/orders/${order.orderId}`}>

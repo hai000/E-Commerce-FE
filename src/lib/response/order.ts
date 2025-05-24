@@ -7,7 +7,7 @@ export interface Order {
     receiverAddress: Address
     deliveryMethod: InfoShippingAddress,
     orderItems: OrderItem[]
-    status: number
+    status: Status
     productDecrease: number
     shipDecrease: number
     totalPrice: number
@@ -16,6 +16,7 @@ export interface Order {
     updatedAt: Date
 }
 export interface OrderItem {
+    id: string,
     productId: string,
     productName: string,
     productImages: string[],
@@ -26,6 +27,10 @@ export interface OrderItem {
     quantity: number
     createdAt: Date
     updatedAtL: Date
+}
+export interface Status {
+    statusCode: number,
+    statusName: string,
 }
 export interface OrderUser{
     id: string,

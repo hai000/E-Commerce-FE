@@ -8,7 +8,7 @@ import {signIn, signOut} from "@/app/auth";
 import {redirect} from "next/navigation";
 
 export async function login(request: IUserLoginRequest) {
-    return callApiToObject<ILogin>({url: '/identity/user/login',method: POST_METHOD, data: request});
+    return callApiToObject<ILogin>({url: '/identity/users/login',method: POST_METHOD, data: request});
 }
 export async function signInWithCredentials(user: IUserLoginRequest) {
     return await signIn('credentials', { ...user, redirect: false })
@@ -17,10 +17,10 @@ export async function refreshToken(request:{refreshToken?: string}) {
     if (!request.refreshToken) {
         return 'Refresh token is not valid';
     }
-    return callApiToObject<ILogin>({url: '/identity/user/refreshToken',method: POST_METHOD, data: request});
+    return callApiToObject<ILogin>({url: '/identity/users/refreshToken',method: POST_METHOD, data: request});
 }
 export async function register(request:IUserRegisterRequest) {
-    return callApiToObject<IUser>({url: '/identity/user/register', method: POST_METHOD, data: request});
+    return callApiToObject<IUser>({url: '/identity/users/register', method: POST_METHOD, data: request});
 }
 export const SignOut = async () => {
     const redirectTo = await signOut({ redirect: false })
@@ -31,13 +31,6 @@ export async function getInfo({
                               }: {
     accessToken: string;
 }) {
-    return callApiToObject<IUser>({url:`/identity/user/getInfo`,headers: generateHeaderAccessTokenString(accessToken)});
+    return callApiToObject<IUser>({url:`/identity/users/myInfo`,headers: generateHeaderAccessTokenString(accessToken)});
 }
-// async function checkValidToken() {
-//     const session = await auth()
-//     if (!session) {
-//         return 'Session timeout';
-//     }
-//     return callApiGetStatus({url:'/identity/user/validToken',method: POST_METHOD,headers: generateHeaderAccessToken(session)});
-// }
 

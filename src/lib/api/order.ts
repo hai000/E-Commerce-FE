@@ -12,11 +12,11 @@ export async function createMyOrder(createOrderRequest:CreateOrderRequest) {
     if (!session) {
         return 'Session timeout';
     }
-    return callApiToObject<Order>({url:'/identity/order/add',method: POST_METHOD,data: createOrderRequest,headers: generateHeaderAccessToken(session)})
+    return callApiToObject<Order>({url:'/identity/orders',method: POST_METHOD,data: createOrderRequest,headers: generateHeaderAccessToken(session)})
 }
 
 export async function getAllOrders() {
-    return callApiToArray<Order>({url:'/identity/order/getAll'})
+    return callApiToArray<Order>({url:'/identity/orders'})
 }
 
 export async function getMyOrders() {
@@ -24,10 +24,10 @@ export async function getMyOrders() {
     if (!session) {
         return 'Session timeout';
     }
-    return callApiToArray<Order>({url:'/identity/order/getMyOrders',headers: generateHeaderAccessToken(session)})
+    return callApiToArray<Order>({url:'/identity/orders/myOrders',headers: generateHeaderAccessToken(session)})
 }
 export async function getOrderById(orderId: string) {
-    return callApiToObject<Order>({url:`/identity/order/getById/${orderId}`})
+    return callApiToObject<Order>({url:`/identity/orders/${orderId}`})
 }
 
 export async function createPayPalOrder(orderId: string) {

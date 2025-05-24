@@ -8,8 +8,8 @@ export async function getMyAddresses() {
     if (!session) {
         return 'Session timeout';
     }
-    return callApiToArray<Address>({url:'/identity/address/getMyAddesses', headers: generateHeaderAccessToken(session)});
+    return callApiToArray<Address>({url:'/identity/addresses/myAddesses', headers: generateHeaderAccessToken(session)});
 }
 export async function getInfoShips(addressId?:string) {
-    return callApiToArray<InfoShippingAddress>({url:`/identity/address/getInfoShips/${addressId}`});
+    return callApiToArray<InfoShippingAddress>({url:`/identity/addresses/infoShips/${addressId}`});
 }

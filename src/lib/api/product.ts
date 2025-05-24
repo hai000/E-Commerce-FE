@@ -7,7 +7,7 @@ import {PAGE_SIZE, POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {callApiToArray, callApiToObject} from "@/lib/utils";
 import {AddColorRequest, AddSizeRequest} from "@/lib/request/product";
 export async function getAllProduct() {
-   return callApiToArray<IProduct>({url: '/identity/product/getALl'})
+   return callApiToArray<IProduct>({url: '/identity/products'})
 }
 export async function getProductsForCard({
                                              tag,
@@ -57,16 +57,16 @@ export async function updateProduct(product?:IProduct) {
         description: product.description,
         brand: product.brand,
     }
-    return callApiToObject<IProduct>({url: '/identity/product/update',data: updateProductRequest,method: PUT_METHOD})
+    return callApiToObject<IProduct>({url: '/identity/products/update',data: updateProductRequest,method: PUT_METHOD})
 }
 export async function getProductById(id: string) {
-    return callApiToObject<IProduct>({url: `/identity/product/getById/${id}`})
+    return callApiToObject<IProduct>({url: `/identity/products/${id}`})
 }
 export async function addColorForProduct(productId: string, colorRequests: AddColorRequest[]) {
-    return callApiToArray<IProductColor>({url: `/identity/product/addColors/${productId}`,data: colorRequests,method: POST_METHOD})
+    return callApiToArray<IProductColor>({url: `/identity/products/addColors/${productId}`,data: colorRequests,method: POST_METHOD})
 }
 export async function addSizeForProduct(productId: string, sizeRequests: AddSizeRequest[]) {
-    return callApiToArray<IProductSize>({url: `/identity/product/addSizes/${productId}`,data: sizeRequests,method: POST_METHOD})
+    return callApiToArray<IProductSize>({url: `/identity/products/addSizes/${productId}`,data: sizeRequests,method: POST_METHOD})
 }
 export async function getRelatedProductsByCategory({
                                                        // @typescript-eslint/no-unused-vars

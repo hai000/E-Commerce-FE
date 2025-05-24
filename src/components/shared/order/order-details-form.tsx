@@ -90,7 +90,7 @@ export default function OrderDetailsForm({
                             </TableHeader>
                             <TableBody>
                                 {items.map((item) => (
-                                    <TableRow key={item.productId}>
+                                    <TableRow key={item.id}>
                                         <TableCell>
                                             <Link
                                                 href={`/product/${item.productId}`}
@@ -108,7 +108,7 @@ export default function OrderDetailsForm({
                                         <TableCell>
                                             <span className='px-2'>{item.quantity}</span>
                                         </TableCell>
-                                        <TableCell className='text-right'>${item.originalPrice}</TableCell>
+                                        <TableCell>${item.originalPrice*(1-item.discount/100)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -124,7 +124,7 @@ export default function OrderDetailsForm({
                             <div>Items</div>
                             <div>
                                 {' '}
-                                <ProductPrice price={order.orderItems.reduce((a, c) => a + c.originalPrice, 0)} plain />
+                                <ProductPrice price={order.orderItems.reduce((a, c) => a + c.originalPrice*(1-c.discount/100)*c.quantity, 0)} plain />
                             </div>
                         </div>
                         <div className='flex justify-between'>
@@ -141,7 +141,7 @@ export default function OrderDetailsForm({
                                 <ProductPrice price={order.totalPrice} plain />
                             </div>
                         </div>
-
+                        {/*important*/}
                         {!isPaid && ['Stripe', 'PayPal'].includes(paymentMethod) && (
                             <Link
                                 className={cn(buttonVariants(), 'w-full')}

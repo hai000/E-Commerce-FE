@@ -9,7 +9,7 @@ export async function getMyCart() {
     if (!session) {
         return 'Session timeout';
     }
-    return await callApiToObject<Cart>({url:'/identity/cart/getMyCart',headers: generateHeaderAccessToken(session)});
+    return await callApiToObject<Cart>({url:'/identity/carts/myCart',headers: generateHeaderAccessToken(session)});
 }
 export async function updateCartItem(data: {
     cartItemId: string,
@@ -19,14 +19,14 @@ export async function updateCartItem(data: {
     if (!session) {
         return 'Session timeout';
     }
-    return await callApiToObject<CartItem>({url:`/identity/cart/updateQuantity?cartItemId=${data.cartItemId}&quantity=${data.quantity}`,method:PUT_METHOD,headers: generateHeaderAccessToken(session)});
+    return await callApiToObject<CartItem>({url:`/identity/carts/items?cartItemId=${data.cartItemId}&quantity=${data.quantity}`,method:PUT_METHOD,headers: generateHeaderAccessToken(session)});
 }
 export async function deleteCartItem(cartItemId:string) {
     const session = await auth()
     if (!session) {
         return 'Session timeout';
     }
-    return callApiGetStatus({url: `/identity/cart/deleteItem/${cartItemId}`,method: DELETE_METHOD, headers: generateHeaderAccessToken(session)});
+    return callApiGetStatus({url: `/identity/carts/items/${cartItemId}`,method: DELETE_METHOD, headers: generateHeaderAccessToken(session)});
 }
 export async function addToCart(data: {
     productId: string,
@@ -38,5 +38,5 @@ export async function addToCart(data: {
     if (!session) {
         return 'Session timeout';
     }
-    return callApiToObject<CartItem>({url:'/identity/cart/addItem',method:POST_METHOD,data: data,headers: generateHeaderAccessToken(session)});
+    return callApiToObject<CartItem>({url:'/identity/carts/items',method:POST_METHOD,data: data,headers: generateHeaderAccessToken(session)});
 }

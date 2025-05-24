@@ -3,7 +3,7 @@ import {callApiToArray, callApiToObject, generateHeaderAccessToken, round2} from
 import {CartItem} from "@/lib/response/cart";
 import {Order} from "@/lib/response/order";
 import {CreateOrderRequest} from "@/lib/request/order";
-import {POST_METHOD} from "@/lib/constants";
+import {PAGE_SIZE, POST_METHOD} from "@/lib/constants";
 import {auth} from "@/app/auth";
 import {paypal} from "@/lib/paypal";
 import {revalidatePath} from "next/cache";
@@ -12,22 +12,30 @@ export async function createMyOrder(createOrderRequest:CreateOrderRequest) {
     if (!session) {
         return 'Session timeout';
     }
-    return callApiToObject<Order>({url:'/identity/order/add',method: POST_METHOD,data: createOrderRequest,headers: generateHeaderAccessToken(session)})
+    return callApiToObject<Order>({url:'/identity/orders',method: POST_METHOD,data: createOrderRequest,headers: generateHeaderAccessToken(session)})
 }
 
 export async function getAllOrders() {
-    return callApiToArray<Order>({url:'/identity/order/getAll'})
+    return callApiToArray<Order>({url:'/identity/orders'})
 }
 
-export async function getMyOrders() {
+export async function getMyOrders({
+                                      limit,
+                                      page,
+                                  }: {
+    limit?: number
+    page: number
+}) {
+    limit = limit || PAGE_SIZE
     const session = await auth()
     if (!session) {
         return 'Session timeout';
     }
-    return callApiToArray<Order>({url:'/identity/order/getMyOrders',headers: generateHeaderAccessToken(session)})
+    const skipAmount = (Number(page) - 1) * limit
+    return callApiToArray<Order>({url:'/identity/orders/myOrders',headers: generateHeaderAccessToken(session)})
 }
 export async function getOrderById(orderId: string) {
-    return callApiToObject<Order>({url:`/identity/order/getById/${orderId}`})
+    return callApiToObject<Order>({url:`/identity/orders/${orderId}`})
 }
 
 export async function createPayPalOrder(orderId: string) {
@@ -64,6 +72,7 @@ export async function approvePayPalOrder(
             throw new Error('Error in paypal payment')
         order.totalPayment = order.totalPrice - parseFloat(captureData.purchase_units[0]?.payments?.captures[0]?.amount?.value)
         console.log(order.totalPayment)
+        console.log(captureData)
         // await order.save()
         // await sendPurchaseReceipt({ order })
         revalidatePath(`/account/orders/${orderId}`)

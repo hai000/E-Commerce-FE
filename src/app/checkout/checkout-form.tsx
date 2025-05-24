@@ -722,7 +722,7 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
 
                                                         <div className='flex-1'>
                                                             <p className='font-semibold'>
-                                                                {item.productName}, {item.color.colorName}, {item.size.size}
+                                                                {item.productName}, {item.color?.colorName?item.color?.colorName+ ', ': ''} {item.size?.size}
                                                             </p>
                                                             <p className='font-bold'>
                                                                 <ProductPrice price={item.price} plain/>

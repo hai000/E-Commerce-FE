@@ -4,6 +4,8 @@ import {toast} from "@/hooks/use-toast";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {EditDescriptionProduct, EditDetailProduct} from "@/app/dashboard/products/edit-product";
+import {getProductDetailById} from "@/lib/api/product-detail";
+import {IProductDetail} from "@/lib/response/product";
 
 export default async function ProductsPage(props: {
     searchParams: Promise<{
@@ -23,9 +25,15 @@ export default async function ProductsPage(props: {
         return;
     }
     let productSelected = undefined
+    let productDetails = [] as IProductDetail[]
     if (id != "") {
-       productSelected = products.find((product) => product.id == id)
+        productSelected = products.find((product) => product.id == id)
+        const productDetailsTemp = await getProductDetailById({productId: id})
+        if (typeof productDetailsTemp !== "string") {
+            productDetails = productDetailsTemp;
+        }
     }
+
     return (
             <div className="grid gap-4 xsm:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 items-stretch">
                 <Card className="h-full">
@@ -49,8 +57,9 @@ export default async function ProductsPage(props: {
                     </TabsList>
                     {productSelected && (
                         <div>
-                            <EditDescriptionProduct className="h-full" product={productSelected}/>
-                            <EditDetailProduct className="h-full" product={productSelected}/>
+                            <EditDescriptionProduct className="h-full" initialProduct={productSelected}/>
+                            <EditDetailProduct className="h-full" productDetails={productDetails}  productSelected={productSelected}/>
+
                         </div>
                     )}
 

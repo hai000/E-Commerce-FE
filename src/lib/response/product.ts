@@ -13,8 +13,8 @@ export interface IProduct {
     }
     description: string
     images: IProductImage[]
-    colors: IProductColor[]
-    sizes: IProductSize[]
+    colors?: IProductColor[]
+    sizes?: IProductSize[]
     tags: string[]
     totalSale: number
     quantity: number
@@ -32,10 +32,6 @@ export interface IProductDetail {
     price: number
     quantity: number
 }
-export interface IProductImage {
-    id: string
-    imagePath: string
-}
 export interface IProductColor {
     id: string
     colorCode: string
@@ -45,4 +41,8 @@ export interface IProductSize {
     id: string
     size: string
     description: string
+}
+export interface IProductImage {
+    id: string
+    imagePath: string
 }

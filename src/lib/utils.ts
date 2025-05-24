@@ -1,7 +1,8 @@
 import {type ClassValue, clsx} from "clsx"
 import {twMerge} from "tailwind-merge"
 import {GET_METHOD, HOST_API} from "@/lib/constants";
-import type {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import qs from 'query-string'
+import {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import {Session} from "@auth/core/types";
 
 export function cn(...inputs: ClassValue[]) {
@@ -38,7 +39,9 @@ export const round2 = (num: number) =>
 export const generateId = () =>
     Array.from({ length: 24 }, () => Math.floor(Math.random() * 10)).join('')
 export const generateHeaderAccessToken = (session:Session) =>{
+
   return {
+    // @ts-ignore
     'Authorization': `Bearer ${session.accessToken}`,
   };
 }
@@ -125,7 +128,9 @@ export async function callApiToObject<T>({ url, method, data, headers }: ApiCall
     return error as string;
   }
 }
-
+export function isValidHexColor(code: string): boolean {
+  return /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(code);
+}
 export function formatId(id: string) {
   return `..${id.substring(id.length - 6)}`
 }
@@ -204,4 +209,25 @@ export const formatDateTime = (dateString: Date | null) => {
     dateOnly: formattedDate,
     timeOnly: formattedTime,
   }
+}
+export function formUrlQuery({
+                               params,
+                               key,
+                               value,
+                             }: {
+  params: string
+  key: string
+  value: string | null
+}) {
+  const currentUrl = qs.parse(params)
+
+  currentUrl[key] = value
+
+  return qs.stringifyUrl(
+      {
+        url: window.location.pathname,
+        query: currentUrl,
+      },
+      { skipNull: true }
+  )
 }

@@ -6,8 +6,9 @@ import {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapte
 import {Session} from "@auth/core/types";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+    return twMerge(clsx(inputs))
 }
+
 export const toSlug = (text: string): string =>
     text
         .toLowerCase()
@@ -16,218 +17,260 @@ export const toSlug = (text: string): string =>
         .replace(/^-+|-+$/g, '')
         .replace(/-+/g, '-')
 export const formatNumberWithDecimal = (num: number): string => {
-  const [int, decimal] = num.toString().split('.')
-  return decimal ? `${int}.${decimal.padEnd(2, '0')}` : int
+    const [int, decimal] = num.toString().split('.')
+    return decimal ? `${int}.${decimal.padEnd(2, '0')}` : int
 }
 const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
-  currency: 'USD',
-  style: 'currency',
-  minimumFractionDigits: 2,
+    currency: 'USD',
+    style: 'currency',
+    minimumFractionDigits: 2,
 })
+
 export function formatCurrency(amount: number) {
-  return CURRENCY_FORMATTER.format(amount)
+    return CURRENCY_FORMATTER.format(amount)
 }
 
 const NUMBER_FORMATTER = new Intl.NumberFormat('en-US')
+
 export function formatNumber(number: number) {
-  return NUMBER_FORMATTER.format(number)
+    return NUMBER_FORMATTER.format(number)
 }
 
 export const round2 = (num: number) =>
     Math.round((num + Number.EPSILON) * 100) / 100
 
 export const generateId = () =>
-    Array.from({ length: 24 }, () => Math.floor(Math.random() * 10)).join('')
-export const generateHeaderAccessToken = (session:Session) =>{
+    Array.from({length: 24}, () => Math.floor(Math.random() * 10)).join('')
+export const generateHeaderAccessToken = (session: Session) => {
 
-  return {
-    // @ts-ignore
-    'Authorization': `Bearer ${session.accessToken}`,
-  };
-}
-export const generateHeaderAccessTokenString = (accessToken:string) =>{
-  return {
-    'Authorization': `Bearer ${accessToken}`,
-  };
-}
-export const getILogin = (cook:ReadonlyRequestCookies) =>{
-  return {
-    accessToken: cook.get('accessToken')?.value,
-    refreshToken: cook.get('refreshToken')?.value
-  }
-
-}
-export async function callApiToArray<T>({ url, method, data, headers }: ApiCallOptions): Promise<T[] | string> {
-  try {
-    const options: RequestInit = {
-      method: method || GET_METHOD,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(headers ? headers : {})
-      },
+    return {
+        // @ts-ignore
+        'Authorization': `Bearer ${session.accessToken}`,
     };
-    if (data) {
-      options.body = JSON.stringify(data);
-    }
-    const response = await fetch(`${HOST_API}${url}`,options);
-    if (!response.ok) {
-      // const errorText = await response.text();
-      // console.error('HTTP Error:', response.status, errorText);
-      return []
-    }
-    const result = await response.json();
-    return result.data as T[] | string;
-  } catch (error) {
-    console.error('Error:', error);
-    return [];
-  }
 }
+export const generateHeaderAccessTokenString = (accessToken: string) => {
+    return {
+        'Authorization': `Bearer ${accessToken}`,
+    };
+}
+export const getILogin = (cook: ReadonlyRequestCookies) => {
+    return {
+        accessToken: cook.get('accessToken')?.value,
+        refreshToken: cook.get('refreshToken')?.value
+    }
+
+}
+
+export async function callApiToArray<T>({url, method, data, headers}: ApiCallOptions): Promise<T[] | string> {
+    try {
+        const options: RequestInit = {
+            method: method || GET_METHOD,
+            headers: {
+                'Content-Type': 'application/json',
+                ...(headers ? headers : {})
+            },
+        };
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
+        const response = await fetch(`${HOST_API}${url}`, options);
+        if (!response.ok) {
+            // const errorText = await response.text();
+            // console.error('HTTP Error:', response.status, errorText);
+            return []
+        }
+        const result = await response.json();
+        return result.data as T[] | string;
+    } catch (error) {
+        console.error('Error:', error);
+        return [];
+    }
+}
+
 export interface ApiCallOptions {
-  url: string;
-  method?: string;
-  data?: unknown;
-  headers?: Record<string, string>; // Hoặc kiểu khác nếu cần
+    url: string;
+    method?: string;
+    data?: unknown;
+    headers?: Record<string, string>; // Hoặc kiểu khác nếu cần
 }
+
 export async function callApiGetStatus({url, method, data, headers}: ApiCallOptions): Promise<boolean> {
-  try {
-    const options: RequestInit = {
-      method: method || GET_METHOD,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(headers ? headers : {})
-      },
-    };
-    if (data) {
-      options.body = JSON.stringify(data);
+    try {
+        const options: RequestInit = {
+            method: method || GET_METHOD,
+            headers: {
+                'Content-Type': 'application/json',
+                ...(headers ? headers : {})
+            },
+        };
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
+        const response = await fetch(`${HOST_API}${url}`, options);
+        const result = await response.json();
+        // console.log(result)
+        return result.success;
+    } catch (error) {
+        console.log(error)
+        return false;
     }
-    const response = await fetch(`${HOST_API}${url}`,options);
-    const result = await response.json();
-    // console.log(result)
-    return result.success;
-  } catch (error) {
-    console.log(error)
-    return false;
-  }
 }
-export async function callApiToObject<T>({ url, method, data, headers }: ApiCallOptions): Promise<T|string> {
-  try {
-    const options: RequestInit = {
-      method: method || GET_METHOD,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(headers ? headers : {})
-      },
-    };
-    if (data) {
-      options.body = JSON.stringify(data);
+
+export async function callApiToObject<T>({url, method, data, headers}: ApiCallOptions): Promise<T | string> {
+    try {
+        const options: RequestInit = {
+            method: method || GET_METHOD,
+            headers: {
+                'Content-Type': 'application/json',
+                ...(headers ? headers : {})
+            },
+        };
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
+        const response = await fetch(`${HOST_API}${url}`, options);
+        const result = await response.json();
+        return result.data as T | string;
+    } catch (error) {
+        return error as string;
     }
-    const response = await fetch(`${HOST_API}${url}`,options);
-    const result = await response.json();
-    return result.data as T | string;
-  } catch (error) {
-    return error as string;
-  }
 }
+
 export function isValidHexColor(code: string): boolean {
-  return /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(code);
+    return /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(code);
 }
+
 export function formatId(id: string) {
-  return `..${id.substring(id.length - 6)}`
+    return `..${id.substring(id.length - 6)}`
 }
+
 export function calculateFutureDate(days: string | null) {
-  const currentDate = new Date()
-  if (typeof days === 'string') {
-    const match = /\d+/.exec(days)
-    if (match) {
-      currentDate.setDate(currentDate.getDate() + (parseInt(match[0])/24))
-      return currentDate
+    const currentDate = new Date()
+    if (typeof days === 'string') {
+        const match = /\d+/.exec(days)
+        if (match) {
+            currentDate.setDate(currentDate.getDate() + (parseInt(match[0]) / 24))
+            return currentDate
+        }
     }
-  }
-  return null
+    return null
 
 }
+
 export function getMonthName(yearAndMonth: string) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [year, monthNumber] = yearAndMonth.split('-')
-  const date = new Date()
-  date.setMonth(parseInt(monthNumber) - 1)
-  return new Date().getMonth() === parseInt(monthNumber) - 1
-      ? `${date.toLocaleString('default', { month: 'long' })} (ongoing)`
-      : date.toLocaleString('default', { month: 'long' })
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [year, monthNumber] = yearAndMonth.split('-')
+    const date = new Date()
+    date.setMonth(parseInt(monthNumber) - 1)
+    return new Date().getMonth() === parseInt(monthNumber) - 1
+        ? `${date.toLocaleString('default', {month: 'long'})} (ongoing)`
+        : date.toLocaleString('default', {month: 'long'})
 }
+
 export function calculatePastDate(days: number) {
-  const currentDate = new Date()
-  currentDate.setDate(currentDate.getDate() - days)
-  return currentDate
+    const currentDate = new Date()
+    currentDate.setDate(currentDate.getDate() - days)
+    return currentDate
 }
+
 export function timeUntilMidnight(): { hours: number; minutes: number } {
-  const now = new Date()
-  const midnight = new Date()
-  midnight.setHours(24, 0, 0, 0) // Set to 12:00 AM (next day)
+    const now = new Date()
+    const midnight = new Date()
+    midnight.setHours(24, 0, 0, 0) // Set to 12:00 AM (next day)
 
-  const diff = midnight.getTime() - now.getTime() // Difference in milliseconds
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+    const diff = midnight.getTime() - now.getTime() // Difference in milliseconds
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
 
-  return { hours, minutes }
+    return {hours, minutes}
 }
 
 export const formatDateTime = (dateString: Date | null) => {
-  const dateTimeOptions: Intl.DateTimeFormatOptions = {
-    month: 'short', // abbreviated month name (e.g., 'Oct')
-    year: 'numeric', // abbreviated month name (e.g., 'Oct')
-    day: 'numeric', // numeric day of the month (e.g., '25')
-    hour: 'numeric', // numeric hour (e.g., '8')
-    minute: 'numeric', // numeric minute (e.g., '30')
-    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
-  }
-  const dateOptions: Intl.DateTimeFormatOptions = {
-    // weekday: 'short', // abbreviated weekday name (e.g., 'Mon')
-    month: 'short', // abbreviated month name (e.g., 'Oct')
-    year: 'numeric', // numeric year (e.g., '2023')
-    day: 'numeric', // numeric day of the month (e.g., '25')
-  }
-  const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: 'numeric', // numeric hour (e.g., '8')
-    minute: 'numeric', // numeric minute (e.g., '30')
-    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
-  }
-  const formattedDateTime: string = dateString ? new Date(dateString).toLocaleString(
-      'en-US',
-      dateTimeOptions
-  ) : "Can't load date"
-  const formattedDate: string =dateString ? new Date(dateString).toLocaleString(
-      'en-US',
-      dateOptions
-  ) : "Can't load date"
-  const formattedTime: string =dateString ? new Date(dateString).toLocaleString(
-      'en-US',
-      timeOptions
-  ) : "Can't load date"
-  return {
-    dateTime: formattedDateTime,
-    dateOnly: formattedDate,
-    timeOnly: formattedTime,
-  }
+    const dateTimeOptions: Intl.DateTimeFormatOptions = {
+        month: 'short', // abbreviated month name (e.g., 'Oct')
+        year: 'numeric', // abbreviated month name (e.g., 'Oct')
+        day: 'numeric', // numeric day of the month (e.g., '25')
+        hour: 'numeric', // numeric hour (e.g., '8')
+        minute: 'numeric', // numeric minute (e.g., '30')
+        hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+    }
+    const dateOptions: Intl.DateTimeFormatOptions = {
+        // weekday: 'short', // abbreviated weekday name (e.g., 'Mon')
+        month: 'short', // abbreviated month name (e.g., 'Oct')
+        year: 'numeric', // numeric year (e.g., '2023')
+        day: 'numeric', // numeric day of the month (e.g., '25')
+    }
+    const timeOptions: Intl.DateTimeFormatOptions = {
+        hour: 'numeric', // numeric hour (e.g., '8')
+        minute: 'numeric', // numeric minute (e.g., '30')
+        hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+    }
+    const formattedDateTime: string = dateString ? new Date(dateString).toLocaleString(
+        'en-US',
+        dateTimeOptions
+    ) : "Can't load date"
+    const formattedDate: string = dateString ? new Date(dateString).toLocaleString(
+        'en-US',
+        dateOptions
+    ) : "Can't load date"
+    const formattedTime: string = dateString ? new Date(dateString).toLocaleString(
+        'en-US',
+        timeOptions
+    ) : "Can't load date"
+    return {
+        dateTime: formattedDateTime,
+        dateOnly: formattedDate,
+        timeOnly: formattedTime,
+    }
 }
+
 export function formUrlQuery({
-                               params,
-                               key,
-                               value,
+                                 params,
+                                 key,
+                                 value,
                              }: {
-  params: string
-  key: string
-  value: string | null
+    params: string
+    key: string
+    value: string | null
 }) {
-  const currentUrl = qs.parse(params)
+    const currentUrl = qs.parse(params)
 
-  currentUrl[key] = value
+    currentUrl[key] = value
 
-  return qs.stringifyUrl(
-      {
-        url: window.location.pathname,
-        query: currentUrl,
-      },
-      { skipNull: true }
-  )
+    return qs.stringifyUrl(
+        {
+            url: window.location.pathname,
+            query: currentUrl,
+        },
+        {skipNull: true}
+    )
+}
+
+export const getFilterUrl = (filterUrl:FilterUrl) => {
+    const newParams = {...filterUrl.params}
+    if (filterUrl.category) newParams.category = filterUrl.category
+    if (filterUrl.tag) newParams.tag = filterUrl.tag
+    if (filterUrl.price) newParams.price = filterUrl.price
+    if (filterUrl.rating) newParams.rating = filterUrl.rating
+    if (filterUrl.page) newParams.page = filterUrl.page
+    if (filterUrl.sort) newParams.sort = filterUrl.sort
+    return `/search?${new URLSearchParams(newParams).toString()}`
+}
+export interface FilterParams {
+    q?: string
+    category?: string
+    tag?: string
+    price?: string
+    rating?: string
+    sort?: string
+    page?: string
+}
+export interface FilterUrl {
+    params: FilterParams
+    tag?: string
+    category?: string
+    sort?: string
+    price?: string
+    rating?: string
+    page?: string
 }

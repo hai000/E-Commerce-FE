@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import {UpdateUserRequest} from "@/lib/request/user";
 import {IUser} from "@/lib/response/user";
-import {DialogEditProfile} from "@/app/(root)/account/manage/edit_profile";
+import {DialogEditProfile} from "@/app/(root)/account/manage/edit-profile";
 import {Session} from "@auth/core/types";
 import {updateUser} from "@/lib/api/user";
 

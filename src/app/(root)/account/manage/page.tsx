@@ -3,7 +3,7 @@ import {auth} from "@/app/auth";
 import {getInfo} from "@/lib/api/user";
 import {IUser} from "@/lib/response/user";
 import {redirect} from "next/navigation";
-import ProfileContent from "@/app/(root)/account/manage/profile_content";
+import ProfileContent from "@/app/(root)/account/manage/profile-content";
 
 const PAGE_TITLE = 'Login & Security'
 export const metadata: Metadata = {

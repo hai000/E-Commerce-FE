@@ -9,8 +9,12 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { APP_NAME } from '@/lib/constants'
-const categories = ['men', 'women', 'kids', 'accessories']
+import {getAllCategories} from "@/lib/api/category";
 export default async function Search() {
+    let categories = await getAllCategories()
+    if(typeof categories === "string") {
+        categories = []
+    }
     return (
         <form
             action='/search'
@@ -23,9 +27,9 @@ export default async function Search() {
                 </SelectTrigger>
                 <SelectContent position='popper'>
                     <SelectItem value='all'>All</SelectItem>
-                    {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                            {category}
+                    {(categories).map((category) => (
+                        <SelectItem key={category.id} value={category.id.toString()}>
+                            {category.name}
                         </SelectItem>
                     ))}
                 </SelectContent>

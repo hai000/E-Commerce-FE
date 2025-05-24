@@ -6,9 +6,92 @@ import {products_fake} from "@/lib/data";
 import {PAGE_SIZE, POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {callApiToArray, callApiToObject} from "@/lib/utils";
 import {AddColorRequest, AddSizeRequest} from "@/lib/request/product";
-export async function getAllProduct() {
-   return callApiToArray<IProduct>({url: '/identity/products'})
+
+export async function getAllProductByFilter(filter: Filter) {
+    filter.limit = filter.limit || PAGE_SIZE;
+
+    let products: IProduct[] = [];
+    if (filter.query && filter.query !== 'all') {
+        const resp = await getProductsByName(filter.query);
+        if (typeof resp !== 'string') {
+            products = resp;
+        }
+    } else if (filter.category && filter.category !== 'all') {
+        const resp = await getProductsByCategory(filter.category);
+        if (typeof resp !== 'string') {
+            products = resp;
+        }
+    } else {
+        const resp = await getAllProduct();
+        if (typeof resp !== 'string') {
+            products = resp;
+        }
+    }
+    products = applyClientFilters(products, filter);
+    products = applySorting(products, filter.sort);
+    const countProducts = products.length;
+    const startIndex = ((filter.page || 1) - 1) * filter.limit;
+    products = products.slice(startIndex, startIndex + filter.limit);
+
+    return {
+        products: products as IProduct[],
+        totalPages: Math.ceil(countProducts / filter.limit),
+        totalProducts: countProducts,
+        from: filter.limit * (Number(filter.page) - 1) + 1,
+        to: filter.limit * (Number(filter.page) - 1) + products.length,
+    }
 }
+
+function applyClientFilters(products: IProduct[], filter: Filter): IProduct[] {
+    let filtered = [...products];
+
+    if (filter.tag && filter.tag !== 'all') {
+        filtered = filtered.filter(product =>
+            product.tags?.includes(filter.tag!)
+        );
+    }
+
+    if (filter.price && filter.price !== 'all') {
+        const [minPrice, maxPrice] = filter.price.split('-').map(Number);
+        filtered = filtered.filter(product =>
+            product.defaultPrice >= minPrice && product.defaultPrice <= maxPrice
+        );
+    }
+
+    return filtered;
+}
+
+function applySorting(products: IProduct[], sort?: string): IProduct[] {
+    const sorted = [...products];
+
+    switch (sort) {
+        case 'best-selling':
+            return sorted.sort((a, b) => (b.totalSale || 0) - (a.totalSale || 0));
+        case 'price-low-to-high':
+            return sorted.sort((a, b) => a.defaultPrice - b.defaultPrice);
+        case 'price-high-to-low':
+            return sorted.sort((a, b) => b.defaultPrice - a.defaultPrice);
+        case 'avg-customer-review':
+            return sorted.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
+        default:
+            return sorted.sort((a, b) =>
+                new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+            );
+    }
+}
+
+export async function getProductsByCategory(categoryId: string) {
+    return callApiToArray<IProduct>({url: `/identity/products/category/${categoryId}`})
+}
+
+export async function getProductsByName(name: string) {
+    return callApiToArray<IProduct>({url: `/identity/products/name/${name}`})
+}
+
+export async function getAllProduct() {
+    return callApiToArray<IProduct>({url: '/identity/products'})
+}
+
 export async function getProductsForCard({
                                              tag,
                                              limit = 4,
@@ -31,6 +114,7 @@ export async function getProductsForCard({
         image: string
     }[]
 }
+
 // export async function getProductsByTag({
 //                                            tag,
 //                                            limit = 10,
@@ -41,7 +125,7 @@ export async function getProductsForCard({
 //     const products = products_fake
 //     return JSON.parse(JSON.stringify(products)) as IProduct[]
 // }
-export async function updateProduct(product?:IProduct) {
+export async function updateProduct(product?: IProduct) {
     if (!product) {
         return "Product can't missing"
     }
@@ -57,17 +141,29 @@ export async function updateProduct(product?:IProduct) {
         description: product.description,
         brand: product.brand,
     }
-    return callApiToObject<IProduct>({url: '/identity/products/update',data: updateProductRequest,method: PUT_METHOD})
+    return callApiToObject<IProduct>({url: '/identity/products/update', data: updateProductRequest, method: PUT_METHOD})
 }
+
 export async function getProductById(id: string) {
     return callApiToObject<IProduct>({url: `/identity/products/${id}`})
 }
+
 export async function addColorForProduct(productId: string, colorRequests: AddColorRequest[]) {
-    return callApiToArray<IProductColor>({url: `/identity/products/addColors/${productId}`,data: colorRequests,method: POST_METHOD})
+    return callApiToArray<IProductColor>({
+        url: `/identity/products/addColors/${productId}`,
+        data: colorRequests,
+        method: POST_METHOD
+    })
 }
+
 export async function addSizeForProduct(productId: string, sizeRequests: AddSizeRequest[]) {
-    return callApiToArray<IProductSize>({url: `/identity/products/addSizes/${productId}`,data: sizeRequests,method: POST_METHOD})
+    return callApiToArray<IProductSize>({
+        url: `/identity/products/addSizes/${productId}`,
+        data: sizeRequests,
+        method: POST_METHOD
+    })
 }
+
 export async function getRelatedProductsByCategory({
                                                        // @typescript-eslint/no-unused-vars
                                                        categoryId,
@@ -94,4 +190,15 @@ export async function getRelatedProductsByCategory({
         data: JSON.parse(JSON.stringify(products)) as IProduct[],
         totalPages: Math.ceil(productsCount / limit),
     }
+}
+
+export interface Filter {
+    query: string
+    category: string
+    tag: string
+    limit?: number
+    page: number
+    price?: string
+    rating?: string
+    sort?: string
 }

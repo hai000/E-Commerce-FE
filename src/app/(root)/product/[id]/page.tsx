@@ -83,8 +83,7 @@ export default async function ProductDetails(props: {
                                 <div className='flex gap-3'>
                                     <ProductPrice
                                         price={product.defaultPrice}
-                                        isDeal={product.tags.includes('todays-deal')}
-                                        forListing={false}
+                                        discount={product.defaultDiscount}
                                     />
                                 </div>
                             </div>

@@ -3,7 +3,7 @@ import {callApiToArray, callApiToObject, generateHeaderAccessToken, round2} from
 import {CartItem} from "@/lib/response/cart";
 import {Order} from "@/lib/response/order";
 import {CreateOrderRequest} from "@/lib/request/order";
-import {POST_METHOD} from "@/lib/constants";
+import {PAGE_SIZE, POST_METHOD} from "@/lib/constants";
 import {auth} from "@/app/auth";
 import {paypal} from "@/lib/paypal";
 import {revalidatePath} from "next/cache";
@@ -19,11 +19,19 @@ export async function getAllOrders() {
     return callApiToArray<Order>({url:'/identity/orders'})
 }
 
-export async function getMyOrders() {
+export async function getMyOrders({
+                                      limit,
+                                      page,
+                                  }: {
+    limit?: number
+    page: number
+}) {
+    limit = limit || PAGE_SIZE
     const session = await auth()
     if (!session) {
         return 'Session timeout';
     }
+    const skipAmount = (Number(page) - 1) * limit
     return callApiToArray<Order>({url:'/identity/orders/myOrders',headers: generateHeaderAccessToken(session)})
 }
 export async function getOrderById(orderId: string) {

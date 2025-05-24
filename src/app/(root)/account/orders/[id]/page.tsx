@@ -37,9 +37,9 @@ export default async function OrderDetailsPage(props: {
                 <span>›</span>
                 <Link href='/account/orders'>Your Orders</Link>
                 <span>›</span>
-                <span>Order {formatId(order.orderId)}</span>
+                <span>Order {order.orderId}</span>
             </div>
-            <h1 className='h1-bold py-4'>Order {formatId(order.orderId)}</h1>
+            <h1 className='h1-bold py   -4'>Order {order.orderId}</h1>
             <OrderDetailsForm
                 order={order}
                 isAdmin={session?.user?.role === 'ADMIN' || false}

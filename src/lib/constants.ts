@@ -16,7 +16,6 @@ export const POST_METHOD = 'POST'
 export const PUT_METHOD = 'PUT'
 export const DELETE_METHOD = 'DELETE'
 
-
 export const AVAILABLE_PAYMENT_METHODS = [
     {
         name: 'PayPal',

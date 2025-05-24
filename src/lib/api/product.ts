@@ -82,7 +82,7 @@ export async function getRelatedProductsByCategory({
     limit?: number
     page: number
 }) {
-    // const skipAmount = (Number(page) - 1) * limit
+    // const skipAmount = (Number(page.tsx) - 1) * limit
     // const conditions = {
     //     isPublished: true,
     //     categoryId,

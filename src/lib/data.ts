@@ -22,15 +22,15 @@ const data = {
         },
         {
             name: 'Customer Service',
-            href: '/page/customers-service',
+            href: '/page.tsx/customers-service',
         },
         {
             name: 'About Us',
-            href: '/page/about-us',
+            href: '/page.tsx/about-us',
         },
         {
             name: 'Help',
-            href: '/page/help',
+            href: '/page.tsx/help',
         },
     ],
     carousels: [

@@ -1,12 +1,14 @@
 'use server'
-import {callApiToObject, generateHeaderAccessTokenString} from "@/lib/utils";
-import {POST_METHOD} from "@/lib/constants";
+import {callApiToArray, callApiToObject, generateHeaderAccessTokenString} from "@/lib/utils";
+import {POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {IUser} from "@/lib/response/user";
-import {IUserLoginRequest, IUserRegisterRequest} from "@/lib/request/user";
+import {IUserLoginRequest, IUserRegisterRequest, UpdateUserRequest} from "@/lib/request/user";
 import {ILogin} from "@/lib/response/login";
 import {signIn, signOut} from "@/app/auth";
 import {redirect} from "next/navigation";
-
+export async function updateUser(accessToken: string,request: UpdateUserRequest) {
+    return callApiToObject({url: '/identity/users/changeInfo', method: PUT_METHOD,data: request,headers: generateHeaderAccessTokenString(accessToken)})
+}
 export async function login(request: IUserLoginRequest) {
     return callApiToObject<ILogin>({url: '/identity/users/login',method: POST_METHOD, data: request});
 }

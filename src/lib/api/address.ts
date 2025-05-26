@@ -1,7 +1,7 @@
 'use server'
 import {callApiToArray, generateHeaderAccessToken} from "@/lib/utils";
 import {Address, InfoShippingAddress} from "@/lib/response/address";
-import {auth} from "@/app/auth";
+import {auth} from "../../auth";
 
 export async function getMyAddresses() {
     const session = await auth()

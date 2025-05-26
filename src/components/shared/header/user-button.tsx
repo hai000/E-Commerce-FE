@@ -1,5 +1,5 @@
 import {cn} from "@/lib/utils";
-import {auth} from "@/app/auth";
+import {auth} from "../../../auth";
 import {
     DropdownMenu,
     DropdownMenuContent,

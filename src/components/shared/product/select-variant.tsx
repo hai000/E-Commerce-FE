@@ -21,10 +21,10 @@ export default function SelectVariant({
     const selectedSize = size
     return (
         <>
-            {product.colors.length > 0 && (
+            {(product.colors?product.colors.length:0) > 0 && (
                 <div className='space-x-2 space-y-2'>
                     <div>Color:</div>
-                    {product.colors.map(colorObject  => (
+                    {(product.colors ? product.colors:[]).map(colorObject  => (
                         <Button
                             asChild
                             variant='outline'
@@ -54,10 +54,10 @@ export default function SelectVariant({
                     ))}
                 </div>
             )}
-            {product.sizes.length > 0 && (
+            {(product.sizes?product.sizes.length:0) > 0 && (
                 <div className='mt-2 space-x-2 space-y-2'>
                     <div>Size:</div>
-                    {product.sizes.map(sizeObject => (
+                    {(product.sizes??[]).map(sizeObject => (
                         <Button
                             asChild
                             variant='outline'

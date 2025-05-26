@@ -1,10 +1,10 @@
 'use server'
-import {callApiToArray, callApiToObject, generateHeaderAccessTokenString} from "@/lib/utils";
+import {callApiToObject, generateHeaderAccessTokenString} from "@/lib/utils";
 import {POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {IUser} from "@/lib/response/user";
 import {IUserLoginRequest, IUserRegisterRequest, UpdateUserRequest} from "@/lib/request/user";
 import {ILogin} from "@/lib/response/login";
-import {signIn, signOut} from "@/app/auth";
+import {signIn, signOut} from "../../auth";
 import {redirect} from "next/navigation";
 export async function updateUser(accessToken: string,request: UpdateUserRequest) {
     return callApiToObject({url: '/identity/users/changeInfo', method: PUT_METHOD,data: request,headers: generateHeaderAccessTokenString(accessToken)})

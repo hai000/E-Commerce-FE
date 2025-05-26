@@ -26,5 +26,4 @@ declare module 'next-auth' {
         refreshToken: string
         role: string
     }
-
 }

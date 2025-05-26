@@ -10,12 +10,13 @@ export const metadata: Metadata = {
 }
 export default async function ProfilePage() {
     const session = await auth()
-
-    const user = await getInfo({accessToken: session?.accessToken as string})
-    if (session ==null || typeof user === "string") {
+    if (session == null) {
         redirect("/sign-in")
     }
-
+    const user = await getInfo({accessToken: session?.accessToken as string})
+    if (typeof user === "string") {
+        redirect("/sign-in")
+    }
     return (
         <div className='mb-24'>
             <ProfileContent user={user} session={session} />

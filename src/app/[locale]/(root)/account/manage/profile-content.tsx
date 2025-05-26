@@ -19,16 +19,14 @@ interface ProfileContentProps {
 
 const PAGE_TITLE = "Profile"
 
-export default function ProfileContent({ user: initialUser, session }: ProfileContentProps) {
+export default function ProfileContent({ user: initialUser, session}: ProfileContentProps) {
     // eslint-disable-next-line
     const [user, setUser] = useState<IUser>(initialUser)
-
     const handleEditProfile = async (request: UpdateUserRequest) => {
         const response = await updateUser(session.accessToken, request)
         console.log("profile-content.tsx", response)
     }
     return (
-
         <SessionProvider session={session}>
             <div className='flex gap-2 '>
                 <Link href='/account'>Your Account</Link>

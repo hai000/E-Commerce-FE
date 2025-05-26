@@ -10,11 +10,13 @@ import {
 } from '@/components/ui/select'
 import { APP_NAME } from '@/lib/constants'
 import {getAllCategories} from "@/lib/api/category";
+import {getTranslations} from "next-intl/server";
 export default async function Search() {
     let categories = await getAllCategories()
     if(typeof categories === "string") {
         categories = []
     }
+    const t =await getTranslations()
     return (
         <form
             action='/search'
@@ -23,10 +25,10 @@ export default async function Search() {
         >
             <Select name='category'>
                 <SelectTrigger className='w-auto h-full dark:border-gray-200 bg-gray-100 text-black border-r  rounded-r-none rounded-l-md'>
-                    <SelectValue placeholder='All' />
+                    <SelectValue placeholder={t('all')} />
                 </SelectTrigger>
                 <SelectContent position='popper'>
-                    <SelectItem value='all'>All</SelectItem>
+                    <SelectItem value='all'>{t('all')}</SelectItem>
                     {(categories).map((category) => (
                         <SelectItem key={category.id} value={category.id.toString()}>
                             {category.name}
@@ -36,7 +38,7 @@ export default async function Search() {
             </Select>
             <Input
                 className='flex-1 rounded-none dark:border-gray-200 bg-gray-100 text-black text-base h-full'
-                placeholder={`Search Site ${APP_NAME}`}
+                placeholder={`${t('Search Site')} ${APP_NAME}`}
                 name='q'
                 type='search'
             />

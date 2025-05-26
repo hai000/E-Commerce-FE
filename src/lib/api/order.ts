@@ -7,10 +7,12 @@ import {PAGE_SIZE, POST_METHOD} from "@/lib/constants";
 import {paypal} from "@/lib/paypal";
 import {revalidatePath} from "next/cache";
 import {auth} from "@/auth";
+import {getTranslations} from "next-intl/server";
 export async function createMyOrder(createOrderRequest:CreateOrderRequest) {
+    const t = await getTranslations("Product")
     const session = await auth()
     if (!session) {
-        return 'Session timeout';
+        return t('Session timeout');
     }
     return callApiToObject<Order>({url:'/identity/orders',method: POST_METHOD,data: createOrderRequest,headers: generateHeaderAccessToken(session)})
 }
@@ -27,9 +29,10 @@ export async function getMyOrders({
     page: number
 }) {
     limit = limit || PAGE_SIZE
+    const t = await getTranslations("Product")
     const session = await auth()
     if (!session) {
-        return 'Session timeout';
+        return t('Session timeout');
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const skipAmount = (Number(page) - 1) * limit
@@ -40,17 +43,18 @@ export async function getOrderById(orderId: string) {
 }
 
 export async function createPayPalOrder(orderId: string) {
+    const t = await getTranslations("Order")
     try {
         const orderRes = await getOrderById(orderId);
         if (typeof orderRes !== "string") {
             const paypalOrder = await paypal.createOrder(orderRes.totalPrice)
             return {
                 success: true,
-                message: 'PayPal order created successfully',
+                message: t('PayPal order created successfully'),
                 data: paypalOrder.id,
             }
         } else {
-            throw new Error('Order not found')
+            throw new Error(t('Order not found'))
         }
     } catch (err) {
         return { success: false, message: err }
@@ -61,16 +65,17 @@ export async function approvePayPalOrder(
     orderId: string,
     data: { orderID: string }
 ) {
+    const t = await getTranslations("Order")
     try {
         const order = await getOrderById(orderId);
-        if (typeof order === 'string') throw new Error('Order not found')
+        if (typeof order === 'string') throw new Error(t('Order not found'))
 
         const captureData = await paypal.capturePayment(data.orderID)
         if (
             !captureData ||
             captureData.status !== 'COMPLETED'
         )
-            throw new Error('Error in paypal payment')
+            throw new Error(t('Error in paypal payment'))
         order.totalPayment = order.totalPrice - parseFloat(captureData.purchase_units[0]?.payments?.captures[0]?.amount?.value)
         console.log(order.totalPayment)
         console.log(captureData)
@@ -79,7 +84,7 @@ export async function approvePayPalOrder(
         revalidatePath(`/account/orders/${orderId}`)
         return {
             success: true,
-            message: 'Your order has been successfully paid by PayPal',
+            message: t('Your order has been successfully paid by PayPal'),
         }
     } catch (err) {
         return { success: false, message: err }

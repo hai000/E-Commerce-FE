@@ -6,6 +6,7 @@ import {products_fake} from "@/lib/data";
 import {PAGE_SIZE, POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {callApiToArray, callApiToObject} from "@/lib/utils";
 import {AddColorRequest, AddSizeRequest} from "@/lib/request/product";
+import {getTranslations} from "next-intl/server";
 
 export async function getAllProductByFilter(filter: Filter) {
     filter.limit = filter.limit || PAGE_SIZE;
@@ -126,8 +127,9 @@ export async function getProductsForCard({
 //     return JSON.parse(JSON.stringify(products)) as IProduct[]
 // }
 export async function updateProduct(product?: IProduct) {
+    const t = await getTranslations("Product")
     if (!product) {
-        return "Product can't missing"
+        return t("Product can't missing")
     }
     console.log(JSON.stringify(product));
     const updateProductRequest = {

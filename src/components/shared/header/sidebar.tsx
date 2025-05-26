@@ -6,26 +6,27 @@ import {
     Drawer,
     DrawerClose,
     DrawerContent,
-    DrawerDescription,
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger,
 } from '@/components/ui/drawer'
-import {auth} from "../../../auth";
+import {auth} from "@/auth";
 import {SignOut} from "@/lib/api/user";
 import {Category} from "@/lib/response/category";
+import {getTranslations} from "next-intl/server";
 
 export default async function Sidebar({
                                           categories,
                                       }: {
     categories: Category[]
 }) {
+    const t = await getTranslations()
     const session = await auth()
     return (
         <Drawer direction='left'>
             <DrawerTrigger className='header-button flex items-center !p-2  '>
                 <MenuIcon className='h-5 w-5 mr-1'/>
-                All
+                {t('all')}
             </DrawerTrigger>
             <DrawerContent className='w-[350px] mt-0 top-0'>
                 <div className='flex flex-col h-full'>
@@ -37,7 +38,7 @@ export default async function Sidebar({
                                     <DrawerClose asChild>
                                         <Link href='/account'>
                                           <span className='text-lg font-semibold'>
-                                            Hello, {session.user.name}
+                                             {t('hello')}, {session.user.name}
                                           </span>
                                         </Link>
                                     </DrawerClose>
@@ -45,26 +46,23 @@ export default async function Sidebar({
                                     <DrawerClose asChild>
                                         <Link href='/sign-in'>
                                           <span className='text-lg font-semibold'>
-                                            Hello, sign in
+                                            {t('Hello, sign in')}
                                           </span>
                                         </Link>
                                     </DrawerClose>
                                 )}
                             </DrawerTitle>
-                            <DrawerDescription></DrawerDescription>
                         </DrawerHeader>
                         <DrawerClose asChild>
                             <Button variant='ghost' size='icon' className='mr-2'>
                                 <X className='h-5 w-5'/>
-                                <span className='sr-only'>Close</span>
+                                <span className='sr-only'>{t('Close')}</span>
                             </Button>
                         </DrawerClose>
                     </div>
-
-
                     <div className='flex-1 overflow-y-auto'>
                         <div className='p-4 border-b'>
-                            <h2 className='text-lg font-semibold'>Shop By Department</h2>
+                            <h2 className='text-lg font-semibold'>{t('Shop By Department')}</h2>
                         </div>
                         <nav className='flex flex-col'>
                             {categories.map((category) => (
@@ -84,16 +82,17 @@ export default async function Sidebar({
 
                     <div className='border-t flex flex-col '>
                         <div className='p-4'>
-                            <h2 className='text-lg font-semibold'>Help & Settings</h2>
+                            <h2 className='text-lg font-semibold'>{t('About.Help and setting')}</h2>
                         </div>
                         <DrawerClose asChild>
                             <Link href='/account' className='item-button'>
-                                Your account
+                                {t('User.Your account')}
                             </Link>
                         </DrawerClose>{' '}
                         <DrawerClose asChild>
                             <Link href='/page/customer-service' className='item-button'>
-                                Customer Service
+                                {t('About.Customer Service')}
+
                             </Link>
                         </DrawerClose>
                         {session ? (
@@ -102,12 +101,12 @@ export default async function Sidebar({
                                     className='w-full justify-start item-button text-base'
                                     variant='ghost'
                                 >
-                                    Sign out
+                                    {t('Login.Sign out')}
                                 </Button>
                             </form>
                         ) : (
                             <Link href='/sign-in' className='item-button'>
-                                Sign in
+                                {t('Login.Sign In')}
                             </Link>
                         )}
                     </div>

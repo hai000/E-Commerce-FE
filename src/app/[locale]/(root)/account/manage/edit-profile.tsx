@@ -29,9 +29,9 @@ export function DialogEditProfile({
     const [phone,setPhone] = useState(user.phoneNumber??'')
     const [dob,setDob] = useState(user.dateOfBirth??'')
     const [gender,setGender] = useState<number>(user.gender??-1)
+    // eslint-disable-next-line
     const [avtPath,setAvtPath] = useState(user.avtPath|| '')
     const [password,setPassword] = useState('')
-    setAvtPath(user.avtPath || '')
     const handleSubmit = () => {
         const request = {
             password: password,

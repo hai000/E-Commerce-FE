@@ -4,9 +4,9 @@ import {CartItem} from "@/lib/response/cart";
 import {Order} from "@/lib/response/order";
 import {CreateOrderRequest} from "@/lib/request/order";
 import {PAGE_SIZE, POST_METHOD} from "@/lib/constants";
-import {auth} from "@/app/auth";
 import {paypal} from "@/lib/paypal";
 import {revalidatePath} from "next/cache";
+import {auth} from "@/auth";
 export async function createMyOrder(createOrderRequest:CreateOrderRequest) {
     const session = await auth()
     if (!session) {
@@ -31,6 +31,7 @@ export async function getMyOrders({
     if (!session) {
         return 'Session timeout';
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const skipAmount = (Number(page) - 1) * limit
     return callApiToArray<Order>({url:'/identity/orders/myOrders',headers: generateHeaderAccessToken(session)})
 }

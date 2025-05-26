@@ -11,7 +11,7 @@ import {
     DrawerTitle,
     DrawerTrigger,
 } from '@/components/ui/drawer'
-import {auth} from "@/app/auth";
+import {auth} from "../../../auth";
 import {SignOut} from "@/lib/api/user";
 import {Category} from "@/lib/response/category";
 

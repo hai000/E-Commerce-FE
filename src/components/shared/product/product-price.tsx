@@ -3,17 +3,16 @@ import { cn, formatCurrency } from '@/lib/utils'
 
 const ProductPrice = ({
                           price,
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                          isDeal,
                           className,
                           discount = 0,
-                          isDeal = false,
-                          forListing = true,
                           plain = false,
                       }: {
+    isDeal?:boolean
     price: number
-    isDeal?: boolean
     discount?: number
     className?: string
-    forListing?: boolean
     plain?: boolean
 }) => {
     const discountPercent = discount

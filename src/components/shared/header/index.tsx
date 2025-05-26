@@ -2,7 +2,6 @@ import { APP_NAME } from '@/lib/constants'
 import Image from 'next/image'
 import Link from 'next/link'
 import Menu from './menu'
-import data from '@/lib/data'
 import Search from './search'
 import Sidebar from "@/components/shared/header/sidebar";
 import {getAllCategories} from "@/lib/api/category";

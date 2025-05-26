@@ -44,7 +44,6 @@ export const generateId = () =>
 export const generateHeaderAccessToken = (session: Session) => {
 
     return {
-        // @ts-ignore
         'Authorization': `Bearer ${session.accessToken}`,
     };
 }

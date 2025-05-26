@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: tgymnich/fork-sync@v1.6
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          owner: hai000       # Tên người sở hữu repository gốc
-          base: main                  # Nhánh chính của repository gốc (thường là main hoặc master)
-          head: main                  # Nhánh của fork mà bạn muốn cập nhật
+          token: ${{ secrets.GITHUB_TOKEN }}  # Sửa từ github_token thành token
+          owner: E-Commerce-O  # Thay bằng tên chủ sở hữu repo gốc
+          base: main  # Nhánh của repo gốc
+          head: main  # Nhánh của fork của bạn

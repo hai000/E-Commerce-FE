@@ -43,6 +43,7 @@ interface CartState {
     setShippingAddress: (shippingAddress: ShippingAddress, priceShip: number) => Promise<void>
     setPaymentMethod: (paymentMethod: string) => void
     setDeliveryDateIndex: (index: number, price: number) => Promise<void>
+    reloadQuantityItem: () => Promise<void>
 }
 
 // Tạo store giỏ hàng với Zustand và middleware persist
@@ -67,7 +68,7 @@ const useCartStore = create(
                     return res.id
                 }
             },
-            checkCartItems: (isChecked, cartItemId) => {
+            checkCartItems: async (isChecked, cartItemId) => {
                 const existingCartChecked = get().cartChecked.find(cartItem => cartItem.idCartItem === cartItemId);
 
                 if (existingCartChecked) {
@@ -87,23 +88,59 @@ const useCartStore = create(
                         ],
                     }));
                 }
-                get().reloadCart()
+                await get().reloadCart()
             },
             updateItem: async (item: CartItem, quantity: number) => {
-                const res = await updateCartItem({quantity: quantity,
-                cartItemId: item.id})
+                const res = await updateCartItem({
+                    quantity: quantity,
+                    cartItemId: item.id
+                })
                 if (typeof res === "string") {
                     throw new Error(
                         res
                     )
                 } else {
-                    get().reloadCart()
+                   await get().reloadQuantityItem()
+                }
+            },
+            reloadQuantityItem: async () => {
+                const myCart = await getMyCart()
+                if (typeof myCart === "string") {
+                    set({
+                        cart: initialState,
+                    })
+                    throw new Error(
+                        `Can't update cart! \n ${myCart}`
+                    )
+                } else {
+                    const cartItems = myCart.cartItems
+                    const cartChecked = get().cartChecked
+                    cartItems.forEach((cartItem) => {
+                        for (let i = 0; i < cartChecked.length; i++) {
+                            if (cartChecked[i].idCartItem == cartItem.id) {
+                                cartItem.isChecked = cartChecked[i].isChecked
+                                break;
+                            }
+                        }
+                    })
+                    // const all_prices = myCart.cartItems.reduce((prePrice, item) => item.isChecked ? prePrice + item.cartItemQuantity * item.price : 0, 0)
+                    set({
+                        cart: {
+                            ...get().cart,
+                            cartItems: myCart.cartItems,
+                            ...(await calcDeliveryDateAndPrice({
+                                items: myCart.cartItems,
+                                shippingPrice: get().cart.shippingPrice,
+                                deliveryDateIndex: get().cart.deliveryDateIndex,
+                            })),
+                        },
+                    })
                 }
             },
             removeItem: async (item: CartItem) => {
                 const res = await deleteCartItem(item.id)
                 if (res === true) {
-                    get().reloadCart()
+                    await get().reloadCart()
                 } else {
                     throw new Error(
                         `Delete item failed`
@@ -120,7 +157,7 @@ const useCartStore = create(
                         `Can't update cart! \n ${myCart}`
                     )
                 } else {
-                    get().init()
+                    await get().init()
                     const cartItems = myCart.cartItems
                     const cartChecked = get().cartChecked
                     cartItems.forEach((cartItem) => {
@@ -208,7 +245,6 @@ const useCartStore = create(
         }
     )
 )
-
 
 
 export default useCartStore

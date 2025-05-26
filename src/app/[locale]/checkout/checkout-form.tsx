@@ -7,7 +7,6 @@ import {Label} from '@/components/ui/label'
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from '@/components/ui/select'
 import {calculateFutureDate, cn, formatDateTime, timeUntilMidnight,} from '@/lib/utils'
-import {ShippingAddressSchema} from '@/lib/validator'
 import {zodResolver} from '@hookform/resolvers/zod'
 import Image from 'next/image'
 import {useRouter} from 'next/navigation'
@@ -28,6 +27,8 @@ import {Address, InfoShippingAddress} from "@/lib/response/address";
 import {getInfoShips} from "@/lib/api/address";
 import {toast} from "@/hooks/use-toast";
 import {createMyOrder} from "@/lib/api/order";
+import {getShippingAddressSchema} from "@/lib/validator";
+import {useTranslations} from "next-intl";
 
 
 let shippingAddressDefaultValues =
@@ -97,11 +98,11 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
             };
         }
     }, [allAddress, setMyAddresses]);
-
+    const t = useTranslations()
     const isMounted = useIsMounted()
 
     const shippingAddressForm = useForm<ShippingAddress>({
-        resolver: zodResolver(ShippingAddressSchema),
+        resolver: zodResolver(getShippingAddressSchema(t)),
         defaultValues: shippingAddress || shippingAddressDefaultValues,
     })
 
@@ -134,27 +135,36 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
     const handlePlaceOrder = async () => {
         // order
         if (location.myAddressSelected?.id) {
-            const createOrderTemp = createOrder(
-                location.myAddressSelected.id,
-                infoShips[indexInfoShips],
-                '',
-                ''
-            )
-            const res = await createMyOrder(createOrderTemp)
-            if (typeof res === 'string') {
+            if (cartItems.length>0) {
+                const createOrderTemp = createOrder(
+                    location.myAddressSelected.id,
+                    infoShips[indexInfoShips],
+                    '',
+                    ''
+                )
+                const res = await createMyOrder(createOrderTemp)
+                if (typeof res === 'string') {
+                    toast({
+                        description: res,
+                        variant: 'destructive',
+                    })
+                } else {
+                    toast({
+                        description: 'Successfully created order',
+                        variant: 'success',
+                    })
+                    await clearCart()
+                    router.push(`/checkout/${res.orderId}`)
+
+                }
+            }else {
                 toast({
-                    description: res,
+                    title: 'Error',
+                    description: 'Your cart is empty',
                     variant: 'destructive',
                 })
-            } else {
-                toast({
-                    description: 'Successfully created order',
-                    variant: 'success',
-                })
-                await clearCart()
-                router.push(`/checkout/${res.orderId}`)
-
             }
+
         }
     }
     const handleSelectPaymentMethod = () => {
@@ -732,7 +742,9 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
                                                                 value={item.cartItemQuantity.toString()}
                                                                 onValueChange={(value) => {
                                                                     if (value === '0') removeItem(item)
-                                                                    else updateItem(item, Number(value))
+                                                                    else {
+                                                                        updateItem(item, Number(value))
+                                                                    }
                                                                 }}
                                                             >
                                                                 <SelectTrigger className='w-24'>

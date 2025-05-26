@@ -1,5 +1,5 @@
 'use client'
-import {redirect, useSearchParams} from 'next/navigation'
+import {useRouter, useSearchParams} from 'next/navigation'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import Link from 'next/link'
@@ -8,11 +8,11 @@ import {useForm} from 'react-hook-form'
 import {APP_NAME} from '@/lib/constants'
 import {IUserLoginRequest} from "@/lib/request/user";
 import {toast} from "@/hooks/use-toast";
-import {UserSignInSchema} from "@/lib/validator";
 import {zodResolver} from '@hookform/resolvers/zod'
 import useCartStore from "@/hooks/use-cart-store";
-import {isRedirectError} from "next/dist/client/components/redirect-error";
 import {signInWithCredentials} from "@/lib/api/user";
+import {useTranslations} from "next-intl";
+import {getUserSignInSchema} from "@/lib/validator";
 
 const signInDefaultValues =
     process.env.NODE_ENV === 'development'
@@ -26,12 +26,13 @@ const signInDefaultValues =
         }
 
 export default function CredentialsSignInForm() {
+    const t = useTranslations()
     const {reloadCart} = useCartStore()
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get('callbackUrl') || '/'
-
+    const router = useRouter();
     const form = useForm<IUserLoginRequest>({
-        resolver: zodResolver(UserSignInSchema),
+        resolver: zodResolver(getUserSignInSchema(t)),
         defaultValues: signInDefaultValues,
     })
 
@@ -43,38 +44,14 @@ export default function CredentialsSignInForm() {
                 password: data.password,
             })
             await reloadCart()
-            redirect(callbackUrl)
-        } catch (e) {
-            if (isRedirectError(e)) {
-                throw e
-            }
-            console.log(e)
+            router.push("/");
+        } catch {
             toast({
-                title: 'Error',
-                description: "Invalid credentials.",
+                title: t('Toast.Error'),
+                description: t('User.Username or password is incorrect'),
                 variant: 'destructive',
             })
         }
-
-        // if (typeof user === 'string') {
-        //     toast({
-        //         title: 'Error',
-        //         description: user,
-        //         variant: 'destructive',
-        //     })
-        // } else {
-        //     const tokens = { accessToken: user.accessToken, refreshToken: user.refreshToken };
-        //     await fetch('/api/auth/set-cookies', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify(tokens),
-        //     });
-        //     reloadCart()
-        //     console.log('Set up successfully');
-        //     redirect(callbackUrl)
-        // }
     }
 
     return (
@@ -87,10 +64,10 @@ export default function CredentialsSignInForm() {
                         name="username"
                         render={({field}) => (
                             <FormItem className="w-full">
-                                <FormLabel>Username</FormLabel>
+                                <FormLabel>{t("User.Username")}</FormLabel>
                                 <FormControl>
                                     <Input
-                                        placeholder="Enter username"
+                                        placeholder={t("Placeholder.Enter username")}
                                         {...field}
                                     />
                                 </FormControl>
@@ -104,11 +81,11 @@ export default function CredentialsSignInForm() {
                         name="password"
                         render={({field}) => (
                             <FormItem className="w-full">
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel>{t("User.Password")}</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="password"
-                                        placeholder="Enter password"
+                                        placeholder={t("Placeholder.Enter password")}
                                         {...field}
                                     />
                                 </FormControl>
@@ -117,12 +94,12 @@ export default function CredentialsSignInForm() {
                         )}
                     />
                     <div>
-                        <Button type="submit">Sign In</Button>
+                        <Button type="submit">{t('Login.Sign In')}</Button>
                     </div>
                     <div className="text-sm">
-                        By signing in, you agree to {APP_NAME}&apos;s{' '}
-                        <Link href="/page/conditions-of-use">Conditions of Use</Link> and{' '}
-                        <Link href="/page/privacy-policy">Privacy Notice.</Link>
+                        {t('About.By signing in, you agree to')} {APP_NAME}&apos;s{' '}
+                        <Link href="/page/conditions-of-use">{t('About.Conditions of Use')}</Link> {t('About.And')}{' '}
+                        <Link href="/page/privacy-policy">{t('About.Privacy Notice')}.</Link>
                     </div>
                 </div>
             </form>

@@ -23,7 +23,6 @@ const providers: any[] = [
                     username: username,
                     password: pw,
                 });
-
                 if (typeof res === "string") {
                     throw new Error(res);
                 }
@@ -43,8 +42,7 @@ const providers: any[] = [
                     refreshToken: loginResponse.refreshToken
                 };
 
-            } catch (error) {
-                console.error("Authentication error:", error);
+            } catch {
                 return null;
             }
         },
@@ -83,7 +81,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             // @ts-expect-error Expected type mismatch due to legacy code
             if (Date.now() < token.accessTokenExpires) {
-                console.log('token is not expired');
                 //token is valid
                 return token
             }

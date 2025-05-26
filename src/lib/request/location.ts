@@ -1,4 +1,4 @@
-import {ShippingAddressSchema} from "@/lib/validator";
 import {z} from "zod";
+import {getShippingAddressSchema} from "@/lib/validator";
 
-export type ShippingAddress = z.infer<typeof ShippingAddressSchema>
+export type ShippingAddress = z.infer<ReturnType<typeof getShippingAddressSchema>>;

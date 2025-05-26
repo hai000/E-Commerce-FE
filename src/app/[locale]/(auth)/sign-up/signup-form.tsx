@@ -10,9 +10,11 @@ import {toast} from '@/hooks/use-toast'
 import {Separator} from '@/components/ui/separator'
 import {APP_NAME} from '@/lib/constants'
 import {IUserRegisterRequest} from "@/lib/request/user";
-import {login, register} from "@/lib/api/user";
-import {UserSignUpSchema} from "@/lib/validator";
+import {login, register, signInWithCredentials} from "@/lib/api/user";
 import { zodResolver } from '@hookform/resolvers/zod'
+import {useTranslations} from "next-intl";
+import useCartStore from "@/hooks/use-cart-store";
+import {getUserSignUpSchema} from "@/lib/validator";
 const signUpDefaultValues =
     process.env.NODE_ENV === 'development'
         ? {
@@ -32,10 +34,11 @@ const signUpDefaultValues =
 
 export default function SignUpForm() {
     const searchParams = useSearchParams()
+    const t = useTranslations()
     const callbackUrl = searchParams.get('callbackUrl') || '/'
-
+    const {reloadCart} = useCartStore()
     const form = useForm<IUserRegisterRequest>({
-        resolver: zodResolver(UserSignUpSchema),
+        resolver: zodResolver(getUserSignUpSchema(t)),
         defaultValues: signUpDefaultValues,
     })
 
@@ -45,7 +48,7 @@ export default function SignUpForm() {
         const res = await register(data)
         if (typeof res === 'string') {
             toast({
-                title: 'Error',
+                title: t('Toast.Error'),
                 description: res,
                 variant: 'destructive',
             })
@@ -56,20 +59,25 @@ export default function SignUpForm() {
             })
             if (typeof user === 'string') {
                 toast({
-                    title: 'Error',
+                    title: t('Toast.Error'),
                     description: user,
                     variant: 'destructive',
                 })
             } else {
-                const tokens = { accessToken: user.accessToken, refreshToken: user.refreshToken };
-                await fetch('/api/auth/set-cookies', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(tokens),
-                });
-                redirect(callbackUrl)
+                toast({
+                    title: t('Toast.Success'),
+                    description: t('Login.Create account successfully'),
+                    variant: 'success',
+                })
+                try {
+                    await signInWithCredentials({
+                        username: data.username,
+                        password: data.password,
+                    })
+                    await reloadCart()
+                    redirect(callbackUrl)
+                } catch {
+                }
             }
         }
     }
@@ -84,9 +92,9 @@ export default function SignUpForm() {
                         name="username"
                         render={({field}) => (
                             <FormItem className="w-full">
-                                <FormLabel>Name</FormLabel>
+                                <FormLabel>{t('User.Username')}</FormLabel>
                                 <FormControl>
-                                    <Input placeholder='Enter username' {...field} />
+                                    <Input placeholder={t('Placeholder.Enter username')} {...field} />
                                 </FormControl>
                                 <FormMessage/>
                             </FormItem>
@@ -97,9 +105,9 @@ export default function SignUpForm() {
                         name="email"
                         render={({field}) => (
                             <FormItem className="w-full">
-                                <FormLabel>Email</FormLabel>
+                                <FormLabel>{t('User.Email')}</FormLabel>
                                 <FormControl>
-                                    <Input type="email" placeholder="Enter email address" {...field} />
+                                    <Input type="email" placeholder={t("Placeholder.Enter email")} {...field} />
                                 </FormControl>
                                 <FormMessage/>
                             </FormItem>
@@ -110,9 +118,9 @@ export default function SignUpForm() {
                         name="phoneNumber"
                         render={({ field }) => (
                             <FormItem className="w-full">
-                                <FormLabel>Phone number</FormLabel>
+                                <FormLabel>{t('User.Phone number')}</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Enter phone number" {...field} />
+                                    <Input placeholder={t('Placeholder.Enter phone number')} {...field} />
                                 </FormControl>
                                 <FormMessage/>
                             </FormItem>
@@ -123,11 +131,11 @@ export default function SignUpForm() {
                         name="password"
                         render={({field}) => (
                             <FormItem className="w-full">
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel>{t('User.Password')}</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="password"
-                                        placeholder="Enter password"
+                                        placeholder={t('Placeholder.Enter password')}
                                         {...field}
                                     />
                                 </FormControl>
@@ -140,11 +148,11 @@ export default function SignUpForm() {
                         name="confirmPassword"
                         render={({field}) => (
                             <FormItem className="w-full">
-                                <FormLabel>Confirm Password</FormLabel>
+                                <FormLabel>{t('User.Confirm Password')}</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="password"
-                                        placeholder="Confirm Password"
+                                        placeholder={t('User.Confirm Password')}
                                         {...field}
                                     />
                                 </FormControl>
@@ -153,18 +161,18 @@ export default function SignUpForm() {
                         )}
                     />
                     <div>
-                        <Button type='submit'>Sign Up</Button>
+                        <Button type='submit'>{t('Login.Sign Up')}</Button>
                     </div>
                     <div className='text-sm'>
-                        By creating an account, you agree to {APP_NAME}&apos;s{' '}
-                        <Link href='/page/conditions-of-use'>Conditions of Use</Link> and{' '}
-                        <Link href='/page/privacy-policy'> Privacy Notice. </Link>
+                        {t('Login.By creating an account, you agree to')} {APP_NAME}&apos;s{' '}
+                        <Link href="/page/conditions-of-use">{t('About.Conditions of Use')}</Link> {t('About.And')}{' '}
+                        <Link href="/page/privacy-policy">{t('About.Privacy Notice')}.</Link>
                     </div>
                     <Separator className='mb-4'/>
                     <div className='text-sm'>
-                        Already have an account?{' '}
+                        {t('Login.Already have an account')}?{' '}
                         <Link className='link' href={`/sign-in?callbackUrl=${callbackUrl}`}>
-                            Sign In
+                            {t('Login.Sign In')}
                         </Link>
                     </div>
                 </div>

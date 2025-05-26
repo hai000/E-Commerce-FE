@@ -8,6 +8,7 @@ import { APP_NAME } from '@/lib/constants'
 import {Toaster} from "@/components/ui/toaster";
 import {redirect} from "next/navigation";
 import {auth} from "../../../../auth";
+import {getTranslations} from "next-intl/server";
 export const metadata: Metadata = {
     title: 'Sign In',
 }
@@ -17,6 +18,7 @@ export default async function SignIn(props: {
         callbackUrl: string
     }>
 }) {
+    const t = await getTranslations()
     const searchParams = await props.searchParams
     const { callbackUrl = '/' } = searchParams
     const session = await auth()
@@ -27,7 +29,7 @@ export default async function SignIn(props: {
         <div className='w-full'>
             <Card>
                 <CardHeader>
-                    <CardTitle className='text-2xl'>Sign In</CardTitle>
+                    <CardTitle className='text-2xl'>{t('Login.Sign In')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div>
@@ -35,11 +37,11 @@ export default async function SignIn(props: {
                     </div>
                 </CardContent>
             </Card>
-            <SeparatorWithOr>New to {APP_NAME}?</SeparatorWithOr>
+            <SeparatorWithOr>{t('Login.New to')} {APP_NAME}?</SeparatorWithOr>
             <Toaster/>
             <Link href={`/sign-up?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
                 <Button className='w-full' variant='outline'>
-                    Create your {APP_NAME} account
+                    {t('Login.Create your')} {APP_NAME} {t('Login.Account')}
                 </Button>
             </Link>
         </div>

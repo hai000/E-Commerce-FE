@@ -1,7 +1,102 @@
 {
   "Home": {
-    "Related to items that you've viewed": "Các sản phẩm liên quan sản phẩm đã xem",
-    "today_deals" : "Deals hôm nay",
-    "Your browsing history": "Lịch sử duyệt web của bạn"
-  }
+    "See More": "Xem thêm",
+    "Related to items that you've viewed": "Liên quan đến các mục bạn đã xem",
+    "today_deals": "Ưu đãi hôm nay",
+    "Your browsing history": "Lịch sử duyệt của bạn"
+  },
+  "Product": {
+    "Product can't missing": "Sản phẩm không thể thiếu",
+    "Session timeout": "Vui lòng đăng nhập!"
+  },
+  "Order": {
+    "PayPal order created successfully": "Đơn hàng PayPal đã được tạo thành công",
+    "Error in paypal payment": "Lỗi trong thanh toán PayPal",
+    "Order not found": "Không tìm thấy đơn hàng",
+    "Your order has been successfully paid by PayPal": "Đơn hàng của bạn đã được thanh toán thành công qua PayPal"
+  },
+  "User": {
+    "Your account": "Tài khoản của bạn",
+    "Phone number": "Số điện thoại",
+    "Confirm Password": "Xác nhận mật khẩu",
+    "Email": "Email",
+    "Username": "Tên đăng nhập",
+    "Password": "Mật khẩu",
+    "Username or password is incorrect": "Tên đăng nhập hoặc mật khẩu không chính xác",
+    "Refresh token is not valid": "Mã làm mới (refresh token) không hợp lệ"
+  },
+  "Toast": {
+    "Error": "Lỗi",
+    "Success": "Thành công",
+    "Warning": "Cảnh báo",
+    "Info": "Thông tin"
+  },
+  "Cart": {
+    "Cart": "Giỏ hàng",
+    "Your cart is empty": "Giỏ hàng của bạn đang trống",
+    "Total": "Tổng cộng",
+    "Checkout": "Thanh toán",
+    "Continue Shopping": "Tiếp tục mua sắm",
+    "Remove": "Xóa",
+    "Quantity": "Số lượng",
+    "Update Cart": "Cập nhật giỏ hàng",
+    "Item removed from cart successfully": "Mặt hàng đã được xóa khỏi giỏ hàng thành công",
+    "Cart updated successfully": "Giỏ hàng đã được cập nhật thành công"
+  },
+  "Login": {
+    "Create account successfully": "Tạo tài khoản thành công",
+    "By creating an account, you agree to": "Bằng việc tạo tài khoản, bạn đồng ý với",
+    "Create your": "Tạo tài khoản",
+    "Account": "của bạn",
+    "New to": "Bạn mới làm quen với",
+    "Sign In": "Đăng nhập",
+    "Sign Up": "Đăng ký",
+    "Sign out": "Đăng xuất",
+    "Forgot password?": "Quên mật khẩu?",
+    "Don't have an account?": "Chưa có tài khoản?",
+    "Already have an account": "Đã có tài khoản",
+    "Login to your account": "Đăng nhập vào tài khoản của bạn",
+    "Create a new account": "Tạo tài khoản mới",
+    "Please enter your username and password": "Vui lòng nhập tên đăng nhập và mật khẩu của bạn"
+  },
+  "Placeholder": {
+    "Enter phone number": "Nhâp số điện thoại",
+    "Enter email": "Nhập email",
+    "Enter username": "Nhập tên đăng nhập",
+    "Enter password": "Nhập mật khẩu"
+  },
+  "About": {
+    "Customer Service": "Dịch vụ khách hàng",
+    "Help and setting": "Trợ giúp & Cài đặt",
+    "By signing in, you agree to": "Bằng việc đăng nhập, bạn đồng ý với",
+    "And": "và",
+    "About Us": "Về chúng tôi",
+    "Contact Us": "Liên hệ chúng tôi",
+    "Privacy Notice": "Chính sách bảo mật",
+    "Terms of Service": "Điều khoản dịch vụ",
+    "Help": "Trung tâm trợ giúp",
+    "Conditions of Use": "Điều kiện sử dụng"
+  },
+  "hello": "Xin chào",
+  "Hello, sign in": "Xin chào, đăng nhập",
+  "category_required": "Bắt buộc chọn danh mục",
+  "image_required": "Bắt buộc chọn ảnh",
+  "description_required": "Bắt buộc nhập mô tả",
+  "email_required": "Bắt buộc nhập email",
+  "email_invalid": "Email không hợp lệ",
+  "password_min": "Mật khẩu phải có ít nhất 3 ký tự",
+  "phone_required": "Bắt buộc nhập số điện thoại",
+  "phone_digits": "Số điện thoại chỉ được chứa số",
+  "username_min": "Tên đăng nhập phải có ít nhất 5 ký tự",
+  "username_max": "Tên đăng nhập tối đa 30 ký tự",
+  "passwords_not_match": "Mật khẩu nhập lại không khớp",
+  "full_name_required": "Bắt buộc nhập họ tên",
+  "street_required": "Bắt buộc nhập địa chỉ",
+  "city_required": "Bắt buộc nhập thành phố",
+  "district_required": "Bắt buộc nhập quận/huyện",
+  "ward_required": "Bắt buộc nhập phường/xã",
+  "all": "Tất cả",
+  "Search Site": "Tìm kiếm trên trang",
+  "Close": "Đóng",
+  "Shop By Department": "Mua sắm theo danh mục"
 }

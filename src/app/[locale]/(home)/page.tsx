@@ -1,6 +1,6 @@
-import { HomeCard } from '@/components/shared/home/home-card'
-import { HomeCarousel } from '@/components/shared/home/home-carousel'
-import {getAllProduct, getProductsForCard} from "@/lib/api/product";
+import {HomeCard} from '@/components/shared/home/home-card'
+import {HomeCarousel} from '@/components/shared/home/home-carousel'
+import {getAllProduct} from "@/lib/api/product";
 import data from "@/lib/data";
 import {Card, CardContent} from "@/components/ui/card";
 import ProductSlider from "@/components/shared/product/product-carousel";
@@ -8,76 +8,58 @@ import BrowsingHistoryList from "@/components/shared/browsing-history-list";
 import {getAllCategories} from "@/lib/api/category";
 import {Category} from "@/lib/response/category";
 import {getTranslations} from "next-intl/server";
+import {getAllTags} from "@/lib/api/tag";
+import {ITag} from "@/lib/response/tag";
 
 export default async function HomePage() {
+    const t = await getTranslations('Home')
     const categories = (await getAllCategories()).slice(0, 4) as Category[];
-    const newArrivals = await getProductsForCard({
-        tag: 'new-arrival',
-        limit: 4,
-    })
-    const featureds = await getProductsForCard({
-        tag: 'featured',
-        limit: 4,
-    })
-    const bestSellers = await getProductsForCard({
-        tag: 'best-seller',
-        limit: 4,
-    })
+    let tags = (await getAllTags())
+    if (typeof tags === "string") {
+        tags = []
+    }
+    tags = tags.map(value => ({value, sort: Math.random()}))
+        .sort((a, b) => a.sort - b.sort)
+        .slice(0, 3)
+        .map(({value}) => value) as ITag[]
     const cards = [
         {
-            title: 'Categories to explore',
+            title: 'Danh mục',
             link: {
-                text: 'See More',
+                text: t('See More'),
                 href: '/search',
             },
             items: categories.map((category: Category) => ({
                 name: category.name,
                 image: category.imagePath,
-                href: `/search?category=${category.name}`,
+                href: `/search?category=${category.id}`,
             })),
         },
-        {
-            title: 'Explore New Arrivals',
-            items: newArrivals,
+        ...tags.map(tag => ({
+            title: tag.name,
             link: {
-                text: 'View All',
-                href: '/search?tag=new-arrival',
+                text: t('See More'),
+                href: '/search?tag=' + tag.name,
             },
-        },
-        {
-            title: 'Discover Best Sellers',
-            items: bestSellers,
-            link: {
-                text: 'View All',
-                href: '/search?tag=new-arrival',
-            },
-        },
-        {
-            title: 'Featured Products',
-            items: featureds,
-            link: {
-                text: 'Shop Now',
-                href: '/search?tag=new-arrival',
-            },
-        },
+            items: []
+        })),
     ]
     const todaysDeals = await getAllProduct()
-    const t = await getTranslations('Home')
     return (
         <>
-            <HomeCarousel items={data.carousels} />
+            <HomeCarousel items={data.carousels}/>
             <div className='md:p-4 md:space-y-4 bg-border'>
-                <HomeCard cards={cards} />
+                <HomeCard cards={cards}/>
                 <Card className='w-full rounded-none'>
                     <CardContent className='p-4 items-center gap-3'>
-                        {typeof todaysDeals ==="string" ? <div/>:
+                        {typeof todaysDeals === "string" ? <div/> :
                             <ProductSlider title={t('today_deals')} products={todaysDeals}
                             />}
                     </CardContent>
                 </Card>
             </div>
             <div className='p-4 bg-background'>
-                <BrowsingHistoryList />
+                <BrowsingHistoryList/>
             </div>
         </>
     )

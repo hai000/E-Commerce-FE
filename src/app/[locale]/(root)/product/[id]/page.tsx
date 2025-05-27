@@ -1,27 +1,26 @@
-import { Card, CardContent } from '@/components/ui/card'
-import {
-    getProductById,
-    getRelatedProductsByCategory,
-} from '@/lib/api/product'
+import {Card, CardContent} from '@/components/ui/card'
+import {getProductById, getRelatedProductsByCategory,} from '@/lib/api/product'
 import AddToCart from '@/components/shared/product/add-to-cart'
 import SelectVariant from '@/components/shared/product/select-variant'
 import ProductPrice from '@/components/shared/product/product-price'
 import ProductGallery from '@/components/shared/product/product-gallery'
-import { Separator } from '@/components/ui/separator'
+import {Separator} from '@/components/ui/separator'
 import Rating from "@/components/shared/product/rating";
 import ProductSlider from "@/components/shared/product/product-carousel";
 import BrowsingHistoryList from "@/components/shared/browsing-history-list";
 import AddToBrowsingHistory from "@/components/shared/product/add-to-browsing-history";
 import {IProductColor, IProductSize} from "@/lib/response/product";
 import {Toaster} from "@/components/ui/toaster";
+import {getTranslations} from "next-intl/server";
 
 export async function generateMetadata(props: {
     params: Promise<{ id: string }>
 }) {
+    const t = await getTranslations()
     const params = await props.params
     const product = await getProductById(params.id)
     if (typeof product === "string") {
-        return { title: 'Product not found' }
+        return {title: t('Product.Product not found')}
     }
     return {
         title: product.name,
@@ -31,9 +30,10 @@ export async function generateMetadata(props: {
 
 export default async function ProductDetails(props: {
     params: Promise<{ id: string }>,
-    searchParams: Promise<{page: string; colorId: string; sizeId: string; color:string,size:string }>
+    searchParams: Promise<{ page: string; colorId: string; sizeId: string; color: string, size: string }>
 }) {
-    const {page, colorId, sizeId, color, size } = await props.searchParams
+    const t = await getTranslations()
+    const {page, colorId, sizeId, color, size} = await props.searchParams
     const colorNow = colorId ? {
         id: colorId,
         colorName: color,
@@ -44,11 +44,11 @@ export default async function ProductDetails(props: {
         size: size,
         description: '',
     } as unknown as IProductSize : undefined
-    const { id } = await props.params
+    const {id} = await props.params
 
     const product = await getProductById(id)
     if (typeof product === 'string') {
-        return<div>Product not found or an error occurred.</div>
+        return <div>{t('Product.Product not found or an error occurred')}</div>
     }
     const relatedProducts = await getRelatedProductsByCategory({
         categoryId: product.category.id,
@@ -62,7 +62,7 @@ export default async function ProductDetails(props: {
             <section>
                 <div className='grid grid-cols-1 md:grid-cols-5  '>
                     <div className='col-span-2'>
-                        <ProductGallery images={product.images.map(images => images.imagePath)} />
+                        <ProductGallery images={product.images.map(images => images.imagePath)}/>
                     </div>
 
                     <div className='flex w-full flex-col gap-2 md:p-5 col-span-2'>
@@ -75,10 +75,10 @@ export default async function ProductDetails(props: {
                             </h1>
                             <div className='flex items-center gap-2'>
                                 <span>{product.avgRating.toFixed(1)}</span>
-                                <Rating rating={product.avgRating} />
+                                <Rating rating={product.avgRating}/>
                                 <span>{product.numReviews} ratings</span>
                             </div>
-                            <Separator />
+                            <Separator/>
                             <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
                                 <div className='flex gap-3'>
                                     <ProductPrice
@@ -91,15 +91,15 @@ export default async function ProductDetails(props: {
                         <div>
                             <SelectVariant
                                 product={product}
-                                colorId={colorId || product.colors?.[0]?.id || '' }
+                                colorId={colorId || product.colors?.[0]?.id || ''}
                                 sizeId={sizeId || product.sizes?.[0]?.id || ''}
-                                color={color||product.colors?.[0]?.colorName || ''}
+                                color={color || product.colors?.[0]?.colorName || ''}
                                 size={size || product.sizes?.[0]?.size || ''}
                             />
                         </div>
-                        <Separator className='my-2' />
+                        <Separator className='my-2'/>
                         <div className='flex flex-col gap-2'>
-                            <p className='p-bold-20 text-grey-600'>Description:</p>
+                            <p className='p-bold-20 text-grey-600'>{t('Product.Description')}:</p>
                             <p className='p-medium-16 lg:p-regular-18'>
                                 {product.description}
                             </p>
@@ -108,18 +108,18 @@ export default async function ProductDetails(props: {
                     <div>
                         <Card>
                             <CardContent className='p-4 flex flex-col  gap-4'>
-                                <ProductPrice price={product.defaultPrice} />
+                                <ProductPrice price={product.defaultPrice}/>
 
                                 {product.quantity > 0 && product.quantity <= 3 && (
                                     <div className='text-destructive font-bold'>
-                                        {`Only ${product.quantity} left in stock - order soon`}
+                                        {`${t('Product.Only')} ${product.quantity} ${t('Product.left in stock - order soon')}`}
                                     </div>
                                 )}
                                 {product.quantity !== 0 ? (
-                                    <div className='text-green-700 text-xl'>In Stock</div>
+                                    <div className='text-green-700 text-xl'>{t('Product.In Stock')}</div>
                                 ) : (
                                     <div className='text-destructive text-xl'>
-                                        Out of Stock
+                                        {t('Product.Out of Stock')}
                                     </div>
                                 )}
                                 {product.quantity !== 0 && (
@@ -154,12 +154,12 @@ export default async function ProductDetails(props: {
             <section className='mt-10'>
                 <ProductSlider
                     products={relatedProducts.data}
-                    title={`Best Sellers in ${product.category.name}`}
+                    title={`${t('Product.Best Sellers in')} ${product.category.name}`}
                 />
             </section>
 
             <section>
-                <BrowsingHistoryList className='mt-10' />
+                <BrowsingHistoryList className='mt-10'/>
             </section>
             <Toaster/>
         </div>

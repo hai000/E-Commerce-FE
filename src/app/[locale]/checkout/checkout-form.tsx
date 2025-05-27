@@ -121,7 +121,6 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
         if (allAddress && allAddress.length > 0) {
             setMyAddresses(allAddress);
             const addressDef = allAddress[0];
-            console.log(addressDef)
             setProvinceSelected(addressDef.province);
             setDistrictSelected(addressDef.district);
             setWardSelected(addressDef.ward);

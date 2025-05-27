@@ -253,6 +253,7 @@ export const getFilterUrl = (filterUrl:FilterUrl) => {
     if (filterUrl.rating) newParams.rating = filterUrl.rating
     if (filterUrl.page) newParams.page = filterUrl.page
     if (filterUrl.sort) newParams.sort = filterUrl.sort
+    if (filterUrl.category_name) newParams.category_name= filterUrl.category_name
     return `/search?${new URLSearchParams(newParams).toString()}`
 }
 export interface FilterParams {
@@ -263,6 +264,7 @@ export interface FilterParams {
     rating?: string
     sort?: string
     page?: string
+    category_name?: string
 }
 export interface FilterUrl {
     params: FilterParams
@@ -272,4 +274,5 @@ export interface FilterUrl {
     price?: string
     rating?: string
     page?: string
+    category_name?: string
 }

@@ -32,7 +32,7 @@ export default async function HomePage() {
             items: categories.map((category: Category) => ({
                 name: category.name,
                 image: category.imagePath,
-                href: `/search?category=${category.id}`,
+                href: `/search?category=${category.id}&category_name=${category.name}`,
             })),
         },
         ...tags.map(tag => ({

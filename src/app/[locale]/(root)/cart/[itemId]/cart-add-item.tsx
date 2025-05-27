@@ -8,13 +8,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {notFound} from 'next/navigation'
 import useCartStore from '@/hooks/use-cart-store'
-import {FREE_SHIPPING_MIN_PRICE} from '@/lib/constants'
 import BrowsingHistoryList from '@/components/shared/browsing-history-list'
+import {useTranslations} from "next-intl";
 
 export default function CartAddItem({itemId}: { itemId: string }) {
     const {
         cart: {cartItems, itemsPrice},
     } = useCartStore()
+    const t = useTranslations()
     const item = cartItems.find((x) => x.id == itemId)
     if (!item) return notFound()
     return (
@@ -37,15 +38,15 @@ export default function CartAddItem({itemId}: { itemId: string }) {
                         <div>
                             <h3 className='text-xl font-bold flex gap-2 my-2'>
                                 <CheckCircle2Icon className='h-6 w-6 text-green-700'/>
-                                Added to cart
+                                {t('Cart.Added to cart')}
                             </h3>
                             {item.color?.colorName ? <p className='text-sm'>
-                                <span className='font-bold'> Color: </span>{' '}
+                                <span className='font-bold'>{t('Product.Color')}: </span>{' '}
                                 {item.color.colorName ?? '-'}
                             </p> : <div/>}
                             {
                                 item.size?.size ? <p className='text-sm'>
-                                    <span className='font-bold'> Size: </span>{' '}
+                                    <span className='font-bold'>{t('Product.Size')}: </span>{' '}
                                     {item.size.size ?? '-'}
                                 </p> : <div/>
                             }
@@ -57,38 +58,22 @@ export default function CartAddItem({itemId}: { itemId: string }) {
                     <CardContent className='p-4 h-full'>
                         <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
                             <div className='flex justify-center items-center'>
-                                {itemsPrice < FREE_SHIPPING_MIN_PRICE ? (
-                                    <div className='text-center '>
-                                        Add
-                                        <span className='text-green-700'>
-                      <ProductPrice
-                          price={FREE_SHIPPING_MIN_PRICE - itemsPrice}
-                          plain
-                      />
-                    </span> of eligible items to your order to qualify for FREE
-                                        Shipping
+                                <div className='flex items-center'>
+                                    <div>
+                                        {t('Cart.Choose this option at checkout')}.
                                     </div>
-                                ) : (
-                                    <div className='flex items-center'>
-                                        <div>
-                      <span className='text-green-700'>
-                        Your order qualifies for FREE Shipping.
-                      </span>{' '}
-                                            Choose this option at checkout.
-                                        </div>
-                                    </div>
-                                )}
+                                </div>
                             </div>
                             <div className='lg:border-l lg:border-muted lg:pl-3 flex flex-col items-center gap-3  '>
                                 <div className='flex gap-3'>
-                                    <span className='text-lg font-bold'>Cart Subtotal:</span>
+                                    <span className='text-lg font-bold'> {t('Cart.Cart Subtotal')}:</span>
                                     <ProductPrice className='text-2xl' price={itemsPrice}/>
                                 </div>
                                 <Link
                                     href='/checkout'
                                     className={cn(buttonVariants(), 'rounded-full w-full')}
                                 >
-                                    Proceed to checkout (
+                                    {t('Cart.Proceed to checkout')} (
                                     {cartItems.reduce((a, c) => a + c.cartItemQuantity, 0)} items)
                                 </Link>
                                 <Link
@@ -98,7 +83,7 @@ export default function CartAddItem({itemId}: { itemId: string }) {
                                         'rounded-full w-full'
                                     )}
                                 >
-                                    Go to Cart
+                                    {t('Cart.Go to Cart')}
                                 </Link>
                             </div>
                         </div>

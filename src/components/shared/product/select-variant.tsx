@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import {IProduct} from "@/lib/response/product";
+import {useTranslations} from "next-intl";
 
 export default function SelectVariant({
                                           product,
@@ -15,6 +16,7 @@ export default function SelectVariant({
     color: string
     size: string
 }) {
+    const t = useTranslations()
     const selectedColorId = colorId
     const selectedSizeId = sizeId
     const selectedColor = color
@@ -23,7 +25,7 @@ export default function SelectVariant({
         <>
             {(product.colors?product.colors.length:0) > 0 && (
                 <div className='space-x-2 space-y-2'>
-                    <div>Color:</div>
+                    <div>{t('Product.Color')}:</div>
                     {(product.colors ? product.colors:[]).map(colorObject  => (
                         <Button
                             asChild
@@ -56,7 +58,7 @@ export default function SelectVariant({
             )}
             {(product.sizes?product.sizes.length:0) > 0 && (
                 <div className='mt-2 space-x-2 space-y-2'>
-                    <div>Size:</div>
+                    <div>{t('Product.Size')}:</div>
                     {(product.sizes??[]).map(sizeObject => (
                         <Button
                             asChild

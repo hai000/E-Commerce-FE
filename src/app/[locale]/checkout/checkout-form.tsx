@@ -70,6 +70,7 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
         setDeliveryDateIndex,
         clearCart
     } = useCartStore()
+
     useEffect(() => {
         if (cartChecked.length == 0) {
             router.push('/cart');
@@ -83,18 +84,15 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
         setWardSelected,
         setMyAddresses
     } = useLocationStore()
-    if (!location.isInitialized) {
-        init()
-    }
     useEffect(() => {
         if (allAddress && allAddress.length > 0) {
             setMyAddresses(allAddress);
             const addressDef = allAddress[0];
             shippingAddressDefaultValues = {
                 ...shippingAddressDefaultValues,
-                city: addressDef.province?.name || '', // Thêm kiểm tra nullish
-                district: addressDef.district?.name || '', // Thêm kiểm tra nullish
-                ward: addressDef.ward?.name || '', // Thêm kiểm tra nullish
+                city: addressDef.province?.name || '',
+                district: addressDef.district?.name || '',
+                ward: addressDef.ward?.name || '',
             };
         }
     }, [allAddress, setMyAddresses]);
@@ -116,6 +114,20 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
         setShippingAddress(values, priceShip)
         setIsAddressSelected(true)
     }
+    useEffect(() => {// run 1 lan
+        if (!location.isInitialized) {
+            init();
+        }
+        if (allAddress && allAddress.length > 0) {
+            setMyAddresses(allAddress);
+            const addressDef = allAddress[0];
+            console.log(addressDef)
+            setProvinceSelected(addressDef.province);
+            setDistrictSelected(addressDef.district);
+            setWardSelected(addressDef.ward);
+        }
+    }, []);
+
     useEffect(() => {
         if (!isMounted || !shippingAddress) return
         shippingAddressForm.setValue('fullName', shippingAddress.fullName)

@@ -6,6 +6,13 @@
     "Your browsing history": "Lịch sử duyệt của bạn"
   },
   "Product": {
+    "Preview": "Xem trước",
+    "Images": "Ảnh",
+    "Tag": "Thẻ",
+    "Default Discount": "Giảm giá mặc định",
+    "Default Price": "Giá mặc định",
+    "Category": "Danh mục",
+    "Brand": "Thương hiệu",
     "Best Sellers in": "Mặt hàng bán chạy nhất trong",
     "Description": "Mô tả",
     "Size": "Kich thước",
@@ -83,6 +90,12 @@
     "Please enter your username and password": "Vui lòng nhập tên đăng nhập và mật khẩu của bạn"
   },
   "Placeholder": {
+    "Enter color name": "Nhập tên màu sắc",
+    "Enter color code": "Nhập mã màu",
+    "Enter size": "Nhập kích thước",
+    "Enter description": "Nhập mô tả",
+    "Enter brand name": "Nhập tên thương hiệu",
+    "Enter product name": "Nhập tên sản phẩm",
     "Enter phone number": "Nhâp số điện thoại",
     "Enter email": "Nhập email",
     "Enter username": "Nhập tên đăng nhập",
@@ -102,6 +115,22 @@
     "Back to top": "Về đầu trang",
     "Inc or its affiliates": "Công ty TNHH hoặc các công ty liên kết của nó",
     "Our Address": "Đường 6, khu phố 22, phường Linh Trung, Tp. Thủ Đức, Tp. Hồ Chí Minh, VN, Zip 70000 | +84 123 456 789"
+  },
+  "Manage": {
+    "Select Images": "Chọn ảnh",
+    "Add Color": "Thêm màu sắc",
+    "Please enter color name": "Vui lòng nhập tên màu sắc",
+    "Color name already exists": "Tên màu sắc đã tồn tại",
+    "Color code is invalid": "Mã màu không hợp lệ",
+    "Size already exists": "Kích thước đã tồn tại",
+    "Please enter size": "Vui lòng nhập kích thước",
+    "Add Size": "Thêm kích thước",
+    "Search category": "Tìm kiếm danh mục",
+    "Select category": "Chọn danh mục...",
+    "Save changes": "Lưu thay đổi",
+    "Add Product": "Thêm sản phẩm",
+    "Create a new product by filling out the information below": "Tạo sản phẩm mới bằng cách điền thông tin dưới đây",
+    "Product Name": "Tên sản phẩm"
   },
   "Items": "Hàng hóa",
   "Subtotal": "Tổng phụ",

@@ -6,6 +6,13 @@
     "Your browsing history": "Your browsing history"
   },
   "Product": {
+    "Preview": "Preview",
+    "Images": "Images",
+    "Tag": "Tag",
+    "Default Discount": "Default Discount",
+    "Default Price": "Default Price",
+    "Category": "Category",
+    "Brand": " Brand",
     "Best Sellers in": "Best Sellers in",
     "Description": "Description",
     "Size": "Size",
@@ -83,6 +90,12 @@
     "Please enter your username and password": "Please enter your username and password"
   },
   "Placeholder": {
+    "Enter color name": "Enter color name",
+    "Enter color code": "Enter color code",
+    "Enter size": "Enter size",
+    "Enter description": "Enter description",
+    "Enter brand name": "Enter brand name",
+    "Enter product name": "Enter product name",
     "Enter phone number": "Enter phone number",
     "Enter email": "Enter email",
     "Enter username": "Enter username",
@@ -102,6 +115,22 @@
     "Back to top": "Back to top",
     "Inc or its affiliates": "Inc. or its affiliates",
     "Our Address": "No. 6, Quarter 22, Linh Trung Ward, Thu Duc City, Ho Chi Minh City, VN, Zip 70000 | +84 123 456 789"
+  },
+  "Manage": {
+    "Select Images": "Select images",
+    "Add Color": "Add Color",
+    "Please enter color name": "Please enter color name",
+    "Color name already exists": "Color name already exists",
+    "Color code is invalid": "Color code is invalid",
+    "Size already exists": "Size already exists",
+    "Please enter size": "Please enter size",
+    "Search category": "Search category",
+    "Select category": "Select category...",
+    "Save changes": "Save changes",
+    "Add Product": "Add Product",
+    "Add Size": "Add Size",
+    "Create a new product by filling out the information below": "Create a new product by filling out the information below",
+    "Product Name": "Product Name"
   },
   "Items": "Items",
   "Subtotal": "Subtotal",

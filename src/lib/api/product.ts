@@ -5,7 +5,7 @@ import {IProduct, IProductColor, IProductSize} from "@/lib/response/product";
 import {products_fake} from "@/lib/data";
 import {PAGE_SIZE, POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {callApiToArray, callApiToObject} from "@/lib/utils";
-import {AddColorRequest, AddSizeRequest} from "@/lib/request/product";
+import {AddColorRequest, AddProductRequest, AddSizeRequest} from "@/lib/request/product";
 import {getTranslations} from "next-intl/server";
 
 export async function getAllProductByFilter(filter: Filter) {
@@ -156,7 +156,9 @@ export async function addColorForProduct(productId: string, colorRequests: AddCo
         method: POST_METHOD
     })
 }
-
+export async function addProduct(product: AddProductRequest) {
+    return await callApiToObject<IProduct>({url:'/identity/products', data: product, method: POST_METHOD})
+}
 export async function addSizeForProduct(productId: string, sizeRequests: AddSizeRequest[]) {
     return callApiToArray<IProductSize>({
         url: `/identity/products/sizes/${productId}`,

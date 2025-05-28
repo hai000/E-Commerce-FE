@@ -25,6 +25,7 @@ import {AddColorRequest, AddSizeRequest} from "@/lib/request/product";
 import {addColorForProduct, addSizeForProduct} from "@/lib/api/product";
 import {toast} from "@/hooks/use-toast";
 import {isValidHexColor} from "@/lib/utils";
+import {useTranslations} from "next-intl";
 
 interface EditTabDescriptionContentProps {
     product: IProduct;
@@ -382,10 +383,10 @@ export function DialogProductSizeProperty({addSize}: { addSize: (size: AddSizeRe
     );
 }
 
-function Combobox({categoryIdSelected, categories}: { categoryIdSelected: string, categories: Category[] }) {
+export function Combobox({categoryIdSelected, categories}: { categoryIdSelected: string, categories: Category[] }) {
+    const t = useTranslations()
     const [open, setOpen] = useState(false);
     const [id, setId] = useState(categoryIdSelected);
-    // console.log(id)
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className="font-normal">
@@ -395,13 +396,13 @@ function Combobox({categoryIdSelected, categories}: { categoryIdSelected: string
                     aria-expanded={open}
                     className="w-full justify-between overflow-hidden"
                 >
-                    {id ? categories.find((category) => category.id == id)?.name : "Select category..."}
+                    {id ? categories.find((category) => category.id == id)?.name : t("Manage.Select category")}
                     <ChevronsUpDown className="opacity-50"/>
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-full p-0">
                 <Command>
-                    <CommandInput placeholder="Search category..." className=" h-9"/>
+                    <CommandInput placeholder={t("Manage.Search category")} className=" h-9"/>
                     <CommandList>
                         <CommandEmpty>No category found.</CommandEmpty>
                         <CommandGroup>

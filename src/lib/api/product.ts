@@ -92,7 +92,6 @@ export async function getProductsByName(name: string) {
 export async function getAllProduct() {
     return callApiToArray<IProduct>({url: '/identity/products'})
 }
-
 export async function getProductsForCard({
                                              tag,
                                              limit = 4,
@@ -131,7 +130,7 @@ export async function updateProduct(product?: IProduct) {
     if (!product) {
         return t("Product can't missing")
     }
-    console.log(JSON.stringify(product));
+    // console.log(JSON.stringify(product));
     const updateProductRequest = {
         id: product.id,
         name: product.name,
@@ -143,7 +142,7 @@ export async function updateProduct(product?: IProduct) {
         description: product.description,
         brand: product.brand,
     }
-    return callApiToObject<IProduct>({url: '/identity/products/update', data: updateProductRequest, method: PUT_METHOD})
+    return callApiToObject<IProduct>({url: '/identity/products', data: updateProductRequest, method: PUT_METHOD})
 }
 
 export async function getProductById(id: string) {
@@ -152,7 +151,7 @@ export async function getProductById(id: string) {
 
 export async function addColorForProduct(productId: string, colorRequests: AddColorRequest[]) {
     return callApiToArray<IProductColor>({
-        url: `/identity/products/addColors/${productId}`,
+        url: `/identity/products/colors/${productId}`,
         data: colorRequests,
         method: POST_METHOD
     })
@@ -160,7 +159,7 @@ export async function addColorForProduct(productId: string, colorRequests: AddCo
 
 export async function addSizeForProduct(productId: string, sizeRequests: AddSizeRequest[]) {
     return callApiToArray<IProductSize>({
-        url: `/identity/products/addSizes/${productId}`,
+        url: `/identity/products/sizes/${productId}`,
         data: sizeRequests,
         method: POST_METHOD
     })

@@ -13,7 +13,6 @@ export default function MultiImageUpload({
     setFiles: (files: File[]) => void;
 }) {
     const t = useTranslations()
-    const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [previews, setPreviews] = useState<string[]>([]);//previews for images
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -6,8 +6,6 @@ import {getProductDetailById} from "@/lib/api/product-detail";
 import {IProductDetail} from "@/lib/response/product";
 import {ProductList} from "@/app/[locale]/dashboard/products/product-list";
 import {EditDescriptionProduct, EditDetailProduct} from "@/app/[locale]/dashboard/products/edit-product";
-import {Button} from "@/components/ui/button";
-import {PlusIcon} from "lucide-react";
 import {DialogAddProduct} from "@/app/[locale]/dashboard/products/dialog-add-product";
 
 export default async function ProductsPage(props: {

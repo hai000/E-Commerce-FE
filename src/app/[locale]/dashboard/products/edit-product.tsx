@@ -22,7 +22,9 @@ export function EditDescriptionProduct({
     const handleProductChange = (newProduct: IProduct) => {
         setProduct(newProduct);
     };
-
+    useEffect(() => {
+        setProduct(initialProduct ? {...initialProduct} : undefined);
+    }, [initialProduct]);
     const save = async () => {
         const productUpdated = await updateProduct(product);
         if (typeof productUpdated !== "string") {
@@ -111,6 +113,10 @@ export function EditDetailProduct({
         };
         fetchData();
     }, [isReload]);
+    useEffect(() => {
+        setProduct(productSelected ? {...productSelected} : undefined)
+        setProductDe(productDetails ? productDetails : [])
+    }, [productSelected,productDetails]);
     useEffect(() => {
         if (product) {
             setSelectedColorId(product.colors?.[0]?.id || '');

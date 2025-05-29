@@ -26,6 +26,8 @@ import {addColorForProduct, addSizeForProduct} from "@/lib/api/product";
 import {toast} from "@/hooks/use-toast";
 import {isValidHexColor} from "@/lib/utils";
 import {useTranslations} from "next-intl";
+import {ComboboxCategories} from "@/app/[locale]/dashboard/products/dialog-add-product";
+import {getAllCategories} from "@/lib/api/category";
 
 interface EditTabDescriptionContentProps {
     product: IProduct;
@@ -38,16 +40,35 @@ export default function EditTabDescriptionContent({
                                                   }: EditTabDescriptionContentProps) {
     const [name, setName] = useState(initialProduct.name);
     const [description, setDescription] = useState(initialProduct.description || "");
-    const [category, setCategory] = useState(initialProduct.category);
+    const [category, setCategory] = useState<Category>(initialProduct.category);
     const [brand, setBrand] = useState(initialProduct.brand);
-
+    const [allCategories,setAllCategories] = useState<Category[]>([]);
     useEffect(() => {
         setName(initialProduct.name);
         setDescription(initialProduct.description || "");
         setCategory(initialProduct.category);
         setBrand(initialProduct.brand);
     }, [initialProduct]);
-
+    useEffect(() => {
+        const fetchData =async () => {
+            getAllCategories().then(
+                (categories) => {
+                    if (typeof categories!== "string") {
+                        setAllCategories(categories)
+                    }
+                }
+            ).catch(
+                (error) => {
+                    toast({
+                        title: "Error",
+                        description: error.message,
+                        variant: "destructive"
+                    });
+                }
+            )
+        }
+        fetchData();
+    }, []);
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
         onProductChange({...initialProduct, name: e.target.value});
@@ -82,9 +103,17 @@ export default function EditTabDescriptionContent({
                     <Input disabled={true} value={initialProduct.defaultPrice}/>
                 </Card>
                 <p className="p-2 text-lg font-semibold">Category</p>
-                <Card className={" rounded-md p-4 space-y-2"}>
+                <Card className={"rounded-md p-4 space-y-2"}>
                     <p className="text-sm text-muted-foreground">Product category</p>
-                    <Combobox categoryIdSelected={category.id} categories={[category]}/>
+                    <div className={"grid-cols-7 grid"}>
+                        <ComboboxCategories setCategoryId={(id)=>{
+                            const category = allCategories.find(category => category.id == id);
+                            if (category) {
+                                handleCategoryChange(category)
+                            }
+                        }} categoryId={category.id} categories={allCategories}/>
+                    </div>
+
                 </Card>
             </div>
         </div>
@@ -114,7 +143,7 @@ export function EditTabDetailContent({
     const [sizes, setSizes] = useState(productSelected?.sizes || []);
     const [price, setPrice] = useState(0);
     useEffect(() => {
-        setPrice(productDetails.find(p => p.color.id === selectedColorId && p.size.id === selectedSizeId)?.price ?? 0)
+        setPrice(productDetails.find(p => p.color?.id === selectedColorId && p.size?.id === selectedSizeId)?.price ?? 0)
     }, [selectedColorId, selectedSizeId]);
     useEffect(() => {
         setColors(productSelected?.colors || []);

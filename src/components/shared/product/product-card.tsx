@@ -33,7 +33,7 @@ const ProductCard = ({
                 ) : (
                     <div className='relative h-52'>
                         <Image
-                            src={product.images[0].imagePath}
+                            src={product.images[0]?.imagePath || "/images/imagenotfound.png"}
                             alt={product.name}
                             fill
                             sizes='80vw'

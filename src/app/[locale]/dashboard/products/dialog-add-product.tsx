@@ -31,6 +31,7 @@ import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {addProduct} from "@/lib/api/product";
 import {toast} from "@/hooks/use-toast";
+import {uploadFile} from "@/lib/api/upload";
 
 export function DialogAddProduct() {
     const t = useTranslations();
@@ -57,16 +58,14 @@ export function DialogAddProduct() {
             .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
                 message: "Giảm giá phải là số không âm",
             }),
-        images: z.array(z.any()).min(1, "Phải chọn ít nhất 1 ảnh"),
+        images: z.array(z.instanceof(File)).min(1, "Phải chọn ít nhất 1 ảnh"),
     });
     const {
         control,
         handleSubmit,
         setValue,
-        setError,
         formState: {errors},
         reset,
-        // watch,
     } = useForm<ProductFormType>({
         resolver: zodResolver(productSchema),
         defaultValues: {
@@ -100,15 +99,24 @@ export function DialogAddProduct() {
         };
         fetchData();
     }, []);
-    useEffect(() => {
-        if (open) {
-            reset()
-        }
-    }, [open]);
     const onSubmit = async (data: ProductFormType) => {
         // Xử lý dữ liệu sản phẩm ở đây
         const addProductRequest = async () => {
-
+            const imagesString = (await Promise.all(data.images.map(file => uploadFile(file)))).map(
+                (resImage) => {
+                   if (resImage.success){
+                       return resImage.data
+                   }else {
+                       toast({
+                            title: t("Toast.Error"),
+                            description: resImage.data,
+                            variant: "destructive"
+                          });
+                       return "/images/imagenotfound.png";
+                   }
+                }
+            );
+            console.log(imagesString)
             const productRequest = {
                 name: data.name_product,
                 categoryId: data.categoryId,
@@ -116,7 +124,7 @@ export function DialogAddProduct() {
                 description: data.description_product,
                 defaultPrice: Number(data.defaultPrice),
                 defaultDiscount: Number(data.defaultDiscount),
-                images: data.images,
+                images: imagesString,
                 tags: data.selectedTags,
                 colors: colors,
                 sizes: sizes,
@@ -124,7 +132,12 @@ export function DialogAddProduct() {
             } as AddProductRequest
             const res = await addProduct(productRequest)
             if (typeof res!== "string") {
-                console.log(res)
+                toast({
+                    title: t("Toast.Success"),
+                    description: t("Manage.Add Product Success"),
+                    variant: "success"
+                })
+                reset()
             }else {
                 toast({
                     title: t("Toast.Error"),

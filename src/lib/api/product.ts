@@ -5,7 +5,7 @@ import {IProduct, IProductColor, IProductSize} from "@/lib/response/product";
 import {products_fake} from "@/lib/data";
 import {PAGE_SIZE, POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {callApiToArray, callApiToObject} from "@/lib/utils";
-import {AddColorRequest, AddSizeRequest} from "@/lib/request/product";
+import {AddColorRequest, AddProductRequest, AddSizeRequest} from "@/lib/request/product";
 import {getTranslations} from "next-intl/server";
 
 export async function getAllProductByFilter(filter: Filter) {
@@ -15,10 +15,14 @@ export async function getAllProductByFilter(filter: Filter) {
     if (filter.query && filter.query !== 'all') {
         const resp = await getProductsByName(filter.query);
         if (typeof resp !== 'string') {
-            products = resp;
+            if (filter.category_name && filter.category_name !== 'all') {
+              products =  resp.filter(product => product.category.name == filter.category_name);
+            }else {
+                products = resp;
+            }
         }
-    } else if (filter.category && filter.category !== 'all') {
-        const resp = await getProductsByCategory(filter.category);
+    } else if (filter.category_name && filter.category_name !== 'all') {
+        const resp = await getProductsByCategory(filter.category_name);
         if (typeof resp !== 'string') {
             products = resp;
         }
@@ -92,7 +96,6 @@ export async function getProductsByName(name: string) {
 export async function getAllProduct() {
     return callApiToArray<IProduct>({url: '/identity/products'})
 }
-
 export async function getProductsForCard({
                                              tag,
                                              limit = 4,
@@ -131,7 +134,7 @@ export async function updateProduct(product?: IProduct) {
     if (!product) {
         return t("Product can't missing")
     }
-    console.log(JSON.stringify(product));
+    // console.log(JSON.stringify(product));
     const updateProductRequest = {
         id: product.id,
         name: product.name,
@@ -143,7 +146,7 @@ export async function updateProduct(product?: IProduct) {
         description: product.description,
         brand: product.brand,
     }
-    return callApiToObject<IProduct>({url: '/identity/products/update', data: updateProductRequest, method: PUT_METHOD})
+    return callApiToObject<IProduct>({url: '/identity/products', data: updateProductRequest, method: PUT_METHOD})
 }
 
 export async function getProductById(id: string) {
@@ -152,15 +155,20 @@ export async function getProductById(id: string) {
 
 export async function addColorForProduct(productId: string, colorRequests: AddColorRequest[]) {
     return callApiToArray<IProductColor>({
-        url: `/identity/products/addColors/${productId}`,
+        url: `/identity/products/colors/${productId}`,
         data: colorRequests,
         method: POST_METHOD
     })
 }
-
+export async function getProductsByTag(tag_name: string) {
+    return await callApiToArray<IProduct>({url:`/identity/products/tag/${tag_name}`})
+}
+export async function addProduct(product: AddProductRequest) {
+    return await callApiToObject<IProduct>({url:'/identity/products', data: product, method: POST_METHOD})
+}
 export async function addSizeForProduct(productId: string, sizeRequests: AddSizeRequest[]) {
     return callApiToArray<IProductSize>({
-        url: `/identity/products/addSizes/${productId}`,
+        url: `/identity/products/sizes/${productId}`,
         data: sizeRequests,
         method: POST_METHOD
     })
@@ -196,7 +204,7 @@ export async function getRelatedProductsByCategory({
 
 export interface Filter {
     query: string
-    category: string
+    category_name: string
     tag: string
     limit?: number
     page: number

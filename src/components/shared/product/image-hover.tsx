@@ -32,6 +32,11 @@ const ImageHover = ({
             onMouseLeave={handleMouseLeave}
         >
             <Image
+                onError={
+                    (e) => {
+                        e.currentTarget.srcset= "/images/imagenotfound.png";
+                    }
+                }
                 src={src}
                 alt={alt}
                 fill
@@ -41,6 +46,11 @@ const ImageHover = ({
                 }`}
             />
             <Image
+                onError={
+                    (e) => {
+                        e.currentTarget.srcset= "/images/imagenotfound.png";
+                    }
+                }
                 src={hoverSrc}
                 alt={alt}
                 fill

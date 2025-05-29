@@ -1,3 +1,4 @@
+'use client'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
@@ -26,6 +27,7 @@ const ProductCard = ({
             <div className='relative h-52'>
                 {product.images.length > 1 ? (
                     <ImageHover
+
                         src={product.images[0].imagePath}
                         hoverSrc={product.images[1].imagePath}
                         alt={product.name}
@@ -33,11 +35,16 @@ const ProductCard = ({
                 ) : (
                     <div className='relative h-52'>
                         <Image
-                            src={product.images[0].imagePath}
+                            src={product.images[0]?.imagePath || "/images/imagenotfound.png"}
                             alt={product.name}
                             fill
                             sizes='80vw'
                             className='object-contain'
+                            onError={
+                                (e) => {
+                                    e.currentTarget.srcset= "/images/imagenotfound.png";
+                                }
+                            }
                         />
                     </div>
                 )}

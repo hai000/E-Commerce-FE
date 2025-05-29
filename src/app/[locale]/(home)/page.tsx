@@ -10,6 +10,7 @@ import {Category} from "@/lib/response/category";
 import {getTranslations} from "next-intl/server";
 import {getAllTags} from "@/lib/api/tag";
 import {ITag} from "@/lib/response/tag";
+import {getCardItemFromTagToArray} from "@/lib/utils";
 
 export default async function HomePage() {
     const t = await getTranslations('Home')
@@ -19,9 +20,18 @@ export default async function HomePage() {
         tags = []
     }
     tags = tags.map(value => ({value, sort: Math.random()}))
-        .sort((a, b) => a.sort - b.sort)
-        .slice(0, 3)
-        .map(({value}) => value) as ITag[]
+        .sort((a, b) => a.sort - b.sort).slice(0, 3).map(({value}) => value) as ITag[]
+    const tagCards = await Promise.all(
+        tags.map(async tag => ({
+            title: tag.name,
+            link: {
+                text: t('See More'),
+                href: '/search?tag=' + tag.name,
+            },
+            items: await getCardItemFromTagToArray(tag.name)
+        }))
+    );
+
     const cards = [
         {
             title: 'Danh mục',
@@ -32,18 +42,11 @@ export default async function HomePage() {
             items: categories.map((category: Category) => ({
                 name: category.name,
                 image: category.imagePath,
-                href: `/search?category=${category.id}`,
+                href: `/search?category=${category.id}&category_name=${category.name}`,
             })),
         },
-        ...tags.map(tag => ({
-            title: tag.name,
-            link: {
-                text: t('See More'),
-                href: '/search?tag=' + tag.name,
-            },
-            items: []
-        })),
-    ]
+        ...tagCards,
+    ];
     const todaysDeals = await getAllProduct()
     return (
         <>

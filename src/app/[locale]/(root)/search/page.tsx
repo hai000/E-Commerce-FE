@@ -84,6 +84,7 @@ export default async function SearchPage(props: {
         rating: string
         sort: string
         page: string
+        category_name: string
     }>
 }) {
     const searchParams = await props.searchParams
@@ -96,14 +97,15 @@ export default async function SearchPage(props: {
         rating = 'all',
         sort = 'best-selling',
         page = '1',
+        category_name= '',
     } = searchParams
 
-    const params = { q, category, tag, price, rating, sort, page }
+    const params = { q, category_name, tag, price, rating, sort, page }
 
     const categories = await getAllCategories()
     const tags = await getAllTags()
     const data = await getAllProductByFilter({
-        category,
+        category_name,
         tag,
         query: q,
         price,
@@ -127,7 +129,7 @@ export default async function SearchPage(props: {
                         ? ` for `
                         : null}
                     {q !== 'all' && q !== '' && '"' + q + '"'}
-                    {category !== 'all' && category !== '' && `  Category: ` + category}
+                    {category !== 'all' && category !== '' && `  Category: ` + category_name}
                     {tag !== 'all' && tag !== '' && `   Tag: ` + tag}
                     {price !== 'all' && `    Price: ` + price}
                     {rating !== 'all' && `   Rating: ` + rating + ` & up`}
@@ -170,7 +172,7 @@ export default async function SearchPage(props: {
                                     <li key={c.id}>
                                         <Link
                                             className={`${c.id == category && 'text-primary'}`}
-                                            href={getFilterUrl({ category: c.id, params })}
+                                            href={getFilterUrl({category_name: c.name, category: c.id, params })}
                                         >
                                             {c.name}
                                         </Link>

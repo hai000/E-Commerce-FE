@@ -18,14 +18,14 @@ import {getUserSignUpSchema} from "@/lib/validator";
 const signUpDefaultValues =
     process.env.NODE_ENV === 'development'
         ? {
-            name: 'john doe',
-            email: 'john@me.com',
-            password: '123456',
+            username: '',
+            email: '',
+            password: '',
             phoneNumber: '',
-            confirmPassword: '123456',
+            confirmPassword: '',
         }
         : {
-            name: '',
+            username: '',
             email: '',
             password: '',
             phoneNumber: '',
@@ -76,7 +76,8 @@ export default function SignUpForm() {
                     })
                     await reloadCart()
                     redirect(callbackUrl)
-                } catch {
+                } catch(e) {
+                    console.log(e)
                 }
             }
         }

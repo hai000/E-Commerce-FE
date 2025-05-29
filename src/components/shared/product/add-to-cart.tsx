@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import {CartItem} from "@/lib/response/cart";
+import {useTranslations} from "next-intl";
 
 export default function AddToCart({
                                       item,
@@ -21,6 +22,7 @@ export default function AddToCart({
     item: CartItem
     minimal?: boolean
 }) {
+    const t = useTranslations("Cart")
     const router = useRouter()
     const { toast } = useToast()
 
@@ -42,7 +44,7 @@ export default function AddToCart({
                                     router.push('/cart')
                                 }}
                             >
-                                Go to Cart
+                                {t('Go to Cart')}
                             </Button>
                         ),
                     })
@@ -57,7 +59,7 @@ export default function AddToCart({
                 }
             }}
         >
-            Add to Cart
+            {t('Add to Cart')}
         </Button>
     ) : (
         <div className='w-full space-y-2'>
@@ -66,7 +68,7 @@ export default function AddToCart({
                 onValueChange={(i) => setQuantity(Number(i))}
             >
                 <SelectTrigger className=''>
-                    <SelectValue>Quantity: {quantity}</SelectValue>
+                    <SelectValue>{t('Quantity')}: {quantity}</SelectValue>
                 </SelectTrigger>
                 <SelectContent position='popper'>
                     {Array.from({ length: item.productQuantity }).map((_, i) => (
@@ -94,7 +96,7 @@ export default function AddToCart({
                     }
                 }}
             >
-                Add to Cart
+                {t('Add to Cart')}
             </Button>
             <Button
                 variant='secondary'
@@ -114,7 +116,7 @@ export default function AddToCart({
                 }}
                 className='w-full rounded-full '
             >
-                Buy Now
+                {t('Buy Now')}
             </Button>
         </div>
     )

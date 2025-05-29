@@ -2,8 +2,9 @@ import {type ClassValue, clsx} from "clsx"
 import {twMerge} from "tailwind-merge"
 import {GET_METHOD, HOST_API} from "@/lib/constants";
 import qs from 'query-string'
-import {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import {Session} from "@auth/core/types";
+import {getProductsByTag} from "@/lib/api/product";
+import {IProduct} from "@/lib/response/product";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -25,6 +26,17 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
     style: 'currency',
     minimumFractionDigits: 2,
 })
+export async function getCardItemFromTagToArray(tag_name: string): Promise<{ name: string; image: string; href: string; }[]> {
+    const products = await getProductsByTag(tag_name);
+    if (!products || typeof products === 'string' || !Array.isArray(products)) {
+        return [];
+    }
+    return products.slice(0, 4).map((product: IProduct) => ({
+        name: product.name,
+        image: product.images[0]?.imagePath,
+        href: `/product/${product.id}`,
+    }));
+}
 
 export function formatCurrency(amount: number) {
     return CURRENCY_FORMATTER.format(amount)
@@ -51,13 +63,6 @@ export const generateHeaderAccessTokenString = (accessToken: string) => {
     return {
         'Authorization': `Bearer ${accessToken}`,
     };
-}
-export const getILogin = (cook: ReadonlyRequestCookies) => {
-    return {
-        accessToken: cook.get('accessToken')?.value,
-        refreshToken: cook.get('refreshToken')?.value
-    }
-
 }
 
 export async function callApiToArray<T>({url, method, data, headers}: ApiCallOptions): Promise<T[] | string> {
@@ -114,7 +119,35 @@ export async function callApiGetStatus({url, method, data, headers}: ApiCallOpti
         return false;
     }
 }
-
+export async function callApiToAll<T>({url, method, data, headers}: ApiCallOptions) {
+    try {
+        const options: RequestInit = {
+            method: method || GET_METHOD,
+            headers: {
+                ...(headers ? headers : {})
+            },
+        };
+        if (data instanceof FormData) {
+            options.body = data;
+        }else {
+            // JSON object
+            options.headers = {
+                ...options.headers,
+                "Content-Type": "application/json",
+            };
+            options.body = JSON.stringify(data);
+        }
+        const response = await fetch(`${HOST_API}${url}`, options);
+        const result = await response.json();
+        return result as ResponseData<T>;
+    } catch (error) {
+        return {
+            code: 500,
+            success: false,
+            data: error as T
+        };
+    }
+}
 export async function callApiToObject<T>({url, method, data, headers}: ApiCallOptions): Promise<T | string> {
     try {
         const options: RequestInit = {
@@ -134,7 +167,16 @@ export async function callApiToObject<T>({url, method, data, headers}: ApiCallOp
         return error as string;
     }
 }
-
+export function fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            resolve(reader.result as string);
+        };
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
 export function isValidHexColor(code: string): boolean {
     return /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(code);
 }
@@ -253,6 +295,7 @@ export const getFilterUrl = (filterUrl:FilterUrl) => {
     if (filterUrl.rating) newParams.rating = filterUrl.rating
     if (filterUrl.page) newParams.page = filterUrl.page
     if (filterUrl.sort) newParams.sort = filterUrl.sort
+    if (filterUrl.category_name) newParams.category_name= filterUrl.category_name
     return `/search?${new URLSearchParams(newParams).toString()}`
 }
 export interface FilterParams {
@@ -263,6 +306,7 @@ export interface FilterParams {
     rating?: string
     sort?: string
     page?: string
+    category_name?: string
 }
 export interface FilterUrl {
     params: FilterParams
@@ -272,4 +316,10 @@ export interface FilterUrl {
     price?: string
     rating?: string
     page?: string
+    category_name?: string
+}
+export interface ResponseData<T> {
+    code: number;
+    success: boolean;
+    data: T;
 }

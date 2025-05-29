@@ -1,4 +1,3 @@
-
 import {getAllProduct} from "@/lib/api/product";
 import {toast} from "@/hooks/use-toast";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
@@ -7,6 +6,7 @@ import {getProductDetailById} from "@/lib/api/product-detail";
 import {IProductDetail} from "@/lib/response/product";
 import {ProductList} from "@/app/[locale]/dashboard/products/product-list";
 import {EditDescriptionProduct, EditDetailProduct} from "@/app/[locale]/dashboard/products/edit-product";
+import {DialogAddProduct} from "@/app/[locale]/dashboard/products/dialog-add-product";
 
 export default async function ProductsPage(props: {
     searchParams: Promise<{
@@ -39,8 +39,9 @@ export default async function ProductsPage(props: {
             <div className="grid gap-4 xsm:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 items-stretch">
                 <Card className="h-full">
                     <CardHeader>
-                        <CardTitle className="text-xl font-bold">
+                        <CardTitle className="flex justify-between text-xl font-bold">
                             Products
+                            <DialogAddProduct/>
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="w-full">

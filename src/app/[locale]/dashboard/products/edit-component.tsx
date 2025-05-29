@@ -25,6 +25,10 @@ import {AddColorRequest, AddSizeRequest} from "@/lib/request/product";
 import {addColorForProduct, addSizeForProduct} from "@/lib/api/product";
 import {toast} from "@/hooks/use-toast";
 import {isValidHexColor} from "@/lib/utils";
+import {useTranslations} from "next-intl";
+import {ComboboxCategories} from "@/app/[locale]/dashboard/products/dialog-add-product";
+import {getAllCategories} from "@/lib/api/category";
+import {updateProductDetail} from "@/lib/api/product-detail";
 
 interface EditTabDescriptionContentProps {
     product: IProduct;
@@ -37,16 +41,35 @@ export default function EditTabDescriptionContent({
                                                   }: EditTabDescriptionContentProps) {
     const [name, setName] = useState(initialProduct.name);
     const [description, setDescription] = useState(initialProduct.description || "");
-    const [category, setCategory] = useState(initialProduct.category);
+    const [category, setCategory] = useState<Category>(initialProduct.category);
     const [brand, setBrand] = useState(initialProduct.brand);
-
+    const [allCategories, setAllCategories] = useState<Category[]>([]);
     useEffect(() => {
         setName(initialProduct.name);
         setDescription(initialProduct.description || "");
         setCategory(initialProduct.category);
         setBrand(initialProduct.brand);
     }, [initialProduct]);
-
+    useEffect(() => {
+        const fetchData = async () => {
+            getAllCategories().then(
+                (categories) => {
+                    if (typeof categories !== "string") {
+                        setAllCategories(categories)
+                    }
+                }
+            ).catch(
+                (error) => {
+                    toast({
+                        title: "Error",
+                        description: error.message,
+                        variant: "destructive"
+                    });
+                }
+            )
+        }
+        fetchData();
+    }, []);
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
         onProductChange({...initialProduct, name: e.target.value});
@@ -81,9 +104,16 @@ export default function EditTabDescriptionContent({
                     <Input disabled={true} value={initialProduct.defaultPrice}/>
                 </Card>
                 <p className="p-2 text-lg font-semibold">Category</p>
-                <Card className={" rounded-md p-4 space-y-2"}>
+                <Card className={"rounded-md p-4 space-y-2"}>
                     <p className="text-sm text-muted-foreground">Product category</p>
-                    <Combobox categoryIdSelected={category.id} categories={[category]}/>
+                    <div className={"grid-cols-7 grid"}>
+                        <ComboboxCategories setCategoryId={(id) => {
+                            const category = allCategories.find(category => category.id == id);
+                            if (category) {
+                                handleCategoryChange(category)
+                            }
+                        }} categoryId={category.id} categories={allCategories}/>
+                    </div>
                 </Card>
             </div>
         </div>
@@ -95,32 +125,62 @@ export function EditTabDetailContent({
                                          setIsReload,
                                          productDetails,
                                          productSelected,
-                                         selectedColorId,
-                                         selectedSizeId,
-                                         setSelectedSizeId,
-                                         setSelectedColorId
                                      }: {
     isReload: boolean;
     setIsReload: (isReload: boolean) => void;
     productDetails: IProductDetail[],
     productSelected?: IProduct,
-    selectedColorId: string,
-    selectedSizeId: string,
-    setSelectedSizeId: (id: string) => void,
-    setSelectedColorId: (id: string) => void,
 }) {
+    const t = useTranslations();
+    const [selectedColorId, setSelectedColorId] = useState(productSelected?.colors?.[0]?.id || '');
+    const [selectedSizeId, setSelectedSizeId] = useState(productSelected?.sizes?.[0]?.id || '');
+    // eslint-disable-next-line
     const [colors, setColors] = useState(productSelected?.colors || []);
+    // eslint-disable-next-line
     const [sizes, setSizes] = useState(productSelected?.sizes || []);
     const [price, setPrice] = useState(0);
+
+    const save = async () => {
+        const pDFind = productDetails.find(p => p.color?.id === selectedColorId && p.size?.id === selectedSizeId);
+        if (pDFind) {
+            const res = await updateProductDetail(
+                {
+                    productDetailId: pDFind.id,
+                    price: price,
+                    discount: 0
+                }
+            )
+            if (typeof res === 'string') {
+                toast({
+                    title: t("Toast.Error"),
+                    description: res,
+                    variant: "destructive"
+                })
+            } else {
+                toast({
+                    title: t("Toast.Success"),
+                    description: t("Manage.Update product detail success"),
+                    variant: "success"
+                })
+                setIsReload(!isReload);
+            }
+        } else {
+            toast({
+                title: t("Toast.Error"),
+                description: t("Something went wrong"),
+                variant: "destructive"
+            })
+        }
+    }
     useEffect(() => {
-        setPrice(productDetails.find(p => p.color.id === selectedColorId && p.size.id === selectedSizeId)?.price ?? 0)
+        setPrice(productDetails.find(p => p.color?.id === selectedColorId && p.size?.id === selectedSizeId)?.price ?? 0)
     }, [selectedColorId, selectedSizeId]);
     useEffect(() => {
-        setColors(productSelected?.colors || []);
-    }, [productSelected?.colors]);
-    useEffect(() => {
-        setSizes(productSelected?.sizes || []);
-    }, [productSelected?.sizes]);
+        if (productSelected) {
+            setSelectedColorId(productSelected.colors?.[0]?.id || '');
+            setSelectedSizeId(productSelected.sizes?.[0]?.id || '');
+        }
+    }, [productSelected]);
     const handleAddColor = async (color: AddColorRequest) => {
         if (isValidHexColor(color.colorCode)) {
             const response = await addColorForProduct(productSelected?.id || '', [color])
@@ -243,6 +303,11 @@ export function EditTabDetailContent({
                         setPrice(e.target.valueAsNumber)
                     }}/>
                 </Card>
+            </div>
+            <div className="flex justify-end space-x-4 w-full">
+                <Button onClick={save} className="w-[70px]">
+                    Save
+                </Button>
             </div>
         </div>
     )
@@ -382,10 +447,10 @@ export function DialogProductSizeProperty({addSize}: { addSize: (size: AddSizeRe
     );
 }
 
-function Combobox({categoryIdSelected, categories}: { categoryIdSelected: string, categories: Category[] }) {
+export function Combobox({categoryIdSelected, categories}: { categoryIdSelected: string, categories: Category[] }) {
+    const t = useTranslations()
     const [open, setOpen] = useState(false);
     const [id, setId] = useState(categoryIdSelected);
-    // console.log(id)
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className="font-normal">
@@ -395,13 +460,13 @@ function Combobox({categoryIdSelected, categories}: { categoryIdSelected: string
                     aria-expanded={open}
                     className="w-full justify-between overflow-hidden"
                 >
-                    {id ? categories.find((category) => category.id == id)?.name : "Select category..."}
+                    {id ? categories.find((category) => category.id == id)?.name : t("Manage.Select category")}
                     <ChevronsUpDown className="opacity-50"/>
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-full p-0">
                 <Command>
-                    <CommandInput placeholder="Search category..." className=" h-9"/>
+                    <CommandInput placeholder={t("Manage.Search category")} className=" h-9"/>
                     <CommandList>
                         <CommandEmpty>No category found.</CommandEmpty>
                         <CommandGroup>

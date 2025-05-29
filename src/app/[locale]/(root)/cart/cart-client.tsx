@@ -2,7 +2,7 @@
 import useCartStore from "@/hooks/use-cart-store";
 import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import Link from "next/link";
-import {APP_NAME, FREE_SHIPPING_MIN_PRICE} from "@/lib/constants";
+import {APP_NAME} from "@/lib/constants";
 import Image from "next/image";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Button} from "@/components/ui/button";
@@ -12,6 +12,7 @@ import React from "react";
 import {useRouter} from "next/navigation";
 import {Checkbox} from "@/components/ui/checkbox";
 import {toast} from "@/hooks/use-toast";
+import {useTranslations} from "next-intl";
 
 export default function CartPageClient() {
     const {
@@ -21,26 +22,27 @@ export default function CartPageClient() {
         removeItem,
     } = useCartStore()
     const router = useRouter()
+    const t = useTranslations()
     return (<div>
             <div className='grid grid-cols-1 md:grid-cols-4  md:gap-4'>
                 {cartItems.length === 0 ? (
                     <Card className='col-span-4 rounded-none'>
                         <CardHeader className='text-3xl  '>
-                            Your Shopping Cart is empty
+                            {t('Cart.Your cart is empty')}
                         </CardHeader>
                         <CardContent>
-                            Continue shopping on <Link href='/'>{APP_NAME}</Link>
+                            {t('Cart.Continue shopping on')} <Link href='/'>{APP_NAME}</Link>
                         </CardContent>
                     </Card>
                 ) : (
                     <>
                         <div className='col-span-3'>
-                            <Card className='rounded-none'>
-                                <CardHeader className='text-3xl pb-0'>
-                                    Shopping Cart
+                            <Card className='rounded-md'>
+                                <CardHeader className='text-3xl font-medium pb-0'>
+                                    {t('Cart.Shopping Cart')}
                                 </CardHeader>
                                 <CardContent className='p-4'>
-                                    <div className='flex justify-end border-b mb-4'>Price</div>
+                                    <div className='flex justify-end font-bold border-b mb-4'>{t('Price')}</div>
 
                                     {cartItems.map((item) => (
                                         <div
@@ -73,20 +75,22 @@ export default function CartPageClient() {
                                             <div className='flex-1 space-y-4'>
                                                 <Link
                                                     href={`/product/${item.productId}`}
-                                                    className='text-lg hover:no-underline  '
+                                                    className='font-bold text-lg hover:no-underline  '
                                                 >
                                                     {item.productName}
                                                 </Link>
                                                 <div>
                                                     {
                                                         item.color ? <p className='text-sm'>
-                                                            <span className='font-bold'>Color: </span>{' '}
+                                                            <span
+                                                                className='font-bold'>{t('Product.Color')}: </span>{' '}
                                                             {item.color.colorName}
                                                         </p> : <div/>
                                                     }
                                                     {
                                                         item.size ? <p className='text-sm'>
-                                                            <span className='font-bold'>Size: </span>{' '}
+                                                            <span
+                                                                className='font-bold'>{t('Product.Size')}: </span>{' '}
                                                             {item.size.size}
                                                         </p> : <div/>
                                                     }
@@ -101,7 +105,7 @@ export default function CartPageClient() {
                                                     >
                                                         <SelectTrigger className='w-auto'>
                                                             <SelectValue>
-                                                                Quantity: {item.cartItemQuantity}
+                                                                {t('Cart.Quantity')}: {item.cartItemQuantity}
                                                             </SelectValue>
                                                         </SelectTrigger>
                                                         <SelectContent position='popper'>
@@ -118,7 +122,7 @@ export default function CartPageClient() {
                                                         variant={'outline'}
                                                         onClick={() => removeItem(item)}
                                                     >
-                                                        Delete
+                                                        {t('Delete')}
                                                     </Button>
                                                 </div>
                                             </div>
@@ -144,9 +148,9 @@ export default function CartPageClient() {
                                     ))}
 
                                     <div className='flex justify-end text-lg my-2'>
-                                        Subtotal (
+                                        {t('Subtotal')} (
                                         {cartItems.reduce((acc, item) => acc + item.cartItemQuantity, 0)}{' '}
-                                        Items):{' '}
+                                        {t('Items')}):{' '}
                                         <span className='font-bold ml-1'>
                       <ProductPrice price={itemsPrice} plain/>
                     </span>{' '}
@@ -155,32 +159,15 @@ export default function CartPageClient() {
                             </Card>
                         </div>
                         <div>
-                            <Card className='rounded-none'>
+                            <Card className='rounded-md'>
                                 <CardContent className='py-4 space-y-4'>
-                                    {itemsPrice < FREE_SHIPPING_MIN_PRICE ? (
-                                        <div className='flex-1'>
-                                            Add{' '}
-                                            <span className='text-green-700'>
-                        <ProductPrice
-                            price={FREE_SHIPPING_MIN_PRICE - itemsPrice}
-                            plain
-                        />
-                      </span>{' '}
-                                            of eligible items to your order to qualify for FREE
-                                            Shipping
-                                        </div>
-                                    ) : (
-                                        <div className='flex-1'>
-                      <span className='text-green-700'>
-                        Your order qualifies for FREE Shipping
-                      </span>{' '}
-                                            Choose this option at checkout
-                                        </div>
-                                    )}
+                                    <div className='flex-1'>
+                                        {t('Cart.Choose this option at checkout')}
+                                    </div>
                                     <div className='text-lg'>
-                                        Subtotal (
+                                        {t('Subtotal')} (
                                         {cartItems.reduce((acc, item) => acc + item.cartItemQuantity, 0)}{' '}
-                                        items):{' '}
+                                        {t('Items')}):{' '}
                                         <span className='font-bold'>
                       <ProductPrice price={itemsPrice} plain/>
                     </span>{' '}
@@ -190,15 +177,15 @@ export default function CartPageClient() {
                                             const hasBuy = cartItems.find(cartItem => cartItem.isChecked)
                                             if (hasBuy) {
                                                 toast({
-                                                    title: 'Success',
-                                                    description: "Let's check out.",
+                                                    title: t('Toast.Success'),
+                                                    description: t('Cart.Lets check out'),
                                                     variant: 'success',
                                                 })
                                                 router.push('/checkout')
-                                            }else {
+                                            } else {
                                                 toast({
-                                                    title: 'Error',
-                                                    description: "Please select your item.",
+                                                    title: t('Toast.Error'),
+                                                    description: t('Cart.Please select your item'),
                                                     variant: 'destructive',
                                                 })
                                             }
@@ -206,7 +193,7 @@ export default function CartPageClient() {
                                         }
                                         className='rounded-full w-full'
                                     >
-                                        Proceed to Checkout
+                                        {t('Cart.Proceed to checkout')}
                                     </Button>
                                 </CardContent>
                             </Card>

@@ -1,3 +1,4 @@
+'use client'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
@@ -26,12 +27,17 @@ export function HomeCard({ cards }: { cards: CardItem[] }) {
                             <div className='grid grid-cols-2 gap-4'>
                                 {items.map(item => (
                                     <Link
-                                        key={item.name}
+                                        key={item.name+item.href}
                                         href={item.href}
                                         className='flex flex-col'
                                     >
 
                                         <Image
+                                            onError={
+                                                (e) => {
+                                                    e.currentTarget.srcset= "/images/imagenotfound.png";
+                                                }
+                                            }
                                             src={item.image? item.image : "/images/imagenotfound.png"}
                                             alt={item.name}
                                             className='aspect-square object-scale-down max-w-full h-auto mx-auto'

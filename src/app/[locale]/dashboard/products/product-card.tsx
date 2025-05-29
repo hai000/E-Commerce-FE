@@ -8,7 +8,11 @@ export function ProductCard({product,isSelected,classname}: {product:IProduct,is
     return(
         <Card className={cn(isSelected? "bg-gray-50 border-2 border-foreground " : "bg-white", "h-[180px] rounded-md w-[150px]",classname)}>
             <div className="items-center  flex flex-col mt-2 space-y-2">
-                <Image className=" max-h-[80px] max-w-[80px]" src={product.images[0].imagePath} width={80} height={80} alt=""/>
+                <Image onError={
+                    (e) => {
+                        e.currentTarget.srcset= "/images/imagenotfound.png";
+                    }
+                } className=" max-h-[80px] max-w-[80px]" src={product.images[0].imagePath} width={80} height={80} alt=""/>
             </div>
             <div className="ml-2 mr-2 space-y-1">
                 <p className=" whitespace-nowrap overflow-hidden text-ellipsis font-bold">{product.name}</p>

@@ -84,8 +84,6 @@ export function EditDetailProduct({
 }) {
     const [product, setProduct] = useState(productSelected ? {...productSelected} : undefined);
     const [productDe, setProductDe] = useState(productDetails ? productDetails : []);
-    const [selectedColorId, setSelectedColorId] = useState(product?.colors?.[0]?.id || '');
-    const [selectedSizeId, setSelectedSizeId] = useState(product?.sizes?.[0]?.id || '');
     const [isReload, setIsReload] = useState(false);
 
     useEffect(() => {
@@ -117,12 +115,7 @@ export function EditDetailProduct({
         setProduct(productSelected ? {...productSelected} : undefined)
         setProductDe(productDetails ? productDetails : [])
     }, [productSelected,productDetails]);
-    useEffect(() => {
-        if (product) {
-            setSelectedColorId(product.colors?.[0]?.id || '');
-            setSelectedSizeId(product.sizes?.[0]?.id || '');
-        }
-    }, [product]);
+
     return (
         <>
             <TabsContent value="details" className="space-y-4">
@@ -133,13 +126,11 @@ export function EditDetailProduct({
                                 Edit Products
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-2">
                             <EditTabDetailContent isReload={isReload}
                                                   setIsReload={setIsReload}
                                                   productDetails={productDe} productSelected={product}
-                                                  setSelectedColorId={setSelectedColorId}
-                                                  setSelectedSizeId={setSelectedSizeId}
-                                                  selectedColorId={selectedColorId} selectedSizeId={selectedSizeId}/>
+                            />
                         </CardContent>
                     </Card>
                     : <Card className={cn("rounded-md", className)}/>

@@ -3,6 +3,8 @@ import {twMerge} from "tailwind-merge"
 import {GET_METHOD, HOST_API} from "@/lib/constants";
 import qs from 'query-string'
 import {Session} from "@auth/core/types";
+import {getProductsByTag} from "@/lib/api/product";
+import {IProduct} from "@/lib/response/product";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -24,6 +26,17 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
     style: 'currency',
     minimumFractionDigits: 2,
 })
+export async function getCardItemFromTagToArray(tag_name: string): Promise<{ name: string; image: string; href: string; }[]> {
+    const products = await getProductsByTag(tag_name);
+    if (!products || typeof products === 'string' || !Array.isArray(products)) {
+        return [];
+    }
+    return products.slice(0, 4).map((product: IProduct) => ({
+        name: product.name,
+        image: product.images[0]?.imagePath,
+        href: `/product/${product.id}`,
+    }));
+}
 
 export function formatCurrency(amount: number) {
     return CURRENCY_FORMATTER.format(amount)

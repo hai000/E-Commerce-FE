@@ -100,12 +100,12 @@ export default async function SearchPage(props: {
         category_name= '',
     } = searchParams
 
-    const params = { q, category, tag, price, rating, sort, page }
+    const params = { q, category_name, tag, price, rating, sort, page }
 
     const categories = await getAllCategories()
     const tags = await getAllTags()
     const data = await getAllProductByFilter({
-        category,
+        category_name,
         tag,
         query: q,
         price,

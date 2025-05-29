@@ -5,6 +5,27 @@
     "today_deals": "Ưu đãi hôm nay",
     "Your browsing history": "Lịch sử duyệt của bạn"
   },
+  "Checkout": {
+    "Ward": "Phường/Xã",
+    "District": "Quận/Huyện",
+    "Select city": "Chọn thành phố",
+    "City": "Thành phố",
+    "Cant load page": "Không thể tải trang",
+    "Phone number": "Số điện thoại",
+    "Address": "Địa chỉ",
+    "Full Name": "Họ và tên",
+    "Your address": "Địa chỉ của bạn",
+    "Enter shipping address": "Nhập địa chỉ giao hàng",
+    "Shipping address": "Địa chỉ giao hàng",
+    "Order Total": "Tổng đơn hàng",
+    "Shipping & Handling": "Vận chuyển & Xử lý",
+    "Order Summary": "Tóm tắt đơn hàng",
+    "By placing your order": "Bằng việc đặt hàng, bạn đồng ý với",
+    "Choose a payment method to continue": "Chọn phương thức thanh toán để tiếp tục thanh toán. Bạn vẫn có thể xem lại và chỉnh sửa đơn hàng trước khi hoàn tất.",
+    "Use this payment method": "Sử dụng phương thức thanh toán này",
+    "Choose a shipping address": "Chọn địa chỉ giao hàng và phương thức thanh toán để tính phí vận chuyển, xử lý và thuế.",
+    "Ship to this address": "Giao hàng đến địa chỉ này"
+  },
   "Product": {
     "Preview": "Xem trước",
     "Images": "Ảnh",
@@ -90,6 +111,11 @@
     "Please enter your username and password": "Vui lòng nhập tên đăng nhập và mật khẩu của bạn"
   },
   "Placeholder": {
+    "Select ward": "Chọn phường/xã",
+    "Select district": "Chọn quận/huyện",
+    "Search city": "Tìm kiếm thành phố...",
+    "Enter address": "Nhập địa chỉ",
+    "Enter full name": "Nhập họ tên",
     "Enter color name": "Nhập tên màu sắc",
     "Enter color code": "Nhập mã màu",
     "Enter size": "Nhập kích thước",
@@ -102,6 +128,8 @@
     "Enter password": "Nhập mật khẩu"
   },
   "About": {
+    "Help Center": "Trung tâm trợ giúp",
+    "Need help Check our": "Cần trợ giúp? Kiểm tra",
     "Customer Service": "Dịch vụ khách hàng",
     "Help and setting": "Trợ giúp & Cài đặt",
     "By signing in, you agree to": "Bằng việc đăng nhập, bạn đồng ý với",
@@ -117,6 +145,7 @@
     "Our Address": "Đường 6, khu phố 22, phường Linh Trung, Tp. Thủ Đức, Tp. Hồ Chí Minh, VN, Zip 70000 | +84 123 456 789"
   },
   "Manage": {
+    "Update product detail success": "Cập nhật chi tiết sản phẩm thành công",
     "Add Product Success": "Thêm sản phẩm thành công",
     "Select Images": "Chọn ảnh",
     "Add Color": "Thêm màu sắc",
@@ -133,6 +162,19 @@
     "Create a new product by filling out the information below": "Tạo sản phẩm mới bằng cách điền thông tin dưới đây",
     "Product Name": "Tên sản phẩm"
   },
+  "Choose a shipping speed": "Chọn vận chuyển",
+  "Qty": "S.lượng",
+  "By placing your order": "Bằng việc đặt hàng",
+  "minutes": "phút",
+  "hours and": "tiếng và",
+  "If you order in the next": "Nếu bạn đặt hàng trong vòng",
+  "Arriving": "Đến",
+  "Review items and shipping": "Xem lại hàng hóa và vận chuyển",
+  "Delivery date": "Ngày giao hàng",
+  "Items and shipping":"Hàng hóa và vận chuyển",
+  "Choose a payment method": "Chọn phương thức thanh toán",
+  "Payment Method": "Phương thức thanh toán",
+  "Something went wrong": "Đã xảy ra lỗi",
   "Items": "Hàng hóa",
   "Subtotal": "Tổng phụ",
   "Delete": "Xóa",
@@ -160,5 +202,17 @@
   "all": "Tất cả",
   "Search Site": "Tìm kiếm trên trang",
   "Close": "Đóng",
-  "Shop By Department": "Mua sắm theo danh mục"
+  "Shop By Department": "Mua sắm theo danh mục",
+  "For an item ordered from": "Đối với một mặt hàng được đặt mua từ",
+  "When you click the": "Khi bạn nhấp vào",
+  "privacy notice": "thông báo về quyền riêng tư",
+  "and": "và",
+  "conditions of use": "điều kiện sử dụng",
+  "See": "Xem",
+  "or": "hoặc",
+  "Change": "Thay đổi",
+  "Returns Policy": "Chính sách hoàn trả",
+  "Place Your Order": "Đặt hàng",
+  "with in": "Trong vòng 30 ngày kể từ khi nhận hàng, bạn có thể trả lại sản phẩm mới, chưa mở, còn nguyên vẹn. Có thể áp dụng các trường hợp ngoại lệ và hạn chế",
+  "we will send": "nút, chúng tôi sẽ gửi cho bạn một email xác nhận đã nhận được đơn đặt hàng của bạn. Hợp đồng mua hàng sẽ chỉ được hoàn tất khi chúng tôi gửi cho bạn một email thông báo rằng mặt hàng đã được gửi đi. Bằng việc đặt hàng, bạn đồng ý với"
 }

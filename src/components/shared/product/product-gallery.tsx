@@ -25,6 +25,11 @@ export default function ProductGallery({ images }: { images: string[] }) {
                         }`}
                     >
                         <Image
+                            onError={
+                                (e) => {
+                                    e.currentTarget.srcset= "/images/imagenotfound.png";
+                                }
+                            }
                             src={image}
                             alt={'product image'}
                             width={48}
@@ -38,6 +43,11 @@ export default function ProductGallery({ images }: { images: string[] }) {
                 <Zoom>
                     <div className='relative h-[500px]'>
                         <Image
+                            onError={
+                                (e) => {
+                                    e.currentTarget.srcset= "/images/imagenotfound.png";
+                                }
+                            }
                             src={images[selectedImage]}
                             alt={'product image'}
                             fill

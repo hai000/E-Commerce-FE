@@ -1,20 +1,25 @@
-
+'use client'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
-import {getTranslations} from "next-intl/server";
+import {useTranslations} from "next-intl";
 
-export default async function AuthLayout({
+export default function AuthLayout({
                                              children,
                                          }: {
     children: React.ReactNode
 }) {
-    const t = await getTranslations()
+    const t = useTranslations()
     return (
         <div className='flex flex-col items-center min-h-screen highlight-link  '>
             <header className='mt-8'>
                 <Link href='/'>
                     <Image
+                        onError={
+                            (e) => {
+                                e.currentTarget.srcset= "/images/imagenotfound.png";
+                            }
+                        }
                         src='/icons/logo.svg'
                         alt='logo'
                         width={64}

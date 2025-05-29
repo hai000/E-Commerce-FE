@@ -15,10 +15,14 @@ export async function getAllProductByFilter(filter: Filter) {
     if (filter.query && filter.query !== 'all') {
         const resp = await getProductsByName(filter.query);
         if (typeof resp !== 'string') {
-            products = resp;
+            if (filter.category_name && filter.category_name !== 'all') {
+              products =  resp.filter(product => product.category.name == filter.category_name);
+            }else {
+                products = resp;
+            }
         }
-    } else if (filter.category && filter.category !== 'all') {
-        const resp = await getProductsByCategory(filter.category);
+    } else if (filter.category_name && filter.category_name !== 'all') {
+        const resp = await getProductsByCategory(filter.category_name);
         if (typeof resp !== 'string') {
             products = resp;
         }
@@ -156,6 +160,9 @@ export async function addColorForProduct(productId: string, colorRequests: AddCo
         method: POST_METHOD
     })
 }
+export async function getProductsByTag(tag_name: string) {
+    return await callApiToArray<IProduct>({url:`/identity/products/tag/${tag_name}`})
+}
 export async function addProduct(product: AddProductRequest) {
     return await callApiToObject<IProduct>({url:'/identity/products', data: product, method: POST_METHOD})
 }
@@ -197,7 +204,7 @@ export async function getRelatedProductsByCategory({
 
 export interface Filter {
     query: string
-    category: string
+    category_name: string
     tag: string
     limit?: number
     page: number

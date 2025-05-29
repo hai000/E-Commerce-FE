@@ -52,7 +52,7 @@ export async function getOrderById(orderId: string) {
 export async function createPayPalOrder(orderId: string) {
     const t = await getTranslations("Order")
     try {
-        const res = await fetch(`${HOST_API}/identity/api/paypal/create-order?orderId=${orderId}`, {
+        const res = await fetch(`${HOST_API}/identity/payment/paypal/create-order?orderId=${orderId}`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
         });

@@ -1,4 +1,4 @@
-import {callApiToAll, fileToBase64} from "@/lib/utils";
+import {callApiToAll} from "@/lib/utils";
 import {POST_METHOD} from "@/lib/constants";
 
 export async function uploadFile(file: File) {

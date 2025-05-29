@@ -25,6 +25,11 @@ export default function CartAddItem({itemId}: { itemId: string }) {
                     <CardContent className='flex h-full items-center justify-center  gap-3 py-4'>
                         <Link href={`/product/${item.slug}`}>
                             <Image
+                                onError={
+                                    (e) => {
+                                        e.currentTarget.srcset= "/images/imagenotfound.png";
+                                    }
+                                }
                                 src={item.images[0]}
                                 alt={item.productName}
                                 width={80}

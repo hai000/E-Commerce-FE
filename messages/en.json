@@ -2,8 +2,29 @@
   "Home": {
     "See More": "See More",
     "Related to items that you've viewed": "Related to items that you've viewed",
-    "today_deals" : "Today deals",
+    "today_deals": "Today deals",
     "Your browsing history": "Your browsing history"
+  },
+  "Checkout": {
+    "Ward": "Ward",
+    "District": "District",
+    "Select city": "Select city",
+    "City": "City",
+    "Cant load page": "Can't load page",
+    "Phone number": "Phone number",
+    "Address": "Address",
+    "Full Name": "Full Name",
+    "Your address": "Your address",
+    "Enter shipping address": "Enter shipping address",
+    "Shipping address": "Shipping address",
+    "Order Total": "Order Total",
+    "Shipping & Handling": "Shipping & Handling",
+    "Order Summary": "Order Summary",
+    "By placing your order": "By placing your order, you agree to",
+    "Choose a payment method to continue": "Choose a payment method to continue  checking out. You'll still have a chance to review and edit your order before it's final.",
+    "Use this payment method": "Use this payment method",
+    "Choose a shipping address": "Choose a shipping address and payment method in order to calculate shipping, handling, and tax.",
+    "Ship to this address": "Ship to this address"
   },
   "Product": {
     "Preview": "Preview",
@@ -90,6 +111,10 @@
     "Please enter your username and password": "Please enter your username and password"
   },
   "Placeholder": {
+    "Select ward": "Select ward",
+    "Select district": "Select district",
+    "Search city": "Search city...",
+    "Enter full name": "Enter full name",
     "Enter color name": "Enter color name",
     "Enter color code": "Enter color code",
     "Enter size": "Enter size",
@@ -102,6 +127,8 @@
     "Enter password": "Enter password"
   },
   "About": {
+    "Help Center": "Help Center",
+    "Need help Check our": "Need help? Check our",
     "Customer Service": "Customer Service",
     "By signing in, you agree to": "By signing in, you agree to",
     "And": "and",
@@ -118,6 +145,7 @@
   },
   "Manage": {
     "Add Product Success": "Add product success",
+    "Update product detail success": "Update product detail success",
     "Select Images": "Select images",
     "Add Color": "Add Color",
     "Please enter color name": "Please enter color name",
@@ -133,6 +161,19 @@
     "Create a new product by filling out the information below": "Create a new product by filling out the information below",
     "Product Name": "Product Name"
   },
+  "Choose a shipping speed": "Choose a shipping speed",
+  "Qty": "Qty",
+  "minutes": "minutes",
+  "hours and": "hours and",
+  "If you order in the next": "If you order in the next",
+  "Arriving": "Arriving",
+  "Review items and shipping": "Review items and shipping",
+  "Delivery date": "Delivery date",
+  "Items and shipping": "Items and shipping",
+  "Choose a payment method": "Choose a payment method",
+  "Payment Method": "Payment Method",
+  "Change": "Change",
+  "Something went wrong": "Something went wrong",
   "Items": "Items",
   "Subtotal": "Subtotal",
   "Delete": "Delete",
@@ -160,5 +201,16 @@
   "all": "All",
   "Search Site": "Search Site",
   "Close": "Close",
-  "Shop By Department": "Shop By Department"
+  "Shop By Department": "Shop By Department",
+  "For an item ordered from": "For an item ordered from",
+  "When you click the": "When you click the",
+  "privacy notice": "privacy notice",
+  "and": "and",
+  "conditions of use": "conditions of use",
+  "See": "See",
+  "or": "or",
+  "Returns Policy": "Returns Policy",
+  "Place Your Order": "Place Your Order",
+  "with in": "Within 30 days of delivery, you may return new, unopened merchandise in its original condition. Exceptions and restrictions apply",
+  "we will send": "button, we will send you an e-mail acknowledging receipt of your order. Your contract to purchase an item will not be complete until we send you an e-mail notifying you that the item has been shipped to you. By placing your order, you agree to"
 }

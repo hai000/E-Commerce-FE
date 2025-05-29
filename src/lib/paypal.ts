@@ -2,7 +2,7 @@ import {HOST_API} from "@/lib/constants";
 
 export const paypal = {
     capturePayment: async function capturePayment(orderId: string) {
-        const res = await fetch(`${HOST_API}/identity/api/paypal/capture`, {
+        const res = await fetch(`${HOST_API}/identity/payment/paypal/capture`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ orderId: orderId })

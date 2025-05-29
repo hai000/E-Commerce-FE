@@ -37,6 +37,11 @@ export function HomeCarousel({
                         <Link href={item.url}>
                             <div className='flex aspect-[16/6] items-center justify-center p-6 relative -m-1'>
                                 <Image
+                                    onError={
+                                        (e) => {
+                                            e.currentTarget.srcset= "/images/imagenotfound.png";
+                                        }
+                                    }
                                     src={item.image}
                                     alt={item.title}
                                     fill

@@ -101,6 +101,11 @@ export default function OrderDetailsForm({
                                                     alt={item.productName}
                                                     width={50}
                                                     height={50}
+                                                    onError={
+                                                        (e) => {
+                                                            e.currentTarget.srcset= "/images/imagenotfound.png";
+                                                        }
+                                                    }
                                                 ></Image>
                                                 <span className='px-2'>{item.productName}</span>
                                             </Link>

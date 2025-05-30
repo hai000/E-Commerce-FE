@@ -23,19 +23,19 @@ export default async function Search() {
             method='GET'
             className='flex  items-stretch h-10 '
         >
-            <Select name='category'>
-                <SelectTrigger className='w-auto h-full dark:border-gray-200 bg-gray-100 text-black border-r  rounded-r-none rounded-l-md'>
-                    <SelectValue placeholder={t('all')} />
-                </SelectTrigger>
-                <SelectContent position='popper'>
-                    <SelectItem value='all'>{t('all')}</SelectItem>
-                    {(categories).map((category) => (
-                        <SelectItem key={category.id} value={category.id.toString()}>
-                            {category.name}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+                <Select name='category'>
+                    <SelectTrigger className='w-24 h-full dark:border-gray-200 bg-gray-100 text-black border-r  rounded-r-none rounded-l-md'>
+                        <SelectValue placeholder={t('all')} />
+                    </SelectTrigger>
+                    <SelectContent className={'max-w-[180px]'} position='popper'>
+                        <SelectItem value='all'>{t('all')}</SelectItem>
+                        {(categories).map((category) => (
+                            <SelectItem key={category.id} value={category.id.toString()}>
+                                <span className="max-w-[180px]">{category.name}</span>
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             <Input
                 className='flex-1 rounded-none dark:border-gray-200 bg-gray-100 text-black text-base h-full'
                 placeholder={`${t('Search Site')} ${APP_NAME}`}

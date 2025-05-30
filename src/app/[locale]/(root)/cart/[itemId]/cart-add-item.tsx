@@ -2,7 +2,7 @@
 import ProductPrice from '@/components/shared/product/product-price'
 import {buttonVariants} from '@/components/ui/button'
 import {Card, CardContent} from '@/components/ui/card'
-import {cn} from '@/lib/utils'
+import {cn, getImageUrl} from '@/lib/utils'
 import {CheckCircle2Icon} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -30,7 +30,7 @@ export default function CartAddItem({itemId}: { itemId: string }) {
                                         e.currentTarget.srcset= "/images/imagenotfound.png";
                                     }
                                 }
-                                src={item.images[0]}
+                                src={getImageUrl(item.images[0])}
                                 alt={item.productName}
                                 width={80}
                                 height={80}

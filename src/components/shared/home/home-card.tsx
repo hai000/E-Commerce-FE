@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import {getImageUrl} from "@/lib/utils";
 
 type CardItem = {
     title: string
@@ -38,7 +39,7 @@ export function HomeCard({ cards }: { cards: CardItem[] }) {
                                                     e.currentTarget.srcset= "/images/imagenotfound.png";
                                                 }
                                             }
-                                            src={item.image? item.image : "/images/imagenotfound.png"}
+                                            src={getImageUrl(item.image)}
                                             alt={item.name}
                                             className='aspect-square object-scale-down max-w-full h-auto mx-auto'
                                             height={120}

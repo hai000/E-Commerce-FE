@@ -10,6 +10,8 @@ import {IUser} from "@/lib/response/user";
 import {updateUser} from "@/lib/api/user";
 import {DialogEditProfile} from "@/app/[locale]/(root)/account/manage/edit-profile";
 import {Session} from "@auth/core/types";
+import {toast} from "@/hooks/use-toast";
+import {useTranslations} from "next-intl";
 
 
 interface ProfileContentProps {
@@ -17,19 +19,33 @@ interface ProfileContentProps {
     session: Session
 }
 
-const PAGE_TITLE = "Profile"
 
 export default function ProfileContent({ user: initialUser, session}: ProfileContentProps) {
     // eslint-disable-next-line
     const [user, setUser] = useState<IUser>(initialUser)
+    const t = useTranslations()
+    const PAGE_TITLE = t("Profile")
     const handleEditProfile = async (request: UpdateUserRequest) => {
         const response = await updateUser(session.accessToken, request)
-        console.log("profile-content.tsx", response)
+        if (typeof response === 'string'){
+            toast({
+                title: t("Toast.Error"),
+                description: response,
+                variant: "destructive"
+            })
+        }else {
+            toast({
+                title: t("Toast.Success"),
+                description: t('Update profile successfully'),
+                variant: "success"
+            })
+        }
+
     }
     return (
         <SessionProvider session={session}>
             <div className='flex gap-2 '>
-                <Link href='/account'>Your Account</Link>
+                <Link href='/account'>{t('Your Account')}</Link>
                 <span>›</span>
                 <span>{PAGE_TITLE}</span>
             </div>
@@ -37,7 +53,7 @@ export default function ProfileContent({ user: initialUser, session}: ProfileCon
             <Card className='max-w-2xl '>
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
-                        <h3 className='font-bold'>Full name</h3>
+                        <h3 className='font-bold'>{t('Full name')}</h3>
                         <p>{user.fullName}</p>
                     </div>
                 </CardContent>
@@ -45,34 +61,34 @@ export default function ProfileContent({ user: initialUser, session}: ProfileCon
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
                         <h3 className='font-bold'>Email</h3>
-                        <p>{user.email ?? 'None'}</p>
+                        <p>{user.email ?? t('None')}</p>
                     </div>
                 </CardContent>
                 <Separator />
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
-                        <h3 className='font-bold'>Phone number</h3>
-                        <p>{user.phoneNumber ?? 'None'}</p>
+                        <h3 className='font-bold'>{t('Checkout.Phone number')}</h3>
+                        <p>{user.phoneNumber ?? t('None')}</p>
                     </div>
                 </CardContent>
                 <Separator />
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
-                        <h3 className='font-bold'>DOB</h3>
-                        <p>{user.dateOfBirth ?? 'None'}</p>
+                        <h3 className='font-bold'>{t('DOB')}</h3>
+                        <p>{user.dateOfBirth ?? t('None')}</p>
                     </div>
                 </CardContent>
                 <Separator />
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
-                        <h3 className='font-bold'>Gender</h3>
-                        <p>{user.gender === 0 ? 'Nam' : 'Nữ'}</p>
+                        <h3 className='font-bold'>{t('Gender')}</h3>
+                        <p>{user.gender === 0 ? t('Male') :t('Female')}</p>
                     </div>
                 </CardContent>
                 <Separator />
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
-                        <h3 className='font-bold'>Password</h3>
+                        <h3 className='font-bold'>{t('User.Password')}</h3>
                         <p>************</p>
                     </div>
                 </CardContent>

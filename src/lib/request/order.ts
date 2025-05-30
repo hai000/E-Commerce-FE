@@ -6,4 +6,5 @@ export interface CreateOrderRequest{
     deliveryMethod: InfoShippingAddress
     freeshipVcId: string
     productVcId: string
+    paymentMethodId: string
 }

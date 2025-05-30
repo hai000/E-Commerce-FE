@@ -18,10 +18,10 @@ export default async function UserButton() {
     const session = await auth()
     const t = await getTranslations()
     return (
-        <div className='flex gap-2 items-center'>
+        <div className='w-40 flex items-center'>
             <DropdownMenu>
-                <DropdownMenuTrigger className='header-button' asChild>
-                    <div className='flex items-center'>
+                <DropdownMenuTrigger className='w-full header-button' asChild>
+                    <div className='flex w-full justify-between items-center'>
                         <div className='flex flex-col text-xs text-left'>
                             <span>{t('hello')}, {session ? session.user.name : t('sign in')}</span>
                             <span className='font-bold'>{t('Account & Orders')}</span>
@@ -75,13 +75,13 @@ export default async function UserButton() {
                                     className={cn(buttonVariants(), 'w-full')}
                                     href='/sign-in'
                                 >
-                                    Sign in
+                                    {t('Login.Sign In')}
                                 </Link>
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuLabel>
                             <div className='font-normal'>
-                                New Customer? <Link href='/sign-up'>Sign up</Link>
+                                {t('New Customer')}? <Link href='/sign-up'>{t('Login.Sign Up')}</Link>
                             </div>
                         </DropdownMenuLabel>
                     </DropdownMenuContent>

@@ -68,7 +68,7 @@ export default async function Sidebar({
                             {categories.map((category) => (
                                 <DrawerClose asChild key={category.id}>
                                     <Link
-                                        href={`/search?category=${category.id}`}
+                                        href={`/search?category=${category.id}&category_name=${category.name}`}
                                         className={`flex items-center justify-between item-button`}
                                     >
                                         <span>{category.name}</span>

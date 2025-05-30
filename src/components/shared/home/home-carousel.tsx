@@ -42,7 +42,7 @@ export function HomeCarousel({
                                             e.currentTarget.srcset= "/images/imagenotfound.png";
                                         }
                                     }
-                                    src={item.image}
+                                    src={(item.image)}
                                     alt={item.title}
                                     fill
                                     className='object-cover'

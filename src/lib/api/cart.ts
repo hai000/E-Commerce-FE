@@ -2,7 +2,7 @@
 import {callApiGetStatus, callApiToObject, generateHeaderAccessToken} from "@/lib/utils";
 import {Cart, CartItem} from "@/lib/response/cart";
 import {DELETE_METHOD, POST_METHOD, PUT_METHOD} from "@/lib/constants";
-import {auth} from "../../auth";
+import {auth} from "@/auth";
 import {getTranslations} from "next-intl/server";
 export async function getMyCart() {
     const session = await auth()

@@ -13,6 +13,7 @@ import {useRouter} from "next/navigation";
 import {Checkbox} from "@/components/ui/checkbox";
 import {toast} from "@/hooks/use-toast";
 import {useTranslations} from "next-intl";
+import {getImageUrl} from "@/lib/utils";
 
 export default function CartPageClient() {
     const {
@@ -61,7 +62,7 @@ export default function CartPageClient() {
                                             <Link href={`/product/${item.productId}`}>
                                                 <div className='relative w-40 h-40'>
                                                     <Image
-                                                        src={item.images[0]}
+                                                        src={getImageUrl(item.images[0])}
                                                         alt={item.productName}
                                                         fill
                                                         sizes='20vw'

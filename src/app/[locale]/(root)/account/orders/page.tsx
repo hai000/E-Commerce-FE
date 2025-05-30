@@ -1,4 +1,3 @@
-import { Metadata } from 'next'
 import Link from 'next/link'
 
 import Pagination from '@/components/shared/pagination'
@@ -16,23 +15,33 @@ import ProductPrice from '@/components/shared/product/product-price'
 import {getMyOrders} from "@/lib/api/order";
 import {Order} from "@/lib/response/order";
 import {PAGE_SIZE} from "@/lib/constants";
-
-const PAGE_TITLE = 'Your Orders'
-export const metadata: Metadata = {
-    title: PAGE_TITLE,
+import {getLocale, getTranslations} from "next-intl/server";
+const PAGE_TITLE = async () => {
+    const t = await getTranslations()
+    return t('Your Orders')
 }
+
+export const metadata: () => Promise<{ title: string }> = async () => {
+    return {
+        title: await PAGE_TITLE(),
+    }
+}
+
 export default async function OrdersPage(props: {
     searchParams: Promise<{ page: string }>
 }) {
+    const local = await getLocale()
     const searchParams = await props.searchParams
     const page = Number(searchParams.page) || 1
     const orders = await getMyOrders({
         page,
     })
+    const t = await getTranslations()
+    const PAGE_TITLE = t('Your Orders')
     return (
         <div>
             <div className='flex gap-2'>
-                <Link href='/account'>Your Account</Link>
+                <Link href='/account'>{t('Your Account')}</Link>
                 <span>›</span>
                 <span>{PAGE_TITLE}</span>
             </div>
@@ -41,19 +50,19 @@ export default async function OrdersPage(props: {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Id</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Total</TableHead>
-                            <TableHead>Paid</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableHead>{t('Id')}</TableHead>
+                            <TableHead>{t('Date')}</TableHead>
+                            <TableHead>{t('Total')}</TableHead>
+                            <TableHead>{t('Paid')}</TableHead>
+                            <TableHead>{t('Status')}</TableHead>
+                            <TableHead>{t('Actions')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {(typeof orders === "string" || orders.length === 0)&& (
                             <TableRow>
                                 <TableCell colSpan={6} className=''>
-                                    You have no orders.
+                                    {t('You have no orders')}.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -65,22 +74,22 @@ export default async function OrdersPage(props: {
                                     </Link>
                                 </TableCell>
                                 <TableCell>
-                                    {formatDateTime(order.createdAt!).dateTime}
+                                    {formatDateTime(order.createdAt!,local).dateTime}
                                 </TableCell>
                                 <TableCell>
                                     <ProductPrice price={order.totalPrice} plain />
                                 </TableCell>
                                 <TableCell>
                                     {order.totalPayment <= 0?
-                                        'Yes'
-                                        : 'No'}
+                                        t('Paid')
+                                        : t('Not paid')}
                                 </TableCell>
                                 <TableCell>
                                     {order.status.statusName}
                                 </TableCell>
                                 <TableCell>
                                     <Link href={`/account/orders/${order.orderId}`}>
-                                        <span className='px-2'>Details</span>
+                                        <span className='px-2'>{t('Details')}</span>
                                     </Link>
                                 </TableCell>
                             </TableRow>

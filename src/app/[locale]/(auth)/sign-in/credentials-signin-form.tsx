@@ -18,7 +18,7 @@ const signInDefaultValues =
     process.env.NODE_ENV === 'development'
         ? {
             username: 'admin',
-            password: '123',
+            password: '123123',
         }
         : {
             username: '',
@@ -45,7 +45,8 @@ export default function CredentialsSignInForm() {
             })
             await reloadCart()
             router.push("/");
-        } catch {
+        } catch (error) {
+            console.error('Sign in error:', error)
             toast({
                 title: t('Toast.Error'),
                 description: t('User.Username or password is incorrect'),

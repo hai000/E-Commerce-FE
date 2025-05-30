@@ -6,7 +6,7 @@ import React from 'react'
 import {Card, CardContent, CardFooter, CardHeader} from '@/components/ui/card'
 
 import Rating from './rating'
-import {formatNumber, round2} from '@/lib/utils'
+import {formatNumber, getImageUrl, round2} from '@/lib/utils'
 import ProductPrice from './product-price'
 import ImageHover from "@/components/shared/product/image-hover";
 import {IProduct} from "@/lib/response/product";
@@ -27,15 +27,14 @@ const ProductCard = ({
             <div className='relative h-52'>
                 {product.images.length > 1 ? (
                     <ImageHover
-
-                        src={product.images[0].imagePath}
-                        hoverSrc={product.images[1].imagePath}
+                        src={getImageUrl(product.images[0].imagePath)}
+                        hoverSrc={getImageUrl(product.images[1].imagePath)}
                         alt={product.name}
                     />
                 ) : (
                     <div className='relative h-52'>
                         <Image
-                            src={product.images[0]?.imagePath || "/images/imagenotfound.png"}
+                            src={getImageUrl(product.images[0]?.imagePath)}
                             alt={product.name}
                             fill
                             sizes='80vw'

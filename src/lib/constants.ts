@@ -1,3 +1,5 @@
+import {getPaymentMethods} from "@/lib/api/payment";
+
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'NxtAmzn'
 export const APP_SLOGAN =
     process.env.NEXT_PUBLIC_APP_SLOGAN || 'Spend less, enjoy more.'
@@ -16,22 +18,13 @@ export const POST_METHOD = 'POST'
 export const PUT_METHOD = 'PUT'
 export const DELETE_METHOD = 'DELETE'
 
-export const AVAILABLE_PAYMENT_METHODS = [
-    {
-        name: 'PayPal',
-        commission: 0,
-        isDefault: true,
-    },
-    {
-        name: 'Stripe',
-        commission: 0,
-        isDefault: true,
-    },
-    {
-        name: 'Cash On Delivery',
-        commission: 0,
-        isDefault: true,
-    },
-]
+export const AVAILABLE_PAYMENT_METHODS = async () => {
+    const methods = await getPaymentMethods()
+    if (typeof methods === 'string') {
+        return []
+    }else {
+        return methods
+    }
+}
 export const DEFAULT_PAYMENT_METHOD =
     process.env.DEFAULT_PAYMENT_METHOD || 'PayPal'

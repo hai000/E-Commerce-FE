@@ -1,7 +1,7 @@
 "use client"
 import {Card} from "@/components/ui/card";
 import Image from "next/image";
-import {cn} from "@/lib/utils";
+import {cn, getImageUrl} from "@/lib/utils";
 import {IProduct} from "@/lib/response/product";
 
 export function ProductCard({product,isSelected,classname}: {product:IProduct,isSelected: boolean,classname:string}) {
@@ -12,7 +12,7 @@ export function ProductCard({product,isSelected,classname}: {product:IProduct,is
                     (e) => {
                         e.currentTarget.srcset= "/images/imagenotfound.png";
                     }
-                } className=" max-h-[80px] max-w-[80px]" src={product.images[0].imagePath} width={80} height={80} alt=""/>
+                } className=" max-h-[80px] max-w-[80px]" src={getImageUrl(product.images[0].imagePath)} width={80} height={80} alt=""/>
             </div>
             <div className="ml-2 mr-2 space-y-1">
                 <p className=" whitespace-nowrap overflow-hidden text-ellipsis font-bold">{product.name}</p>

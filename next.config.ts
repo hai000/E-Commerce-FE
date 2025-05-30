@@ -9,6 +9,8 @@ const nextConfig = withNextIntl({
             },
             {
                 hostname:'localhost'
+            },{
+                hostname:"be.cd-web.me"
             }
         ],
     },

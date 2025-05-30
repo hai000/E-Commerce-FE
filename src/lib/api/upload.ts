@@ -5,7 +5,7 @@ export async function uploadFile(file: File) {
     const formData = new FormData();
     formData.append("file", file);
     return callApiToAll<string>({
-        url: "/identity/upload",
+        url: "/identity/upload/db",
         method: POST_METHOD,
         data: formData
     });

@@ -5,10 +5,11 @@ const nextConfig = withNextIntl({
     images: {
         remotePatterns: [
             {
-                protocol: 'https',
                 hostname: 'files.catbox.moe',
-                port: '',
             },
+            {
+                hostname:'localhost'
+            }
         ],
     },
 })

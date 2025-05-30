@@ -1,12 +1,38 @@
 import CartButton from './cart-button'
 import UserButton from "@/components/shared/header/user-button";
+import LanguageSwitcher from "@/components/shared/header/language-switcher";
+import {EllipsisVertical} from "lucide-react";
+import {Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet";
+import {getTranslations} from "next-intl/server";
 
-export default function Menu() {
+export default async function Menu() {
+    const t = await getTranslations()
     return (
         <div className='flex justify-end'>
-            <nav className='flex gap-3 w-full'>
+            <nav className='flex gap-1 w-full'>
+                <LanguageSwitcher/>
                 <UserButton/>
                 <CartButton/>
+            </nav>
+            <nav className={'md:hidden'}>
+                <Sheet>
+                    <SheetTrigger className='align-middle header-button'>
+                        <EllipsisVertical className={'h-6 w-6'}/>
+                    </SheetTrigger>
+                    <SheetContent className='bg-black text-white flex flex-col items-start'>
+                        <SheetHeader className={'w-full'}>
+                            <div className='flex items-center justify-between'>
+                                <SheetTitle>
+                                    {t('Site Menu')}
+                                </SheetTitle>
+                                <SheetDescription></SheetDescription>
+                            </div>
+                        </SheetHeader>
+                        <LanguageSwitcher/>
+                        <UserButton/>
+                        <CartButton/>
+                    </SheetContent>
+                </Sheet>
             </nav>
         </div>
     )

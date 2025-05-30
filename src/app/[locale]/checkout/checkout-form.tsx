@@ -6,7 +6,7 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from '@/components/ui/select'
-import {calculateFutureDate, cn, formatDateTime, timeUntilMidnight,} from '@/lib/utils'
+import {calculateFutureDate, cn, formatDateTime, getImageUrl, timeUntilMidnight,} from '@/lib/utils'
 import {zodResolver} from '@hookform/resolvers/zod'
 import Image from 'next/image'
 import {useRouter} from 'next/navigation'
@@ -17,7 +17,7 @@ import useIsMounted from '@/hooks/use-is-mounted'
 import Link from 'next/link'
 import useCartStore from '@/hooks/use-cart-store'
 import ProductPrice from '@/components/shared/product/product-price'
-import {APP_NAME, AVAILABLE_PAYMENT_METHODS, DEFAULT_PAYMENT_METHOD,} from '@/lib/constants'
+import {APP_NAME} from '@/lib/constants'
 import {ShippingAddress} from "@/lib/request/location";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Check, ChevronsUpDown} from "lucide-react";
@@ -28,28 +28,11 @@ import {getInfoShips} from "@/lib/api/address";
 import {toast} from "@/hooks/use-toast";
 import {createMyOrder} from "@/lib/api/order";
 import {getShippingAddressSchema} from "@/lib/validator";
-import {useTranslations} from "next-intl";
+import {useLocale, useTranslations} from "next-intl";
+import {PaymentMethod} from "@/lib/response/payment";
 
 
-let shippingAddressDefaultValues =
-    process.env.NODE_ENV === 'development'
-        ? {
-            fullName: 'Admin',
-            street: '123456789',
-            city: '',
-            district: '',
-            phone: '0123456789',
-            ward: '',
-        }
-        : {
-            fullName: '',
-            street: '',
-            city: '',
-            phone: '',
-            district: '',
-            ward: '',
-        }
-const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
+const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMethod[],allAddress?: Address[] }) => {
     const router = useRouter()
     const {
         cart: {
@@ -59,7 +42,7 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
             totalPrice,
             shippingAddress,
             deliveryDateIndex,
-            paymentMethod = DEFAULT_PAYMENT_METHOD,
+            paymentMethod = paymentMethods[0].methodName,
         },
         cartChecked,
         createOrder,
@@ -70,12 +53,6 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
         setDeliveryDateIndex,
         clearCart
     } = useCartStore()
-
-    useEffect(() => {
-        if (cartChecked.length == 0) {
-            router.push('/cart');
-        }
-    }, []);
     const {
         location,
         init,
@@ -84,74 +61,90 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
         setWardSelected,
         setMyAddresses
     } = useLocationStore()
+    const [defaultShippingAddress, setDefaultShippingAddress] = useState<ShippingAddress>({
+        fullName: '',
+        street: '',
+        city: '',
+        district: '',
+        ward: '',
+        phone: '',
+    });
+    // Khi allAddress có dữ liệu, gán địa chỉ đầu làm mặc định
     useEffect(() => {
-        if (allAddress && allAddress.length > 0) {
-            setMyAddresses(allAddress);
-            const addressDef = allAddress[0];
-            shippingAddressDefaultValues = {
-                ...shippingAddressDefaultValues,
-                city: addressDef.province?.name || '',
-                district: addressDef.district?.name || '',
-                ward: addressDef.ward?.name || '',
-            };
+        if (cartChecked.length === 0) {
+            router.push('/cart');
         }
-    }, [allAddress, setMyAddresses]);
-    const t = useTranslations()
-    const isMounted = useIsMounted()
-
-    const shippingAddressForm = useForm<ShippingAddress>({
-        resolver: zodResolver(getShippingAddressSchema(t)),
-        defaultValues: shippingAddress || shippingAddressDefaultValues,
-    })
-
-    const onSubmitShippingAddress: SubmitHandler<ShippingAddress> = async (values) => {
-        const infoShips = await getInfoShips(location.myAddressSelected?.id)
-        let priceShip = 0
-        if (typeof infoShips !== "string") {
-            setInfoShips(infoShips)
-            priceShip = parseInt(infoShips[indexInfoShips].gia_cuoc)
-        }
-        setShippingAddress(values, priceShip)
-        setIsAddressSelected(true)
-    }
-    useEffect(() => {// run 1 lan
         if (!location.isInitialized) {
             init();
         }
         if (allAddress && allAddress.length > 0) {
-            setMyAddresses(allAddress);
             const addressDef = allAddress[0];
+            setMyAddresses(allAddress);
             setProvinceSelected(addressDef.province);
             setDistrictSelected(addressDef.district);
             setWardSelected(addressDef.ward);
+            setDefaultShippingAddress({
+                fullName: '',
+                street: addressDef.houseNumber || '',
+                city: addressDef.province?.name || '',
+                district: addressDef.district?.name || '',
+                ward: addressDef.ward?.name || '',
+                phone: '',
+            });
         }
-    }, []);
+    }, [allAddress]);
+    const t = useTranslations();
+    const isMounted = useIsMounted();
+    const shippingAddressForm = useForm<ShippingAddress>({
+        resolver: zodResolver(getShippingAddressSchema(t)),
+        defaultValues: defaultShippingAddress,
+    });
+
+    const [isAddressSelected, setIsAddressSelected] = useState(false);
+    const [infoShips, setInfoShips] = useState<InfoShippingAddress[]>([]);
+    const [indexInfoShips, setIndexInfoShips] = useState(0);
+    const [isPaymentMethodSelected, setIsPaymentMethodSelected] = useState(false);
+    const [isDeliveryDateSelected, setIsDeliveryDateSelected] = useState(false);
 
     useEffect(() => {
-        if (!isMounted || !shippingAddress) return
-        shippingAddressForm.setValue('fullName', shippingAddress.fullName)
-        shippingAddressForm.setValue('street', shippingAddress.street)
-        shippingAddressForm.setValue('city', shippingAddress.city)
-        shippingAddressForm.setValue('district', shippingAddress.district)
-        shippingAddressForm.setValue('ward', shippingAddress.ward)
-        shippingAddressForm.setValue('phone', shippingAddress.phone)
-    }, [cartItems ,isMounted, router, shippingAddress, shippingAddressForm])
-    const [isAddressSelected, setIsAddressSelected] = useState<boolean>(false)
-    const [infoShips, setInfoShips] = useState<InfoShippingAddress[]>([])
-    const [indexInfoShips, setIndexInfoShips] = useState<number>(0)
-    const [isPaymentMethodSelected, setIsPaymentMethodSelected] =
-        useState<boolean>(false)
-    const [isDeliveryDateSelected, setIsDeliveryDateSelected] =
-        useState<boolean>(false)
+        shippingAddressForm.reset(defaultShippingAddress);
+    }, [defaultShippingAddress, shippingAddressForm]);
+
+    // Đồng bộ shippingAddress vào form
+    useEffect(() => {
+        if (!isMounted || !shippingAddress) return;
+        shippingAddressForm.setValue('fullName', shippingAddress.fullName || '');
+        shippingAddressForm.setValue('street', shippingAddress.street || '');
+        shippingAddressForm.setValue('city', shippingAddress.city || '');
+        shippingAddressForm.setValue('district', shippingAddress.district || '');
+        shippingAddressForm.setValue('ward', shippingAddress.ward || '');
+        shippingAddressForm.setValue('phone', shippingAddress.phone || '');
+    }, [isMounted, shippingAddress, shippingAddressForm]);
+    const local = useLocale()
+    const onSubmitShippingAddress: SubmitHandler<ShippingAddress> = async (values) => {
+        // Lấy phí ship
+        const infoShips = await getInfoShips(location.myAddressSelected?.id);
+        let priceShip = 0;
+        if (typeof infoShips !== 'string') {
+            setInfoShips(infoShips);
+            priceShip = parseInt(infoShips[indexInfoShips].gia_cuoc);
+        }
+        setShippingAddress(values, priceShip);
+        setIsAddressSelected(true);
+    };
     const handlePlaceOrder = async () => {
         // order
         if (location.myAddressSelected?.id) {
             if (cartItems.length>0) {
+                const idPaymentMethod = paymentMethods.find(
+                    (method) => method.methodName == paymentMethod
+                )?.id;
                 const createOrderTemp = createOrder(
                     location.myAddressSelected.id,
                     infoShips[indexInfoShips],
                     '',
-                    ''
+                    '',
+                    idPaymentMethod??'',
                 )
                 const res = await createMyOrder(createOrderTemp)
                 if (typeof res === 'string') {
@@ -626,17 +619,17 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
                                             value={paymentMethod}
                                             onValueChange={(value) => setPaymentMethod(value)}
                                         >
-                                            {AVAILABLE_PAYMENT_METHODS.map((pm) => (
-                                                <div key={pm.name} className='flex items-center py-1 '>
+                                            {paymentMethods.map((pm) => (
+                                                <div key={pm.methodName} className='flex items-center py-1 '>
                                                     <RadioGroupItem
-                                                        value={pm.name}
-                                                        id={`payment-${pm.name}`}
+                                                        value={pm.methodName}
+                                                        id={`payment-${pm.methodName}`}
                                                     />
                                                     <Label
                                                         className='font-bold pl-2 cursor-pointer'
-                                                        htmlFor={`payment-${pm.name}`}
+                                                        htmlFor={`payment-${pm.methodName}`}
                                                     >
-                                                        {pm.name}
+                                                        {pm.methodName}
                                                     </Label>
                                                 </div>
                                             ))}
@@ -675,7 +668,8 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
                                                 calculateFutureDate(
                                                     infoShips[deliveryDateIndex]
                                                         .thoi_gian
-                                                )
+                                                ),
+                                                local
                                             ).dateOnly
                                         }
                                     </p>
@@ -715,7 +709,8 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
                                   calculateFutureDate(
                                       infoShips[deliveryDateIndex!]
                                           .thoi_gian
-                                  )
+                                  ),
+                                  local
                               ).dateOnly
                           }
                       </span>{' '}
@@ -732,7 +727,7 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
                                                                         e.currentTarget.srcset= "/images/imagenotfound.png";
                                                                     }
                                                                 }
-                                                                src={item.images[0]}
+                                                                src={getImageUrl(item.images[0])}
                                                                 alt={item.productName}
                                                                 fill
                                                                 sizes='20vw'
@@ -813,7 +808,8 @@ const CheckoutForm = ({allAddress}: { allAddress?: Address[] }) => {
                                                                                 formatDateTime(
                                                                                     calculateFutureDate(
                                                                                         infoShipping.thoi_gian
-                                                                                    )
+                                                                                    ),
+                                                                                    local
                                                                                 ).dateOnly
                                                                             }
                                                                         </div>

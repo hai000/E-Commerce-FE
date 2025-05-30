@@ -26,6 +26,9 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
     style: 'currency',
     minimumFractionDigits: 2,
 })
+export function formatCurrency(amount: number) {
+    return CURRENCY_FORMATTER.format(amount)
+}
 export async function getCardItemFromTagToArray(tag_name: string): Promise<{ name: string; image: string; href: string; }[]> {
     const products = await getProductsByTag(tag_name);
     if (!products || typeof products === 'string' || !Array.isArray(products)) {
@@ -37,11 +40,9 @@ export async function getCardItemFromTagToArray(tag_name: string): Promise<{ nam
         href: `/product/${product.id}`,
     }));
 }
-
-export function formatCurrency(amount: number) {
-    return CURRENCY_FORMATTER.format(amount)
+export function getImageUrl(imagePath: string|null):string {
+    return imagePath?`${HOST_API}${imagePath}`:'/images/imagenotfound.png'
 }
-
 const NUMBER_FORMATTER = new Intl.NumberFormat('en-US')
 
 export function formatNumber(number: number) {
@@ -167,16 +168,6 @@ export async function callApiToObject<T>({url, method, data, headers}: ApiCallOp
         return error as string;
     }
 }
-export function fileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            resolve(reader.result as string);
-        };
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-    });
-}
 export function isValidHexColor(code: string): boolean {
     return /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(code);
 }
@@ -226,7 +217,7 @@ export function timeUntilMidnight(): { hours: number; minutes: number } {
     return {hours, minutes}
 }
 
-export const formatDateTime = (dateString: Date | null) => {
+export const formatDateTime = (dateString: Date | null,local:string) => {
     const dateTimeOptions: Intl.DateTimeFormatOptions = {
         month: 'short', // abbreviated month name (e.g., 'Oct')
         year: 'numeric', // abbreviated month name (e.g., 'Oct')
@@ -247,15 +238,15 @@ export const formatDateTime = (dateString: Date | null) => {
         hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
     }
     const formattedDateTime: string = dateString ? new Date(dateString).toLocaleString(
-        'en-US',
+            local,
         dateTimeOptions
     ) : "Can't load date"
     const formattedDate: string = dateString ? new Date(dateString).toLocaleString(
-        'en-US',
+            local,
         dateOptions
     ) : "Can't load date"
     const formattedTime: string = dateString ? new Date(dateString).toLocaleString(
-        'en-US',
+        local,
         timeOptions
     ) : "Can't load date"
     return {

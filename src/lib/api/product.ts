@@ -21,8 +21,8 @@ export async function getAllProductByFilter(filter: Filter) {
                 products = resp;
             }
         }
-    } else if (filter.category_name && filter.category_name !== 'all') {
-        const resp = await getProductsByCategory(filter.category_name);
+    } else if (filter.category && filter.category !== 'all') {
+        const resp = await getProductsByCategory(filter.category);
         if (typeof resp !== 'string') {
             products = resp;
         }
@@ -204,11 +204,11 @@ export async function getRelatedProductsByCategory({
 
 export interface Filter {
     query: string
+    category: string
     category_name: string
     tag: string
     limit?: number
     page: number
     price?: string
-    rating?: string
     sort?: string
 }

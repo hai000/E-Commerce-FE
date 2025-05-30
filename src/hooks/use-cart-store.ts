@@ -36,7 +36,7 @@ interface CartState {
     reloadCart: () => Promise<void>,
     init: () => Promise<void>,
     clearCart: () => Promise<void>,
-    createOrder: (addressId: string, deliveryMethod: InfoShippingAddress, freeshipVcId: string | null, productVcId: string | null) => CreateOrderRequest,
+    createOrder: (addressId: string, deliveryMethod: InfoShippingAddress, freeshipVcId: string | null, productVcId: string | null, paymentMethodId: string) => CreateOrderRequest,
     addItem: (item: CartItem, quantity: number) => Promise<string>
     updateItem: (item: CartItem, quantity: number) => Promise<void>
     removeItem: (item: CartItem) => void,
@@ -64,6 +64,15 @@ const useCartStore = create(
                 if (typeof res === "string") {
                     throw new Error(res)
                 } else {
+                    const newCartChecked = [
+                        ...get().cartChecked,
+                        {idCartItem: res.id, isChecked: true}
+                    ]
+                    set({
+                        ...get().cart,
+                        cartChecked:newCartChecked
+                    })
+
                     await get().reloadCart()
                     return res.id
                 }
@@ -100,7 +109,7 @@ const useCartStore = create(
                         res
                     )
                 } else {
-                   await get().reloadQuantityItem()
+                    await get().reloadQuantityItem()
                 }
             },
             reloadQuantityItem: async () => {
@@ -158,9 +167,8 @@ const useCartStore = create(
                     )
                 } else {
                     await get().init()
-                    const cartItems = myCart.cartItems
                     const cartChecked = get().cartChecked
-                    cartItems.forEach((cartItem) => {
+                    myCart.cartItems.forEach((cartItem) => {
                         for (let i = 0; i < cartChecked.length; i++) {
                             if (cartChecked[i].idCartItem == cartItem.id) {
                                 cartItem.isChecked = cartChecked[i].isChecked
@@ -168,18 +176,20 @@ const useCartStore = create(
                             }
                         }
                     })
+                    const cartItems = myCart.cartItems
                     const all_prices = myCart.cartItems.reduce((prePrice, item) => item.isChecked ? prePrice + item.cartItemQuantity * item.price : 0, 0)
+
                     set({
                         cart: {
                             ...get().cart,
                             itemsPrice: all_prices,
-                            cartItems: myCart.cartItems,
+                            cartItems: cartItems,
                         },
                     })
                 }
 
             },
-            createOrder: (addressId, deliveryMethod, freeshipVcId, productVcId) => {
+            createOrder: (addressId, deliveryMethod, freeshipVcId, productVcId, paymentMethodId) => {
                 const cartCheckedFromCart = get().cart.cartItems.filter(cartItem => cartItem.isChecked)
                 return {
                     cartItemIds: cartCheckedFromCart.map(cartItem => cartItem.id),
@@ -187,6 +197,7 @@ const useCartStore = create(
                     deliveryMethod: deliveryMethod,
                     freeshipVcId: freeshipVcId,
                     productVcId: productVcId,
+                    paymentMethodId: paymentMethodId
                 } as CreateOrderRequest
             },
             init: async () => {

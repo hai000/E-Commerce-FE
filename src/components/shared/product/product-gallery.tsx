@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Zoom from 'react-medium-image-zoom'
 import 'react-medium-image-zoom/dist/styles.css'
+import {getImageUrl} from "@/lib/utils";
 export default function ProductGallery({ images }: { images: string[] }) {
     const [selectedImage, setSelectedImage] = useState(0)
     return (
@@ -30,7 +31,7 @@ export default function ProductGallery({ images }: { images: string[] }) {
                                     e.currentTarget.srcset= "/images/imagenotfound.png";
                                 }
                             }
-                            src={image}
+                            src={getImageUrl(image)}
                             alt={'product image'}
                             width={48}
                             height={48}
@@ -48,7 +49,7 @@ export default function ProductGallery({ images }: { images: string[] }) {
                                     e.currentTarget.srcset= "/images/imagenotfound.png";
                                 }
                             }
-                            src={images[selectedImage]}
+                            src={getImageUrl(images[selectedImage])}
                             alt={'product image'}
                             fill
                             sizes='90vw'

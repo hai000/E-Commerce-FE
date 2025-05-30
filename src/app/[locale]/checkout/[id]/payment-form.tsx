@@ -21,7 +21,6 @@ export default function OrderPaymentForm({
     const router = useRouter()
     const {toast} = useToast()
     const {isPaid,paymentMethod} = {isPaid: order.totalPayment <= 0,paymentMethod: 'PayPal' }
-    console.log(order.orderItems[0])
     if (isPaid) {
         redirect(`/account/orders/${order.orderId}`)
     }

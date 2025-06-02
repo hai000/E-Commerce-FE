@@ -68,9 +68,8 @@ export function EditDescriptionProduct({
 }
 
 export function EditDetailProduct({
-                                      className, productSelected, productDetails
+                                       productSelected, productDetails
                                   }: {
-    className?: string,
     productSelected?: IProduct,
     productDetails: IProductDetail[]
 }) {

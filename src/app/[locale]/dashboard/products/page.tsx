@@ -10,10 +10,7 @@ import {EditDescriptionProduct, EditDetailProduct} from "@/app/[locale]/dashboar
 import {DialogAddProduct} from "@/app/[locale]/dashboard/products/dialog-add-product";
 import {PAGE_SIZE} from "@/lib/constants";
 import Pagination from "@/components/shared/pagination";
-import {Separator} from "@/components/ui/separator";
-import {cn} from "@/lib/utils";
 import * as React from "react";
-import {SeparatorHorizontal} from "lucide-react";
 
 export default async function ProductsPage(props: {
     searchParams: Promise<{

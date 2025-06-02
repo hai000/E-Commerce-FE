@@ -8,7 +8,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Button} from "@/components/ui/button";
 import ProductPrice from "@/components/shared/product/product-price";
 import BrowsingHistoryList from "@/components/shared/browsing-history-list";
-import React from "react";
+import React, {useEffect} from "react";
 import {useRouter} from "next/navigation";
 import {Checkbox} from "@/components/ui/checkbox";
 import {toast} from "@/hooks/use-toast";
@@ -21,7 +21,11 @@ export default function CartPageClient() {
         checkCartItems,
         updateItem,
         removeItem,
+        reloadCart,
     } = useCartStore()
+    useEffect(() => {
+        reloadCart()
+    },[])
     const router = useRouter()
     const t = useTranslations()
     return (<div>

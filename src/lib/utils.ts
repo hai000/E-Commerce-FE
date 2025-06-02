@@ -2,9 +2,10 @@ import {type ClassValue, clsx} from "clsx"
 import {twMerge} from "tailwind-merge"
 import {GET_METHOD, HOST_API} from "@/lib/constants";
 import qs from 'query-string'
-import {Session} from "@auth/core/types";
 import {getProductsByTag} from "@/lib/api/product";
 import {IProduct} from "@/lib/response/product";
+import {getLocale} from "next-intl/server";
+import {Session} from "@/types/next-auth";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -65,13 +66,49 @@ export const generateHeaderAccessTokenString = (accessToken: string) => {
         'Authorization': `Bearer ${accessToken}`,
     };
 }
-
-export async function callApiToArray<T>({url, method, data, headers}: ApiCallOptions): Promise<T[] | string> {
+export async function callApiToArrayWithPage<T>({url, method, data, headers}: ApiCallOptions): Promise<ArrayWithPage<T> | string> {
     try {
+        const local = await getLocale();
         const options: RequestInit = {
             method: method || GET_METHOD,
             headers: {
                 'Content-Type': 'application/json',
+                'Accept-Language': local,
+                ...(headers ? headers : {})
+            },
+        };
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
+        const response = await fetch(`${HOST_API}${url}`, options);
+        if (!response.ok) {
+            return {
+                page: 0,
+                size: 0,
+                totalItem: 0,
+                data: []
+            };
+        }
+        const result = await response.json();
+        return result.data as ArrayWithPage<T> | string;
+    } catch (error) {
+        console.error('Error:', error);
+        return {
+            page: 0,
+            size: 0,
+            totalItem: 0,
+            data: []
+        };
+    }
+}
+export async function callApiToArray<T>({url, method, data, headers}: ApiCallOptions): Promise<T[] | string> {
+    try {
+        const local = await getLocale();
+        const options: RequestInit = {
+            method: method || GET_METHOD,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept-Language': local,
                 ...(headers ? headers : {})
             },
         };
@@ -98,13 +135,14 @@ export interface ApiCallOptions {
     data?: unknown;
     headers?: Record<string, string>; // Hoặc kiểu khác nếu cần
 }
-
 export async function callApiGetStatus({url, method, data, headers}: ApiCallOptions): Promise<boolean> {
     try {
+        const local = await getLocale();
         const options: RequestInit = {
             method: method || GET_METHOD,
             headers: {
                 'Content-Type': 'application/json',
+                'Accept-Language': local,
                 ...(headers ? headers : {})
             },
         };
@@ -122,9 +160,11 @@ export async function callApiGetStatus({url, method, data, headers}: ApiCallOpti
 }
 export async function callApiToAll<T>({url, method, data, headers}: ApiCallOptions) {
     try {
+        const local = await getLocale();
         const options: RequestInit = {
             method: method || GET_METHOD,
             headers: {
+                'Accept-Language': local,
                 ...(headers ? headers : {})
             },
         };
@@ -151,9 +191,11 @@ export async function callApiToAll<T>({url, method, data, headers}: ApiCallOptio
 }
 export async function callApiToObject<T>({url, method, data, headers}: ApiCallOptions): Promise<T | string> {
     try {
+        const local = await getLocale();
         const options: RequestInit = {
             method: method || GET_METHOD,
             headers: {
+                'Accept-Language': local,
                 'Content-Type': 'application/json',
                 ...(headers ? headers : {})
             },
@@ -308,6 +350,13 @@ export interface FilterUrl {
     rating?: string
     page?: string
     category_name?: string
+}
+export interface ArrayWithPage<T> {
+        page: number,
+        size: number,
+        totalItem: number,
+        data: T[]
+
 }
 export interface ResponseData<T> {
     code: number;

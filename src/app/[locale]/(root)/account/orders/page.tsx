@@ -59,14 +59,14 @@ export default async function OrdersPage(props: {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {(typeof orders === "string" || orders.length === 0)&& (
+                        {(typeof orders === "string" || orders.data.length === 0)&& (
                             <TableRow>
                                 <TableCell colSpan={6} className=''>
                                     {t('You have no orders')}.
                                 </TableCell>
                             </TableRow>
                         )}
-                        {typeof orders!== "string" && orders.map((order: Order) => (
+                        {typeof orders!== "string" && orders.data.map((order: Order) => (
                             <TableRow key={order.orderId}>
                                 <TableCell>
                                     <Link href={`/account/orders/${order.orderId}`}>
@@ -96,8 +96,8 @@ export default async function OrdersPage(props: {
                         ))}
                     </TableBody>
                 </Table>
-                {orders.length / PAGE_SIZE >1 && (
-                    <Pagination page={page} totalPages={ Math.ceil(orders.length / PAGE_SIZE)!} />
+                {typeof orders!== 'string' && orders.totalItem / PAGE_SIZE >1 && (
+                    <Pagination page={page} totalPages={ Math.ceil(orders.totalItem  / PAGE_SIZE)!} />
                 )}
             </div>
             <BrowsingHistoryList className='mt-16' />

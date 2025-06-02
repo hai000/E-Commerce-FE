@@ -19,19 +19,16 @@ const providers: any[] = [
             const pw = credentials.password as string;
             const username = credentials.username as string;
             try {
-                const res = await login({
-                    username: username,
-                    password: pw,
-                });
+                const res = await login({ username, password: pw });
                 if (typeof res === "string") {
-                    throw new Error(res);
+                    console.log("Login API error:", res);
+                    return null;
                 }
                 const loginResponse = res as ILogin;
-                const userInfo = await getInfo({
-                    accessToken: loginResponse.accessToken
-                });
+                const userInfo = await getInfo({ accessToken: loginResponse.accessToken });
                 if (typeof userInfo === "string") {
-                    throw new Error(userInfo);
+                    console.log("GetInfo API error:", userInfo);
+                    return null;
                 }
                 return {
                     id: `${userInfo.id}`,
@@ -41,11 +38,11 @@ const providers: any[] = [
                     accessToken: loginResponse.accessToken,
                     refreshToken: loginResponse.refreshToken
                 };
-
-            } catch {
+            } catch (err) {
+                console.log("Authorize error:", err);
                 return null;
             }
-        },
+        }
     })
 ]
 

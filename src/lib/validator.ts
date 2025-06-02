@@ -10,7 +10,15 @@ export const getCategorySchema = (t: (key: string) => string) =>
         imagePath: z.nullable(z.string().min(1, { message: t("image_required") })),
         description: z.nullable(z.string().min(1, { message: t("description_required") })),
     });
-
+export const getReviewSchema = (t: (key: string) => string) =>
+    z.object({
+            ratingScore: z
+                .string()
+                .min(1, { message: t("rating_required") })
+                .refine((val) => !isNaN(Number(val)), { message: t("rating_must_be_number") })
+                .refine((val) => Number(val) >= 1 && Number(val) <= 5, { message: t("rating_max") }),
+        content: z.string().min(1, { message: t("comment_required") }),
+    });
 export const Email = (t: (key: string) => string) =>
     z.string().min(1, { message: t("email_required") }).email({ message: t("email_invalid") });
 

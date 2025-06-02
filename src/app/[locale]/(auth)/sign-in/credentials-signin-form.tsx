@@ -35,25 +35,33 @@ export default function CredentialsSignInForm() {
         resolver: zodResolver(getUserSignInSchema(t)),
         defaultValues: signInDefaultValues,
     })
-
     const {control, handleSubmit} = form
     const onSubmit = async (data: IUserLoginRequest) => {
         try {
-            await signInWithCredentials({
+            const res = await signInWithCredentials({
                 username: data.username,
                 password: data.password,
-            })
-            await reloadCart()
-            router.push("/");
+            });
+
+            if (res?.error) {
+                toast({
+                    title: t('Toast.Error'),
+                    description: res.error || t('User.Username or password is incorrect'),
+                    variant: 'destructive',
+                });
+                return;
+            }
+            await reloadCart();
+            router.push(callbackUrl);
         } catch (error) {
-            console.error('Sign in error:', error)
+            console.error('Sign in error:', error);
             toast({
                 title: t('Toast.Error'),
                 description: t('User.Username or password is incorrect'),
                 variant: 'destructive',
-            })
+            });
         }
-    }
+    };
 
     return (
         <Form {...form}>

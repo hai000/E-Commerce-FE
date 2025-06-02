@@ -1,3 +1,4 @@
+'use server';
 import {ITag} from "@/lib/response/tag";
 import {callApiToArray} from "@/lib/utils";
 

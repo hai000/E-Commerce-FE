@@ -1,17 +1,18 @@
 import {Card, CardContent} from '@/components/ui/card'
-import {getProductById, getRelatedProductsByCategory,} from '@/lib/api/product'
+import {getProductById} from '@/lib/api/product'
 import AddToCart from '@/components/shared/product/add-to-cart'
 import SelectVariant from '@/components/shared/product/select-variant'
 import ProductPrice from '@/components/shared/product/product-price'
 import ProductGallery from '@/components/shared/product/product-gallery'
 import {Separator} from '@/components/ui/separator'
-import Rating from "@/components/shared/product/rating";
-import ProductSlider from "@/components/shared/product/product-carousel";
 import BrowsingHistoryList from "@/components/shared/browsing-history-list";
 import AddToBrowsingHistory from "@/components/shared/product/add-to-browsing-history";
 import {IProductColor, IProductSize} from "@/lib/response/product";
 import {Toaster} from "@/components/ui/toaster";
 import {getTranslations} from "next-intl/server";
+import RatingSummary from "@/components/shared/product/rating-summary";
+import ReviewList from "@/app/[locale]/(root)/product/[id]/review-list";
+import {auth} from "@/auth";
 
 export async function generateMetadata(props: {
     params: Promise<{ id: string }>
@@ -32,8 +33,9 @@ export default async function ProductDetails(props: {
     params: Promise<{ id: string }>,
     searchParams: Promise<{ page: string; colorId: string; sizeId: string; color: string, size: string }>
 }) {
+    const session = await auth()
     const t = await getTranslations()
-    const {page, colorId, sizeId, color, size} = await props.searchParams
+    const {colorId, sizeId, color, size} = await props.searchParams
     const colorNow = colorId ? {
         id: colorId,
         colorName: color,
@@ -50,11 +52,6 @@ export default async function ProductDetails(props: {
     if (typeof product === 'string') {
         return <div>{t('Product.Product not found or an error occurred')}</div>
     }
-    const relatedProducts = await getRelatedProductsByCategory({
-        categoryId: product.category.id,
-        productId: product.id,
-        page: Number(page || '1'),
-    })
 
     return (
         <div>
@@ -73,11 +70,11 @@ export default async function ProductDetails(props: {
                             <h1 className='font-bold text-lg lg:text-xl'>
                                 {product.name}
                             </h1>
-                            <div className='flex items-center gap-2'>
-                                <span>{product.avgRating.toFixed(1)}</span>
-                                <Rating rating={product.avgRating}/>
-                                <span>{product.numReviews} ratings</span>
-                            </div>
+                            <RatingSummary
+                                avgRating={product.avgRating}
+                                numReviews={product.numReviews}
+                                asPopover
+                            />
                             <Separator/>
                             <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
                                 <div className='flex gap-3'>
@@ -150,14 +147,12 @@ export default async function ProductDetails(props: {
                     </div>
                 </div>
             </section>
-
             <section className='mt-10'>
-                <ProductSlider
-                    products={relatedProducts.data}
-                    title={`${t('Product.Best Sellers in')} ${product.category.name}`}
-                />
+                <h2 className='h2-bold mb-2' id='reviews'>
+                    {t('Customer Reviews')}
+                </h2>
+                <ReviewList product={product} userId={session?.user.id} />
             </section>
-
             <section>
                 <BrowsingHistoryList className='mt-10'/>
             </section>

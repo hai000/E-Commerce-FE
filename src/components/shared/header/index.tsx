@@ -11,7 +11,8 @@ import {IconIndex} from "@/components/shared/header/icon-index";
 
 export default async function Header() {
     let tags = await getAllTags()
-    const categories = await getAllCategories()
+    const resCategories = await getAllCategories()
+    const categories = typeof resCategories ==="string"?[] as Category[] :resCategories
     if (typeof tags === "string") {
         tags = []
     }

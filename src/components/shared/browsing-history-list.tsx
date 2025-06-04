@@ -52,7 +52,6 @@ function ProductList({
         }
        fetchProducts()
     }, [products, type])
-    console.log("data",data)
     return (
         data.length > 0 && (
             <ProductSlider

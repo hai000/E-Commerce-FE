@@ -177,8 +177,7 @@ const useCartStore = create(
                         }
                     })
                     const cartItems = myCart.cartItems
-                    const all_prices = myCart.cartItems.reduce((prePrice, item) => item.isChecked ? prePrice + item.cartItemQuantity * item.price : 0, 0)
-
+                    const all_prices = myCart.cartItems.reduce((prePrice, item) => item.isChecked ? prePrice + item.cartItemQuantity * item.price*(100-item.discount)/100 : 0, 0)
                     set({
                         cart: {
                             ...get().cart,

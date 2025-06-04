@@ -16,6 +16,7 @@ import {getMyOrders} from "@/lib/api/order";
 import {Order} from "@/lib/response/order";
 import {PAGE_SIZE} from "@/lib/constants";
 import {getLocale, getTranslations} from "next-intl/server";
+import {Separator} from "@/components/ui/separator";
 const PAGE_TITLE = async () => {
     const t = await getTranslations()
     return t('Your Orders')
@@ -96,7 +97,10 @@ export default async function OrdersPage(props: {
                         ))}
                     </TableBody>
                 </Table>
+                <Separator className={'mb-4'}/>
+
                 {typeof orders!== 'string' && orders.totalItem / PAGE_SIZE >1 && (
+
                     <Pagination page={page} totalPages={ Math.ceil(orders.totalItem  / PAGE_SIZE)!} />
                 )}
             </div>

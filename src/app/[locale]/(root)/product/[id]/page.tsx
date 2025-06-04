@@ -105,7 +105,7 @@ export default async function ProductDetails(props: {
                     <div>
                         <Card>
                             <CardContent className='p-4 flex flex-col  gap-4'>
-                                <ProductPrice price={product.defaultPrice}/>
+                                <ProductPrice className={'text-3xl'} plain={true} price={product.defaultPrice} discount={product.defaultDiscount} />
 
                                 {product.quantity > 0 && product.quantity <= 3 && (
                                     <div className='text-destructive font-bold'>

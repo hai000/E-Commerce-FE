@@ -50,6 +50,7 @@ import Link from "next/link";
 import {getReviewSchema} from "@/lib/validator";
 import {useTranslations} from "next-intl";
 import {getMyOrders} from "@/lib/api/order";
+import {Order} from "@/lib/response/order";
 
 const reviewFormDefaultValues = {
     content: '',
@@ -347,9 +348,21 @@ export default function ReviewList({
     )
 }
 async function isBoughtF(productId: string) : Promise<string | undefined>{
-    const orders = await getMyOrders({page:1});
-    if (typeof orders !== 'string') {
-        return orders.data.find(o => o.status.statusCode ==5 && o.orderItems.find(oi => oi.productId === productId)
+    const limit = 50;
+    const ordersRes = await getMyOrders({page:1,limit:limit});
+    const orders = [] as Order[]
+    if (typeof ordersRes !== 'string') {
+        orders.push(...ordersRes.data);
+        const totalPage = Math.ceil(ordersRes.totalItem/limit);
+        if (totalPage>1) {
+            for (let i = 2; i <= totalPage; i++) {
+                const orderPage = await getMyOrders({page:i,limit:limit});
+                if (typeof orderPage !== 'string') {
+                    orders.push(...orderPage.data);
+                }
+            }
+        }
+        return orders.find(o => o.status.statusCode ==5 && o.orderItems.find(oi => oi.productId === productId)
         )?.orderId;
     }
     return undefined

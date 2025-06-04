@@ -4,6 +4,7 @@ import LanguageSwitcher from "@/components/shared/header/language-switcher";
 import {EllipsisVertical} from "lucide-react";
 import {Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet";
 import {getTranslations} from "next-intl/server";
+import CurrencySwitcher from "@/components/shared/header/currency-switcher";
 
 export default async function Menu() {
     const t = await getTranslations()
@@ -11,6 +12,7 @@ export default async function Menu() {
         <div className='flex justify-end'>
             <nav className='hidden md:flex gap-3 w-full'>
                 <LanguageSwitcher/>
+                <CurrencySwitcher/>
                 <UserButton/>
                 <CartButton/>
             </nav>
@@ -32,6 +34,7 @@ export default async function Menu() {
                         <UserButton/>
                         <CartButton/>
                         <LanguageSwitcher/>
+                        <CurrencySwitcher/>
                     </SheetContent>
                 </Sheet>
             </nav>

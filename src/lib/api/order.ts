@@ -112,7 +112,7 @@ export const calcDeliveryDateAndPrice = async ({
     deliveryDateIndex: number
 
 }) => {
-    const itemsPrice = items.reduce((prePrice, item) => item.isChecked ? prePrice + item.cartItemQuantity * item.price : 0, 0)
+    const itemsPrice = items.reduce((prePrice, item) => item.isChecked ? prePrice + item.cartItemQuantity * item.price * (100-item.discount)/100 : 0, 0)
     const totalPrice = round2(
         itemsPrice +
         (shippingPrice ? round2(shippingPrice) : 0)

@@ -1,3 +1,4 @@
+'use server'
 import {callApiToArray} from "@/lib/utils";
 import {District, Province, Ward} from "@/lib/response/abstract-location";
 

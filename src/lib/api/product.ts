@@ -2,9 +2,8 @@
 'use server'
 
 import {IProduct, IProductColor, IProductSize} from "@/lib/response/product";
-import {products_fake} from "@/lib/data";
 import {PAGE_SIZE, POST_METHOD, PUT_METHOD} from "@/lib/constants";
-import {callApiToArray, callApiToObject} from "@/lib/utils";
+import {callApiToArray, callApiToArrayWithPage, callApiToObject} from "@/lib/utils";
 import {AddColorRequest, AddProductRequest, AddSizeRequest} from "@/lib/request/product";
 import {getTranslations} from "next-intl/server";
 
@@ -13,23 +12,25 @@ export async function getAllProductByFilter(filter: Filter) {
 
     let products: IProduct[] = [];
     if (filter.query && filter.query !== 'all') {
-        const resp = await getProductsByName(filter.query);
+        const resp = await getProductsByName({name: filter.query,size: filter.limit});
         if (typeof resp !== 'string') {
             if (filter.category_name && filter.category_name !== 'all') {
-              products =  resp.filter(product => product.category.name == filter.category_name);
+              products =  resp.data.filter(product => product.category.name == filter.category_name);
             }else {
-                products = resp;
+                products = resp.data;
             }
         }
     } else if (filter.category && filter.category !== 'all') {
         const resp = await getProductsByCategory(filter.category);
         if (typeof resp !== 'string') {
-            products = resp;
+            products = resp.data;
         }
     } else {
-        const resp = await getAllProduct();
+        const resp = await getAllProduct({
+            size:filter.limit
+        });
         if (typeof resp !== 'string') {
-            products = resp;
+            products = resp.data;
         }
     }
     products = applyClientFilters(products, filter);
@@ -85,50 +86,24 @@ function applySorting(products: IProduct[], sort?: string): IProduct[] {
     }
 }
 
-export async function getProductsByCategory(categoryId: string) {
-    return callApiToArray<IProduct>({url: `/identity/products/category/${categoryId}`})
+export async function getProductsByCategory(categoryId: string,page: number =1, size: number = PAGE_SIZE) {
+    return callApiToArrayWithPage<IProduct>({url: `/identity/products/category/${categoryId}?page=${page}&size=${size}`})
 }
 
-export async function getProductsByName(name: string) {
-    return callApiToArray<IProduct>({url: `/identity/products/name/${name}`})
-}
-
-export async function getAllProduct() {
-    return callApiToArray<IProduct>({url: '/identity/products'})
-}
-export async function getProductsForCard({
-                                             tag,
-                                             limit = 4,
-                                         }: {
-    tag: string
-    limit?: number
+export async function getProductsByName({name,page = 1, size = PAGE_SIZE}:{
+    name: string,
+    page?: number,
+    size?: number
 }) {
-
-    tag = tag || "";
-    limit = limit || 10;
-    const products = {
-        name: 1,
-        href: {$concat: ['/product/', '$slug']},
-        image: {$arrayElemAt: ['$images', 0]},
-    }
-
-    return JSON.parse(JSON.stringify(products)) as {
-        name: string
-        href: string
-        image: string
-    }[]
+    return callApiToArrayWithPage<IProduct>({url: `/identity/products/name/${name}?page=${page}&size=${size}`})
 }
 
-// export async function getProductsByTag({
-//                                            tag,
-//                                            limit = 10,
-//                                        }: {
-//     tag: string
-//     limit?: number
-// }) {
-//     const products = products_fake
-//     return JSON.parse(JSON.stringify(products)) as IProduct[]
-// }
+export async function getAllProduct({page= 1, size= PAGE_SIZE}: {
+    page?: number,
+    size?: number
+}) {
+    return callApiToArrayWithPage<IProduct>({url: `/identity/products?page=${page}&size=${size}`})
+}
 export async function updateProduct(product?: IProduct) {
     const t = await getTranslations("Product")
     if (!product) {
@@ -160,8 +135,8 @@ export async function addColorForProduct(productId: string, colorRequests: AddCo
         method: POST_METHOD
     })
 }
-export async function getProductsByTag(tag_name: string) {
-    return await callApiToArray<IProduct>({url:`/identity/products/tag/${tag_name}`})
+export async function getProductsByTag(tag_name: string,page: number = 1, size: number = PAGE_SIZE) {
+    return await callApiToArrayWithPage<IProduct>({url:`/identity/products/tag/${tag_name}?page=${page}&size=${size}`})
 }
 export async function addProduct(product: AddProductRequest) {
     return await callApiToObject<IProduct>({url:'/identity/products', data: product, method: POST_METHOD})
@@ -172,34 +147,6 @@ export async function addSizeForProduct(productId: string, sizeRequests: AddSize
         data: sizeRequests,
         method: POST_METHOD
     })
-}
-
-export async function getRelatedProductsByCategory({
-                                                       // @typescript-eslint/no-unused-vars
-                                                       categoryId,
-                                                       // @typescript-eslint/no-unused-vars
-                                                       productId,
-                                                       limit = PAGE_SIZE,
-                                                       // @typescript-eslint/no-unused-vars
-                                                       page = 1,
-                                                   }: {
-    categoryId: string
-    productId: string
-    limit?: number
-    page: number
-}) {
-    // const skipAmount = (Number(page.tsx) - 1) * limit
-    // const conditions = {
-    //     isPublished: true,
-    //     categoryId,
-    //     _id: { $ne: productId },
-    // }
-    const products = [products_fake[0]]
-    const productsCount = products_fake.length
-    return {
-        data: JSON.parse(JSON.stringify(products)) as IProduct[],
-        totalPages: Math.ceil(productsCount / limit),
-    }
 }
 
 export interface Filter {

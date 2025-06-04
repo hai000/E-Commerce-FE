@@ -4,13 +4,15 @@ import LanguageSwitcher from "@/components/shared/header/language-switcher";
 import {EllipsisVertical} from "lucide-react";
 import {Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet";
 import {getTranslations} from "next-intl/server";
+import CurrencySwitcher from "@/components/shared/header/currency-switcher";
 
 export default async function Menu() {
     const t = await getTranslations()
     return (
         <div className='flex justify-end'>
-            <nav className='flex gap-1 w-full'>
+            <nav className='hidden md:flex gap-3 w-full'>
                 <LanguageSwitcher/>
+                <CurrencySwitcher/>
                 <UserButton/>
                 <CartButton/>
             </nav>
@@ -19,7 +21,7 @@ export default async function Menu() {
                     <SheetTrigger className='align-middle header-button'>
                         <EllipsisVertical className={'h-6 w-6'}/>
                     </SheetTrigger>
-                    <SheetContent className='bg-black text-white flex flex-col items-start'>
+                    <SheetContent className='flex flex-col items-start'>
                         <SheetHeader className={'w-full'}>
                             <div className='flex items-center justify-between'>
                                 <SheetTitle>
@@ -28,9 +30,11 @@ export default async function Menu() {
                                 <SheetDescription></SheetDescription>
                             </div>
                         </SheetHeader>
-                        <LanguageSwitcher/>
+
                         <UserButton/>
                         <CartButton/>
+                        <LanguageSwitcher/>
+                        <CurrencySwitcher/>
                     </SheetContent>
                 </Sheet>
             </nav>

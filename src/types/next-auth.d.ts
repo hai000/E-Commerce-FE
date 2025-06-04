@@ -27,3 +27,12 @@ declare module 'next-auth' {
         role: string
     }
 }
+
+export interface Session {
+    accessToken: string
+    refreshToken: string
+    expires: string
+    user: {
+        role: string
+    } & DefaultSession['user']
+}

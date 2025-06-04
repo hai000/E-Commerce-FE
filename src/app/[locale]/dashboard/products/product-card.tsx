@@ -6,17 +6,17 @@ import {IProduct} from "@/lib/response/product";
 
 export function ProductCard({product,isSelected,classname}: {product:IProduct,isSelected: boolean,classname:string}) {
     return(
-        <Card className={cn(isSelected? "bg-gray-50 border-2 border-foreground " : "bg-white", "h-[180px] rounded-md w-[150px]",classname)}>
-            <div className="items-center  flex flex-col mt-2 space-y-2">
+        <Card className={cn(isSelected? "bg-gray-50 border-2 border-foreground " : "bg-white", "h-[160px] rounded-md w-[140px]",classname)}>
+            <div className="items-center  flex flex-col mt-1 space-y-1">
                 <Image onError={
                     (e) => {
                         e.currentTarget.srcset= "/images/imagenotfound.png";
                     }
-                } className=" max-h-[80px] max-w-[80px]" src={getImageUrl(product.images[0].imagePath)} width={80} height={80} alt=""/>
+                } className=" max-h-[70px] max-w-[70px]" src={getImageUrl(product.images[0].imagePath)} width={70} height={70} alt=""/>
             </div>
-            <div className="ml-2 mr-2 space-y-1">
-                <p className=" whitespace-nowrap overflow-hidden text-ellipsis font-bold">{product.name}</p>
-                <p className="text-lg font-semibold">${product.defaultPrice}</p>
+            <div className="ml-2 mr-2">
+                <p className="whitespace-nowrap overflow-hidden text-ellipsis font-bold">{product.name}</p>
+                <p style={{fontSize: 16+'px'}} className=" font-semibold">${product.defaultPrice}</p>
                 <div className="flex justify-between space-x-2">
                     <div className="flex space-x-2" >
                         <p className="text-sm font-normal text-muted-foreground">Stock</p>

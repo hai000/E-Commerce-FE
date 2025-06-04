@@ -11,7 +11,8 @@ import {IconIndex} from "@/components/shared/header/icon-index";
 
 export default async function Header() {
     let tags = await getAllTags()
-    const categories = await getAllCategories()
+    const resCategories = await getAllCategories()
+    const categories = typeof resCategories ==="string"?[] as Category[] :resCategories
     if (typeof tags === "string") {
         tags = []
     }
@@ -46,12 +47,12 @@ export default async function Header() {
             </div>
             <div className='flex items-center px-3 mb-[1px]  bg-orange-500'>
                 <Sidebar categories={categories as Category[]} />
-                <div className='flex items-center flex-wrap gap-3 overflow-hidden   max-h-[42px]'>
+                <div className="flex flex-nowrap gap-3 overflow-x-auto max-h-[42px] hide-scrollbar">
                     {headerMenus.map((menu) => (
                         <Link
                             href={menu.href}
                             key={menu.href}
-                            className='header-button !p-2'
+                            className="header-button !p-2 whitespace-nowrap"
                         >
                             {menu.name}
                         </Link>

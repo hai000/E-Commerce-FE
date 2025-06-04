@@ -2,9 +2,9 @@ import {type ClassValue, clsx} from "clsx"
 import {twMerge} from "tailwind-merge"
 import {GET_METHOD, HOST_API} from "@/lib/constants";
 import qs from 'query-string'
-import {Session} from "@auth/core/types";
 import {getProductsByTag} from "@/lib/api/product";
-import {IProduct} from "@/lib/response/product";
+import {getLocale} from "next-intl/server";
+import {Session} from "@/types/next-auth";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -17,32 +17,28 @@ export const toSlug = (text: string): string =>
         .replace(/\s+/g, '-')
         .replace(/^-+|-+$/g, '')
         .replace(/-+/g, '-')
-export const formatNumberWithDecimal = (num: number): string => {
-    const [int, decimal] = num.toString().split('.')
-    return decimal ? `${int}.${decimal.padEnd(2, '0')}` : int
-}
-const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
-    currency: 'USD',
-    style: 'currency',
-    minimumFractionDigits: 2,
-})
-export function formatCurrency(amount: number) {
-    return CURRENCY_FORMATTER.format(amount)
-}
-export async function getCardItemFromTagToArray(tag_name: string): Promise<{ name: string; image: string; href: string; }[]> {
+
+
+export async function getCardItemFromTagToArray(tag_name: string): Promise<{
+    name: string;
+    image: string;
+    href: string;
+}[]> {
     const products = await getProductsByTag(tag_name);
-    if (!products || typeof products === 'string' || !Array.isArray(products)) {
+    if (!products || typeof products === 'string') {
         return [];
     }
-    return products.slice(0, 4).map((product: IProduct) => ({
+    return products.data.slice(0, 4).map((product) => ({
         name: product.name,
         image: product.images[0]?.imagePath,
         href: `/product/${product.id}`,
     }));
 }
-export function getImageUrl(imagePath: string|null):string {
-    return imagePath?`${HOST_API}${imagePath}`:'/images/imagenotfound.png'
+
+export function getImageUrl(imagePath: string | null): string {
+    return imagePath ? `${HOST_API}${imagePath}` : '/images/imagenotfound.png'
 }
+
 const NUMBER_FORMATTER = new Intl.NumberFormat('en-US')
 
 export function formatNumber(number: number) {
@@ -66,12 +62,55 @@ export const generateHeaderAccessTokenString = (accessToken: string) => {
     };
 }
 
-export async function callApiToArray<T>({url, method, data, headers}: ApiCallOptions): Promise<T[] | string> {
+export async function callApiToArrayWithPage<T>({
+                                                    url,
+                                                    method,
+                                                    data,
+                                                    headers
+                                                }: ApiCallOptions): Promise<ArrayWithPage<T> | string> {
     try {
+        const local = await getLocale();
         const options: RequestInit = {
             method: method || GET_METHOD,
             headers: {
                 'Content-Type': 'application/json',
+                'Accept-Language': local,
+                ...(headers ? headers : {})
+            },
+        };
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
+        const response = await fetch(`${HOST_API}${url}`, options);
+        if (!response.ok) {
+            return {
+                page: 0,
+                size: 0,
+                totalItem: 0,
+                data: []
+            };
+        }
+        const result = await response.json();
+        return result.data as ArrayWithPage<T> | string;
+    } catch (error) {
+        console.error('Error:', error);
+        return {
+            page: 0,
+            size: 0,
+            totalItem: 0,
+            data: []
+        };
+    }
+}
+
+export async function callApiToArray<T>({url, method, data, headers}: ApiCallOptions): Promise<T[] | string> {
+    try {
+        const local = await getLocale();
+        const options: RequestInit = {
+            method: method || GET_METHOD,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept-Language': local,
                 ...(headers ? headers : {})
             },
         };
@@ -101,10 +140,12 @@ export interface ApiCallOptions {
 
 export async function callApiGetStatus({url, method, data, headers}: ApiCallOptions): Promise<boolean> {
     try {
+        const local = await getLocale();
         const options: RequestInit = {
             method: method || GET_METHOD,
             headers: {
                 'Content-Type': 'application/json',
+                'Accept-Language': local,
                 ...(headers ? headers : {})
             },
         };
@@ -120,17 +161,20 @@ export async function callApiGetStatus({url, method, data, headers}: ApiCallOpti
         return false;
     }
 }
+
 export async function callApiToAll<T>({url, method, data, headers}: ApiCallOptions) {
     try {
+        const local = await getLocale();
         const options: RequestInit = {
             method: method || GET_METHOD,
             headers: {
+                'Accept-Language': local,
                 ...(headers ? headers : {})
             },
         };
         if (data instanceof FormData) {
             options.body = data;
-        }else {
+        } else {
             // JSON object
             options.headers = {
                 ...options.headers,
@@ -149,11 +193,14 @@ export async function callApiToAll<T>({url, method, data, headers}: ApiCallOptio
         };
     }
 }
+
 export async function callApiToObject<T>({url, method, data, headers}: ApiCallOptions): Promise<T | string> {
     try {
+        const local = await getLocale();
         const options: RequestInit = {
             method: method || GET_METHOD,
             headers: {
+                'Accept-Language': local,
                 'Content-Type': 'application/json',
                 ...(headers ? headers : {})
             },
@@ -168,6 +215,7 @@ export async function callApiToObject<T>({url, method, data, headers}: ApiCallOp
         return error as string;
     }
 }
+
 export function isValidHexColor(code: string): boolean {
     return /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(code);
 }
@@ -217,7 +265,7 @@ export function timeUntilMidnight(): { hours: number; minutes: number } {
     return {hours, minutes}
 }
 
-export const formatDateTime = (dateString: Date | null,local:string) => {
+export const formatDateTime = (dateString: Date | null, local: string) => {
     const dateTimeOptions: Intl.DateTimeFormatOptions = {
         month: 'short', // abbreviated month name (e.g., 'Oct')
         year: 'numeric', // abbreviated month name (e.g., 'Oct')
@@ -238,11 +286,11 @@ export const formatDateTime = (dateString: Date | null,local:string) => {
         hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
     }
     const formattedDateTime: string = dateString ? new Date(dateString).toLocaleString(
-            local,
+        local,
         dateTimeOptions
     ) : "Can't load date"
     const formattedDate: string = dateString ? new Date(dateString).toLocaleString(
-            local,
+        local,
         dateOptions
     ) : "Can't load date"
     const formattedTime: string = dateString ? new Date(dateString).toLocaleString(
@@ -278,7 +326,7 @@ export function formUrlQuery({
     )
 }
 
-export const getFilterUrl = (filterUrl:FilterUrl) => {
+export const getFilterUrl = (filterUrl: FilterUrl) => {
     const newParams = {...filterUrl.params}
     if (filterUrl.category) newParams.category = filterUrl.category
     if (filterUrl.tag) newParams.tag = filterUrl.tag
@@ -286,9 +334,10 @@ export const getFilterUrl = (filterUrl:FilterUrl) => {
     if (filterUrl.rating) newParams.rating = filterUrl.rating
     if (filterUrl.page) newParams.page = filterUrl.page
     if (filterUrl.sort) newParams.sort = filterUrl.sort
-    if (filterUrl.category_name) newParams.category_name= filterUrl.category_name
+    if (filterUrl.category_name) newParams.category_name = filterUrl.category_name
     return `/search?${new URLSearchParams(newParams).toString()}`
 }
+
 export interface FilterParams {
     q?: string
     category?: string
@@ -299,6 +348,7 @@ export interface FilterParams {
     page?: string
     category_name?: string
 }
+
 export interface FilterUrl {
     params: FilterParams
     tag?: string
@@ -309,6 +359,15 @@ export interface FilterUrl {
     page?: string
     category_name?: string
 }
+
+export interface ArrayWithPage<T> {
+    page: number,
+    size: number,
+    totalItem: number,
+    data: T[]
+
+}
+
 export interface ResponseData<T> {
     code: number;
     success: boolean;

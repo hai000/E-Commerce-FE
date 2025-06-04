@@ -1,5 +1,5 @@
 'use client'
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Card, CardContent} from "@/components/ui/card";
 import {cn} from "@/lib/utils";
 import {IProduct, IProductDetail} from "@/lib/response/product";
 import {TabsContent} from "@/components/ui/tabs";
@@ -47,27 +47,19 @@ export function EditDescriptionProduct({
     }
     return (
         <>
-            <TabsContent value="descriptions" className="space-y-4">
+            <TabsContent value="descriptions" className={"space-y-3"}>
                 {product ?
-                    <Card className={cn(className, "w-full rounded-md gap-4")}>
-                        <CardHeader className="flex-wrap">
-                            <CardTitle className="text-xl font-bold ">
-                                Edit Products
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            <EditTabDescriptionContent onProductChange={handleProductChange} product={product}/>
-                            <div className="flex justify-end space-x-4 w-full">
-                                <Button onClick={discard} className="hover:bg-destructive bg-red-600  w-[70px]">
-                                    Discard
-                                </Button>
-                                <Button onClick={save} className="w-[70px]">
-                                    Save
-                                </Button>
-                            </div>
-
-                        </CardContent>
-                    </Card>
+                    <CardContent className="space-y-2 flex-1">
+                        <EditTabDescriptionContent onProductChange={handleProductChange} product={product}/>
+                        <div className="flex justify-end space-x-4 w-full">
+                            <Button onClick={discard} className="hover:bg-destructive bg-red-600  w-[70px]">
+                                Discard
+                            </Button>
+                            <Button onClick={save} className="w-[70px]">
+                                Save
+                            </Button>
+                        </div>
+                    </CardContent>
                     : <Card className={cn("rounded-md", className)}/>
                 }
             </TabsContent>
@@ -76,9 +68,8 @@ export function EditDescriptionProduct({
 }
 
 export function EditDetailProduct({
-                                      className, productSelected, productDetails
+                                       productSelected, productDetails
                                   }: {
-    className?: string,
     productSelected?: IProduct,
     productDetails: IProductDetail[]
 }) {
@@ -88,7 +79,7 @@ export function EditDetailProduct({
 
     useEffect(() => {
         const fetchData = async () => {
-            const productFetch = await getProductById(product?.id||'');
+            const productFetch = await getProductById(product?.id || '');
             if (typeof productFetch === 'string') {
                 toast({
                     title: "Error",
@@ -98,7 +89,7 @@ export function EditDetailProduct({
             } else {
                 setProduct(productFetch);
             }
-            const productDetailsTemp = await getProductDetailById({ productId: product?.id || '' });
+            const productDetailsTemp = await getProductDetailById({productId: product?.id || ''});
             if (typeof productDetailsTemp === "string") {
                 toast({
                     title: "Error",
@@ -114,26 +105,17 @@ export function EditDetailProduct({
     useEffect(() => {
         setProduct(productSelected ? {...productSelected} : undefined)
         setProductDe(productDetails ? productDetails : [])
-    }, [productSelected,productDetails]);
+    }, [productSelected, productDetails]);
 
     return (
         <>
             <TabsContent value="details" className="space-y-4">
-                {product ?
-                    <Card className={cn(className, "w-full rounded-md gap-4")}>
-                        <CardHeader className="flex-wrap">
-                            <CardTitle className="text-xl font-bold ">
-                                Edit Products
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            <EditTabDetailContent isReload={isReload}
-                                                  setIsReload={setIsReload}
-                                                  productDetails={productDe} productSelected={product}
-                            />
-                        </CardContent>
-                    </Card>
-                    : <Card className={cn("rounded-md", className)}/>
+                {product && <CardContent className="space-y-2">
+                    <EditTabDetailContent isReload={isReload}
+                                          setIsReload={setIsReload}
+                                          productDetails={productDe} productSelected={product}
+                    />
+                </CardContent>
                 }
             </TabsContent>
         </>

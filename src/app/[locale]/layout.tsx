@@ -1,10 +1,11 @@
-import { Geist, Geist_Mono } from 'next/font/google'
+import {Geist, Geist_Mono} from 'next/font/google'
 import '../globals.css'
-import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
-import { routing } from '@/i18n/routing'
-import { notFound } from 'next/navigation'
+import {NextIntlClientProvider} from 'next-intl'
+import {getMessages} from 'next-intl/server'
+import {routing} from '@/i18n/routing'
+import {notFound} from 'next/navigation'
 import data from "@/lib/data";
+import {CurrencyProvider} from "@/hooks/use-currency";
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -18,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export async function generateMetadata() {
     const {
-        site: { slogan, name, description, url },
+        site: {slogan, name, description, url},
     } = data.settings[0]
     return {
         title: {
@@ -37,7 +38,7 @@ export default async function AppLayout({
     params: { locale: string }
     children: React.ReactNode
 }) {
-    const { locale } = await params
+    const {locale} = await params
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!routing.locales.includes(locale as any)) {
         notFound()
@@ -51,8 +52,11 @@ export default async function AppLayout({
         <body
             className={`min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased`}
         >
+
         <NextIntlClientProvider locale={locale} messages={messages}>
+            <CurrencyProvider>
                 {children}
+            </CurrencyProvider>
         </NextIntlClientProvider>
         </body>
         </html>

@@ -8,7 +8,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Button} from "@/components/ui/button";
 import ProductPrice from "@/components/shared/product/product-price";
 import BrowsingHistoryList from "@/components/shared/browsing-history-list";
-import React from "react";
+import React, {useEffect} from "react";
 import {useRouter} from "next/navigation";
 import {Checkbox} from "@/components/ui/checkbox";
 import {toast} from "@/hooks/use-toast";
@@ -21,7 +21,11 @@ export default function CartPageClient() {
         checkCartItems,
         updateItem,
         removeItem,
+        reloadCart,
     } = useCartStore()
+    useEffect(() => {
+        reloadCart()
+    },[])
     const router = useRouter()
     const t = useTranslations()
     return (<div>
@@ -132,15 +136,16 @@ export default function CartPageClient() {
                                                     {item.cartItemQuantity > 1 && (
                                                         <>
                                                             {item.cartItemQuantity} x
-                                                            <ProductPrice price={item.price} plain/>
+                                                            <ProductPrice discount={item.discount} price={item.price} plain={true}/>
                                                             <br/>
                                                         </>
                                                     )}
 
                                                     <span className='font-bold text-lg'>
                             <ProductPrice
-                                price={item.price * item.cartItemQuantity}
-                                plain
+                                className={'text-xl'}
+                                price={item.price*(100-item.discount)/100 * item.cartItemQuantity}
+                                plain={true}
                             />
                           </span>
                                                 </p>
@@ -153,7 +158,7 @@ export default function CartPageClient() {
                                         {cartItems.reduce((acc, item) => acc + item.cartItemQuantity, 0)}{' '}
                                         {t('Items')}):{' '}
                                         <span className='font-bold ml-1'>
-                      <ProductPrice price={itemsPrice} plain/>
+                      <ProductPrice className={'text-xl'} price={itemsPrice} plain/>
                     </span>{' '}
                                     </div>
                                 </CardContent>
@@ -170,7 +175,7 @@ export default function CartPageClient() {
                                         {cartItems.reduce((acc, item) => acc + item.cartItemQuantity, 0)}{' '}
                                         {t('Items')}):{' '}
                                         <span className='font-bold'>
-                      <ProductPrice price={itemsPrice} plain/>
+                      <ProductPrice className={'text-xl'} price={itemsPrice} plain/>
                     </span>{' '}
                                     </div>
                                     <Button

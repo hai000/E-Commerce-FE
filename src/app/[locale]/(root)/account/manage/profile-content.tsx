@@ -9,9 +9,9 @@ import {UpdateUserRequest} from "@/lib/request/user";
 import {IUser} from "@/lib/response/user";
 import {updateUser} from "@/lib/api/user";
 import {DialogEditProfile} from "@/app/[locale]/(root)/account/manage/edit-profile";
-import {Session} from "@auth/core/types";
 import {toast} from "@/hooks/use-toast";
 import {useTranslations} from "next-intl";
+import {Session} from "@/types/next-auth";
 
 
 interface ProfileContentProps {

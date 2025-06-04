@@ -1,3 +1,4 @@
+'use server'
 import {callApiToArray} from "@/lib/utils";
 import {PaymentMethod} from "@/lib/response/payment";
 

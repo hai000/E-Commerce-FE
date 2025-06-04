@@ -358,7 +358,7 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
                                                         )}
                                                     />
                                                 </div>
-                                                <div className='flex flex-col gap-5 md:flex-row'>
+                                                <div className='flex flex-row flex-wrap gap-5'>
                                                     {!location.provinces || !location.districts || !location.wards ?
                                                         ( `<p>${t("Cant load page")}</p>`) : (
                                                             <>
@@ -366,7 +366,7 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
                                                                     control={shippingAddressForm.control}
                                                                     name='city'
                                                                     render={({field}) => (
-                                                                        <FormItem className='w-full'>
+                                                                        <FormItem className='w-[250px]'>
                                                                             <FormLabel>{t('Checkout.City')}</FormLabel>
                                                                             <FormControl>
                                                                                 <Popover>
@@ -435,7 +435,7 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
                                                                     control={shippingAddressForm.control}
                                                                     name='district'
                                                                     render={({field}) => (
-                                                                        <FormItem className='w-full'>
+                                                                        <FormItem className='w-[250px]'> {/* hoặc flex-1 min-w-[200px] */}
                                                                             <FormLabel>{t('Checkout.District')}</FormLabel>
                                                                             <FormControl>
                                                                                 <Popover>
@@ -503,7 +503,7 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
                                                                     control={shippingAddressForm.control}
                                                                     name='ward'
                                                                     render={({field}) => (
-                                                                        <FormItem className='w-full'>
+                                                                        <FormItem className='w-[250px]'> {/* hoặc flex-1 min-w-[200px] */}
                                                                             <FormLabel>{t('Checkout.Ward')}</FormLabel>
                                                                             <FormControl>
                                                                                 <Popover>

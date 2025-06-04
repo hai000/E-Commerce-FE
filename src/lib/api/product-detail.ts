@@ -1,3 +1,4 @@
+'use server'
 import {callApiToArray, callApiToObject} from "@/lib/utils";
 import {IProductDetail} from "@/lib/response/product";
 import {PUT_METHOD} from "@/lib/constants";

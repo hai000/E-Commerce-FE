@@ -14,7 +14,8 @@ import {getCardItemFromTagToArray} from "@/lib/utils";
 
 export default async function HomePage() {
     const t = await getTranslations('Home')
-    const categories = (await getAllCategories()).slice(0, 4) as Category[];
+    const resCategories = await getAllCategories();
+    const categories = (typeof resCategories ==="string"?[] as Category[] :resCategories).slice(0, 4) as Category[];
     let tags = (await getAllTags())
     if (typeof tags === "string") {
         tags = []
@@ -47,7 +48,7 @@ export default async function HomePage() {
         },
         ...tagCards,
     ];
-    const todaysDeals = await getAllProduct()
+    const todaysDeals = await getAllProduct({})
     return (
         <>
             <HomeCarousel items={data.carousels}/>
@@ -56,7 +57,7 @@ export default async function HomePage() {
                 <Card className='w-full rounded-none'>
                     <CardContent className='p-4 items-center gap-3'>
                         {typeof todaysDeals === "string" ? <div/> :
-                            <ProductSlider title={t('today_deals')} products={todaysDeals}
+                            <ProductSlider title={t('today_deals')} products={todaysDeals.data}
                             />}
                     </CardContent>
                 </Card>

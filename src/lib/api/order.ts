@@ -1,5 +1,5 @@
 'use server'
-import {callApiToArray, callApiToObject, generateHeaderAccessToken, round2} from '../utils'
+import {callApiToArray, callApiToArrayWithPage, callApiToObject, generateHeaderAccessToken, round2} from '../utils'
 import {CartItem} from "@/lib/response/cart";
 import {Order} from "@/lib/response/order";
 import {CreateOrderRequest} from "@/lib/request/order";
@@ -42,7 +42,7 @@ export async function getMyOrders({
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const skipAmount = (Number(page) - 1) * limit
-    return callApiToArray<Order>({url: '/identity/orders/myOrders', headers: generateHeaderAccessToken(session)})
+    return callApiToArrayWithPage<Order>({url: `/identity/orders/myOrders?page=${page}&size=${limit}`, headers: generateHeaderAccessToken(session)})
 }
 
 export async function getOrderById(orderId: string) {
@@ -112,7 +112,7 @@ export const calcDeliveryDateAndPrice = async ({
     deliveryDateIndex: number
 
 }) => {
-    const itemsPrice = items.reduce((prePrice, item) => item.isChecked ? prePrice + item.cartItemQuantity * item.price : 0, 0)
+    const itemsPrice = items.reduce((prePrice, item) => item.isChecked ? prePrice + item.cartItemQuantity * item.price * (100-item.discount)/100 : 0, 0)
     const totalPrice = round2(
         itemsPrice +
         (shippingPrice ? round2(shippingPrice) : 0)

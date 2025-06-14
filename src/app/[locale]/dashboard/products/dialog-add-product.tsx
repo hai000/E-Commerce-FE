@@ -138,6 +138,8 @@ export function DialogAddProduct() {
                     variant: "success"
                 })
                 reset()
+                setColors([])
+                setSizes([])
             }else {
                 toast({
                     title: t("Toast.Error"),

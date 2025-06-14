@@ -80,7 +80,6 @@ export default function ProductQuantityPageClient({
     // Pagination state
     const currentPage = productsWithPage.page || 1
     const totalPages = Math.ceil(productsWithPage.totalItem / productsWithPage.size)
-
     // Initialize selected variants with first option for each product
     useEffect(() => {
         const fetchData = async () => {
@@ -89,8 +88,7 @@ export default function ProductQuantityPageClient({
                 quantity: number;
                 price: number;
             }> = {}
-            await Promise.all(products.map(async (product) => {
-                console.log(product.id)
+            await Promise.all(productsWithPage.data.map(async (product) => {
                 if (product.colors?.length || product.sizes?.length) {
                     initialVariants[product.id] = {
                         colorId: product.colors?.[0]?.id,
@@ -121,14 +119,14 @@ export default function ProductQuantityPageClient({
                     }
                 }
             }))
+            setQuantities({})
             setPricingInit({...initialVariantsQuantity});
             setImportData(initialVariantsQuantity);
             setSelectedVariants(initialVariants)
             setProducts(productsWithPage.data)
         }
         fetchData()
-    }, [productsWithPage.data])
-
+    }, [productsWithPage])
     // Filter products based on search term
     const filteredProducts = products.filter(
         (product) =>

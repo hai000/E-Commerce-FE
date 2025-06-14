@@ -29,7 +29,6 @@ export default function AddToCart({
     const { addItem } = useCartStore()
 
     const [quantity, setQuantity] = useState(1)
-
     return minimal ? (
         <Button
             className='rounded-full w-auto'

@@ -125,7 +125,7 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
         // Lấy phí ship
         const infoShips = await getInfoShips(location.myAddressSelected?.id);
         let priceShip = 0;
-        if (typeof infoShips !== 'string') {
+        if (typeof infoShips !== 'string' && infoShips.length > 0) {
             setInfoShips(infoShips);
             priceShip = parseInt(infoShips[indexInfoShips].gia_cuoc);
         }

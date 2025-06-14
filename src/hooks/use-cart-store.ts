@@ -53,12 +53,18 @@ const useCartStore = create(
             cart: initialState,
             cartChecked: initCartChecked,
             addItem: async (item: CartItem, quantity: number) => {
+                console.log("data add to cart",{
+                    productId: item.productId,
+                    quantity: `${quantity}`,
+                    productSize: item.size?.id || '-1',
+                    productColor: item.color?.id || '-1',
+                })
                 const res = await addToCart(
                     {
                         productId: item.productId,
                         quantity: `${quantity}`,
-                        productSize: item.size?.id || '',
-                        productColor: item.color?.id || '',
+                        productSize: item.size?.id || '-1',
+                        productColor: item.color?.id || '-1',
                     }
                 )
                 if (typeof res === "string") {

@@ -54,7 +54,7 @@ export default async function ProductsPage(props: {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col justify-between h-[79vh] space-y-3">
-                        <ProductList className={'xsm:overflow-auto xlsm:overflow-auto sm:overflow-auto'} products={products.data} productIdSelected={productSelected?.id} />
+                        <ProductList className={'xsm:overflow-auto xlsm:overflow-auto sm:overflow-auto'} currentPage={page} products={products.data} productIdSelected={productSelected?.id} />
                         <div className={'align-bottom'}>
                             <Pagination page={page} totalPages={Math.ceil(products.totalItem / size)!}/>
                         </div>

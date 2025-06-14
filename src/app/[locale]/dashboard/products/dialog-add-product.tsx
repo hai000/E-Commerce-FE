@@ -22,7 +22,7 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog";
 import {Checkbox} from "@/components/ui/checkbox";
-import {callApiToAll, isValidHexColor, toSlug} from "@/lib/utils";
+import {isValidHexColor, toSlug} from "@/lib/utils";
 import {AddColorRequest, AddProductRequest, AddSizeRequest} from "@/lib/request/product";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import MultiImageUpload from "@/components/shared/imag-upload-on-submit";

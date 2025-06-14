@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/pagination"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import type {IProduct} from "@/lib/response/product"
-import {ArrayWithPage, cn} from "@/lib/utils"
+import {ArrayWithPage, cn,} from "@/lib/utils"
 import {useRouter, useSearchParams} from "next/navigation"
 import {getProductDetailById} from "@/lib/api/product-detail";
 import {toast} from "@/hooks/use-toast";
@@ -65,8 +65,16 @@ export default function ProductQuantityPageClient({
     const [products, setProducts] = useState<IProduct[]>(productsWithPage.data)
     const [searchTerm, setSearchTerm] = useState("")
     const [quantities, setQuantities] = useState<Record<string, number>>({})
+    const [pricingInit, setPricingInit] = useState<Record<string, {
+        quantity: number;
+        price: number;
+    }>>({})
     const [selectedVariants, setSelectedVariants] = useState<Record<string, { colorId?: string; sizeId?: string }>>({})
-    const [variantQuantities, setVariantQuantities] = useState<Record<string, number>>({})
+    const [importData, setImportData] = useState<Record<string, {
+        quantity: number;
+        price: number;
+    }>>({})
+    const [refresh, setRefresh] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const minStock = 10
     // Pagination state
@@ -77,7 +85,10 @@ export default function ProductQuantityPageClient({
     useEffect(() => {
         const fetchData = async () => {
             const initialVariants: Record<string, { colorId?: string; sizeId?: string }> = {}
-            const initialVariantsQuantity: Record<string, number> = {}
+            const initialVariantsQuantity: Record<string, {
+                quantity: number;
+                price: number;
+            }> = {}
             await Promise.all(products.map(async (product) => {
                 console.log(product.id)
                 if (product.colors?.length || product.sizes?.length) {
@@ -85,6 +96,7 @@ export default function ProductQuantityPageClient({
                         colorId: product.colors?.[0]?.id,
                         sizeId: product.sizes?.[0]?.id,
                     }
+
                     const productDetail = await getProductDetailById({productId: product.id})
                     if (typeof productDetail === "string") {
                         toast({
@@ -96,12 +108,21 @@ export default function ProductQuantityPageClient({
                     } else {
                         productDetail.forEach((detail) => {
                             const variantKey = getVariantKey(product.id, detail.color?.id, detail.size?.id)
-                            initialVariantsQuantity[variantKey] = detail.quantity
+                            initialVariantsQuantity[variantKey] = {
+                                quantity: detail.quantity,
+                                price: detail.price,
+                            }
                         })
+                    }
+                } else {
+                    initialVariantsQuantity[product.id] = {
+                        quantity: product.quantity,
+                        price: product.defaultPrice,
                     }
                 }
             }))
-            setVariantQuantities(initialVariantsQuantity)
+            setPricingInit({...initialVariantsQuantity});
+            setImportData(initialVariantsQuantity);
             setSelectedVariants(initialVariants)
             setProducts(productsWithPage.data)
         }
@@ -123,16 +144,20 @@ export default function ProductQuantityPageClient({
         router.push(`?${params.toString()}`)
     }
     // update quantity when change variant
-    const getCurrentVariantStock = (productId: string): number => {
+    const getImportData = (productId: string): {
+        quantity: number;
+        price: number;
+    } => {
         const variant = selectedVariants[productId]
-        if (!variant) return 0
+        if (!variant) return importData[productId]
 
-        const product = products.find((p) => p.id === productId)
-        if (!product) return 0
+        const product = products.find((p) => p.id == productId)
+        if (!product) return {quantity: 0, price: 0}
 
         const variantKey = getVariantKey(productId, variant.colorId, variant.sizeId)
-        return variantQuantities[variantKey] || 0
+        return importData[variantKey]
     }
+
 
     // Handle color change
     const handleColorChange = (productId: string, colorId: string) => {
@@ -163,7 +188,6 @@ export default function ProductQuantityPageClient({
         const variant = selectedVariants[productId]
         const product = products.find((p) => p.id === productId) // Declare the product variable
         // If the product has no variants, use the product ID directly
-        console.log(variant)
         if (!variant || (!product?.colors?.length && !product?.sizes?.length)) {
             setQuantities({
                 ...quantities,
@@ -181,6 +205,27 @@ export default function ProductQuantityPageClient({
         })
     }
 
+    const handlePriceChange = (productId: string, value: string) => {
+        const numValue = Number.parseFloat(value) || 0
+        const variant = selectedVariants[productId]
+        const product = products.find((p) => p.id === productId) // Declare the product variable
+        // If the product has no variants, use the product ID directly
+        if (!variant || (!product?.colors?.length && !product?.sizes?.length)) {
+            setImportData(prev => ({
+                ...prev,
+                [productId]: { ...prev[productId], price: numValue }
+            }));
+            return
+        }
+        // Otherwise use the variant key
+        const variantKey = getVariantKey(productId, variant.colorId, variant.sizeId)
+        setImportData(prev => ({
+            ...prev,
+            [variantKey]: { ...prev[variantKey], price: numValue }
+        }));
+        setRefresh(!refresh)
+    }
+
     // Update the getCurrentQuantity function to handle products without variants
     const getCurrentQuantity = (product: IProduct): string => {
         // If the product has no variants, use the product ID directly
@@ -196,45 +241,51 @@ export default function ProductQuantityPageClient({
         return quantities[variantKey]?.toString() || ""
     }
 
+    const getCurrentPrice = (product: IProduct): string => {
+        // If the product has no variants, use the product ID directly
+        if (!product.colors?.length && !product.sizes?.length) {
+            return importData[product.id]?.price.toString() || ""
+        }
+
+        const variant = selectedVariants[product.id]
+        if (!variant) return ''
+
+        const variantKey = getVariantKey(product.id, variant.colorId, variant.sizeId)
+
+        return importData[variantKey]?.price.toString() || ""
+    }
+
     // Update the handleSaveChanges function to handle products without variants
     const handleSaveChanges = async () => {
         setIsSaving(true)
         try {
-            // Here you would implement your API call to update quantities
-            // For example:
-            // const updates = Object.entries(quantities).map(([variantKey, quantity]) => {
-            //   const { productId, colorId, sizeId } = parseVariantKey(variantKey);
-            //   return {
-            //     productId,
-            //     colorId,
-            //     sizeId,
-            //     quantity
-            //   };
-            // });
-            // await updateProductQuantities(updates);
-
-            // Simulate API call with timeout
-
             // Update local state to reflect changes
-            const updatedProducts = await Promise.all(products.map(async(product) => {
+            const updatedProducts = await Promise.all(products.map(async (product) => {
                 let additionalQuantity = 0
-
                 // Check for direct product quantity update (no variants)
                 if (quantities[product.id]) {
-                    const productImportAddRequest : ProductImportAddRequest = {
+                    const productImportAddRequest: ProductImportAddRequest = {
                         quantity: quantities[product.id],
                         productId: product.id,
                         sizeId: '-1',
                         colorId: '-1',
                         importedAt: new Date(),
                         userImported: '-1',
-                        price: 0.1
+                        price: importData[product.id]?.price || 0.1
                     }
                     const resProductImport = await addProductImport(productImportAddRequest)
                     if (typeof resProductImport !== "string") {
-                        variantQuantities[product.id]+= quantities[product.id]
+                        setImportData(prev => ({
+                            ...prev,
+                            [product.id]: { ...prev[product.id],
+                                price: importData[product.id]?.price || 0.1, quantity: (quantities[product.id] || 0) + (importData[product.id]?.quantity || 0)}
+                        }));
+                        setPricingInit(prev=> ({
+                            ...prev,
+                            [product.id]: { ...prev[product.id], quantity: (quantities[product.id] || 0) + (importData[product.id]?.quantity || 0)}
+                        }))
                         additionalQuantity += quantities[product.id]
-                    }else {
+                    } else {
                         toast(
                             {
                                 title: "Error",
@@ -247,22 +298,38 @@ export default function ProductQuantityPageClient({
                 // Calculate additional quantity from all variants of this product
                 for (const [variantKey, quantity] of Object.entries(quantities)) {
                     if (variantKey == product.id) continue; // Skip direct product updates (already handled)
-                    const {productId,colorId,sizeId} = parseVariantKey(variantKey)
+                    const {productId, colorId, sizeId} = parseVariantKey(variantKey)
                     if (productId == product.id && quantity > 0) {
-                        const productImportAddRequest : ProductImportAddRequest = {
+                        const productImportAddRequest: ProductImportAddRequest = {
                             quantity: quantity,
                             productId: productId,
-                            sizeId: sizeId??'-1',
-                            colorId: colorId??'-1',
+                            sizeId: sizeId ?? '-1',
+                            colorId: colorId ?? '-1',
                             importedAt: new Date(),
                             userImported: '-1',
-                            price: 0.1
+                            price: importData[variantKey]?.price || 0.1
                         }
                         const resProductImport = await addProductImport(productImportAddRequest)
                         if (typeof resProductImport !== "string") {
                             additionalQuantity += quantity
-                            variantQuantities[variantKey] += quantity
-                        }else {
+                            setPricingInit(prev => ({
+                                ...prev,
+                                [variantKey]: {
+                                    ...prev[variantKey],
+                                    price: importData[variantKey]?.price || 0.1,
+                                    quantity: (importData[variantKey]?.quantity || 0) + quantity,
+                                }
+                            }));
+
+                            setImportData(prev => ({
+                                ...prev,
+                                [variantKey]: {
+                                    ...prev[variantKey],
+                                    quantity: (importData[variantKey]?.quantity || 0) + quantity,
+                                }
+                            }));
+
+                        } else {
                             toast(
                                 {
                                     title: "Error",
@@ -294,7 +361,9 @@ export default function ProductQuantityPageClient({
 
     // Reset all quantities
     const handleReset = () => {
+        console.log(pricingInit)
         setQuantities({})
+        setImportData(pricingInit)
     }
 
     // Find color name by ID
@@ -409,6 +478,7 @@ export default function ProductQuantityPageClient({
                                     <TableHead>Color</TableHead>
                                     <TableHead>Size</TableHead>
                                     <TableHead className="text-center">Variant Stock</TableHead>
+                                    <TableHead className="text-center">Price</TableHead>
                                     <TableHead className="text-center">Add Quantity</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -477,7 +547,18 @@ export default function ProductQuantityPageClient({
                                                 )}
                                             </TableCell>
                                             <TableCell className="text-center">
-                                                <span className="">{getCurrentVariantStock(product.id)}</span>
+                                                <span className="">{getImportData(product.id)?.quantity || 0}</span>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex justify-center">
+                                                    <Input
+                                                        type="number"
+                                                        min="0"
+                                                        className="w-28 text-center"
+                                                        value={getCurrentPrice(product)}
+                                                        onChange={(e) => handlePriceChange(product.id, e.target.value)}
+                                                    />
+                                                </div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex justify-center">

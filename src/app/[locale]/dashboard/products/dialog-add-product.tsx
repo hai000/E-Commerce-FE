@@ -22,7 +22,7 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog";
 import {Checkbox} from "@/components/ui/checkbox";
-import {isValidHexColor, toSlug} from "@/lib/utils";
+import {callApiToAll, isValidHexColor, toSlug} from "@/lib/utils";
 import {AddColorRequest, AddProductRequest, AddSizeRequest} from "@/lib/request/product";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import MultiImageUpload from "@/components/shared/imag-upload-on-submit";
@@ -116,7 +116,7 @@ export function DialogAddProduct() {
                    }
                 }
             );
-            console.log(imagesString)
+
             const productRequest = {
                 name: data.name_product,
                 categoryId: data.categoryId,

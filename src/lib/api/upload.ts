@@ -1,3 +1,4 @@
+'use server';
 import {callApiToAll} from "@/lib/utils";
 import {POST_METHOD} from "@/lib/constants";
 

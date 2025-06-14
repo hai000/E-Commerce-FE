@@ -29,6 +29,12 @@ export function HeaderDashboard({
             >
                 Products
             </Link>
+            <Link
+                href="/dashboard/product-quantities"
+                className={cn("text-sm font-medium transition-colors hover:text-secondary",props.property?.startsWith("product-quantities")?"": "text-secondary-foreground")}
+            >
+                Product Quantities
+            </Link>
         </nav>
     )
 }

@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import {getInfo} from "@/lib/api/user";
+import {getInfo, updateUser} from "@/lib/api/user";
 import {redirect} from "next/navigation";
 import ProfileContent from "@/app/[locale]/(root)/account/manage/profile-content";
 import {auth} from "@/auth";
@@ -13,13 +13,13 @@ export default async function ProfilePage() {
     if (session == null) {
         redirect("/sign-in")
     }
-    const user = await getInfo({accessToken: session?.accessToken as string})
+    let user = await getInfo({accessToken: session?.accessToken as string})
     if (typeof user === "string") {
         redirect("/sign-in")
     }
     return (
         <div className='mb-24'>
-            <ProfileContent user={user} session={session} />
+            <ProfileContent user={user}/>
         </div>
     )
 }

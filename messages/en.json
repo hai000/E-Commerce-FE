@@ -252,6 +252,7 @@
   "email_invalid": "Email is invalid",
   "password_min": "Password must be at least 3 characters",
   "phone_required": "Phone number is required",
+  "phone_min": "Phone number must be at least 10 characters",
   "phone_digits": "Phone number must contain only digits",
   "username_min": "Username must be at least 5 characters",
   "username_max": "Username must be at most 30 characters",
@@ -308,6 +309,7 @@
   "Order Items": "Order Items",
   "Returns Policy": "Returns Policy",
   "Place Your Order": "Place Your Order",
+  "UpdateProfileSuccess": "Update profile successfully",
   "with in": "Within 30 days of delivery, you may return new, unopened merchandise in its original condition. Exceptions and restrictions apply",
   "we will send": "button, we will send you an e-mail acknowledging receipt of your order. Your contract to purchase an item will not be complete until we send you an e-mail notifying you that the item has been shipped to you. By placing your order, you agree to"
 }

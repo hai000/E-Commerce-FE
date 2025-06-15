@@ -1,6 +1,6 @@
 import NextAuth from "next-auth"
 import Credentials from "@auth/core/providers/credentials";
-import {getInfo, login, refreshToken} from "@/lib/api/user";
+import {getInfo, getUserById, login, refreshToken} from "@/lib/api/user";
 import {ILogin} from "@/lib/response/login";
 import {jwtDecode, JwtPayload} from "jwt-decode";
 import {JWT} from "@auth/core/jwt";
@@ -46,7 +46,7 @@ const providers: any[] = [
     })
 ]
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const { handlers ,signIn, signOut, auth } = NextAuth({
     providers: providers,
     callbacks: {
         jwt: async ({ token, user }) => {
@@ -85,12 +85,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
         session: async ({ session, token }) => {
             if (token) {
+                const user = await getUserById(token.id as string)
+                if (typeof user !== "string") {
+                    session.user = session.user || {};
+                    session.user.id = user.id as string;
+                    session.user.name = user.fullName;
+                    session.user.email = user.email || '';
+                    session.user.role = user.role;
+                }else {
+                    session.user = session.user || {};
+                    session.user.id = token.id as string;
+                    session.user.name = token.name as string;
+                    session.user.email = token.email as string;
+                }
                 session.accessToken = token.accessToken as string ;
                 session.refreshToken = token.refreshToken as string;
-                session.user = session.user || {};
-                session.user.id = token.id as string;
-                session.user.name = token.name as string;
-                session.user.email = token.email as string;
+
             }
             return session;
         },

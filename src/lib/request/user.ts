@@ -10,7 +10,6 @@ export interface IUserLoginRequest {
     password: string;
 }
 export interface UpdateUserRequest {
-    password: string;
     email: string;
     phoneNumber: string;
     fullName: string;

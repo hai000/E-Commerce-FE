@@ -1,4 +1,5 @@
 'use server'
+import { signIn } from "next-auth/react";
 import {
     ArrayWithPage,
     callApiToArrayWithPage,
@@ -10,16 +11,21 @@ import {PAGE_SIZE, POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {IUser} from "@/lib/response/user";
 import {IUserLoginRequest, IUserRegisterRequest, UpdateUserRequest} from "@/lib/request/user";
 import {ILogin} from "@/lib/response/login";
-import {auth, signIn, signOut} from "@/auth";
+import {auth, signOut} from "@/auth";
 import {redirect} from "next/navigation";
 import {getTranslations} from "next-intl/server";
 
-export async function updateUser(accessToken: string, request: UpdateUserRequest) {
-    return callApiToObject({
+export async function updateUser(request: UpdateUserRequest) {
+    const session = await auth()
+    if (!session || !session.accessToken) {
+        return redirect('/sign-in');
+    }
+
+    return callApiToObject<IUser>({
         url: '/identity/users/changeInfo',
         method: PUT_METHOD,
         data: request,
-        headers: generateHeaderAccessTokenString(accessToken)
+        headers: generateHeaderAccessToken(session)
     })
 }
 export async function getUserById(id: string) {

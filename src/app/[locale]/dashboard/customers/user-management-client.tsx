@@ -38,8 +38,6 @@ const getGenderText = (gender: number): string => {
             return "Female"
         case 1:
             return "Male"
-        case 2:
-            return "Other"
         default:
             return "Unknown"
     }
@@ -50,8 +48,6 @@ const getRoleColor = (role: string): string => {
     switch (role.toLowerCase()) {
         case "admin":
             return "destructive"
-        case "manager":
-            return "default"
         case "user":
             return "secondary"
         default:

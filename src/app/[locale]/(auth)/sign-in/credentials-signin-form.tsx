@@ -10,9 +10,9 @@ import {IUserLoginRequest} from "@/lib/request/user";
 import {toast} from "@/hooks/use-toast";
 import {zodResolver} from '@hookform/resolvers/zod'
 import useCartStore from "@/hooks/use-cart-store";
-import {signInWithCredentials} from "@/lib/api/user";
 import {useTranslations} from "next-intl";
 import {getUserSignInSchema} from "@/lib/validator";
+import {signInWithCredentials} from "@/lib/api/client-api";
 
 const signInDefaultValues =
     process.env.NODE_ENV === 'development'

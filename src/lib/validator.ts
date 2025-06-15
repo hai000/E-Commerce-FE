@@ -29,8 +29,7 @@ export const Phone = (t: (key: string) => string) =>
     z
         .string()
         .regex(/^\d+$/, { message: t("phone_digits") })
-        .optional()
-        .or(z.literal(""));
+        .min(10, { message: t("phone_min") })
 
 export const UserName = (t: (key: string) => string) =>
     z

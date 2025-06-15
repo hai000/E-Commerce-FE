@@ -1,49 +1,44 @@
 'use client'
-
-import { useState } from 'react'
-import { SessionProvider } from 'next-auth/react'
 import Link from 'next/link'
-import { Card, CardContent } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import {Card, CardContent} from '@/components/ui/card'
+import {Separator} from '@/components/ui/separator'
 import {UpdateUserRequest} from "@/lib/request/user";
 import {IUser} from "@/lib/response/user";
-import {updateUser} from "@/lib/api/user";
 import {DialogEditProfile} from "@/app/[locale]/(root)/account/manage/edit-profile";
-import {toast} from "@/hooks/use-toast";
 import {useTranslations} from "next-intl";
-import {Session} from "@/types/next-auth";
+import {useEffect, useState} from "react";
+import {updateUser} from "@/lib/api/user";
+import {toast} from "@/hooks/use-toast";
 
-
-interface ProfileContentProps {
-    user: IUser
-    session: Session
-}
-
-
-export default function ProfileContent({ user: initialUser, session}: ProfileContentProps) {
-    // eslint-disable-next-line
-    const [user, setUser] = useState<IUser>(initialUser)
+export default function ProfileContent({user}: {
+    user: IUser,
+}) {
     const t = useTranslations()
-    const PAGE_TITLE = t("Profile")
-    const handleEditProfile = async (request: UpdateUserRequest) => {
-        const response = await updateUser(session.accessToken, request)
-        if (typeof response === 'string'){
-            toast({
+    const [currentUser, setCurrentUser] = useState<IUser>(user)
+    useEffect(() => {
+        setCurrentUser(user)
+    },[user])
+    const handleUpdateUser = async (request: UpdateUserRequest) => {
+        const res = await updateUser(request)
+        if (typeof res === "string") {
+           toast({
                 title: t("Toast.Error"),
-                description: response,
+                description: res,
                 variant: "destructive"
-            })
-        }else {
+           })
+        } else {
             toast({
                 title: t("Toast.Success"),
-                description: t('Update profile successfully'),
+                description: t("UpdateProfileSuccess"),
                 variant: "success"
             })
+            setCurrentUser(res)
         }
-
     }
+    // eslint-disable-next-line
+    const PAGE_TITLE = t("Profile")
     return (
-        <SessionProvider session={session}>
+        <>
             <div className='flex gap-2 '>
                 <Link href='/account'>{t('Your Account')}</Link>
                 <span>›</span>
@@ -54,48 +49,48 @@ export default function ProfileContent({ user: initialUser, session}: ProfileCon
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
                         <h3 className='font-bold'>{t('Full name')}</h3>
-                        <p>{user.fullName}</p>
+                        <p>{currentUser.fullName}</p>
                     </div>
                 </CardContent>
-                <Separator />
+                <Separator/>
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
                         <h3 className='font-bold'>Email</h3>
-                        <p>{user.email ?? t('None')}</p>
+                        <p>{currentUser.email ?? t('None')}</p>
                     </div>
                 </CardContent>
-                <Separator />
+                <Separator/>
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
                         <h3 className='font-bold'>{t('Checkout.Phone number')}</h3>
-                        <p>{user.phoneNumber ?? t('None')}</p>
+                        <p>{currentUser.phoneNumber ?? t('None')}</p>
                     </div>
                 </CardContent>
-                <Separator />
+                <Separator/>
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
                         <h3 className='font-bold'>{t('DOB')}</h3>
-                        <p>{user.dateOfBirth ?? t('None')}</p>
+                        <p>{currentUser.dateOfBirth ?? t('None')}</p>
                     </div>
                 </CardContent>
-                <Separator />
+                <Separator/>
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
                         <h3 className='font-bold'>{t('Gender')}</h3>
-                        <p>{user.gender === 0 ? t('Male') :t('Female')}</p>
+                        <p>{currentUser.gender === 0 ? t('Female') : t('Male')}</p>
                     </div>
                 </CardContent>
-                <Separator />
+                <Separator/>
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
                         <h3 className='font-bold'>{t('User.Password')}</h3>
-                        <p>************</p>
+                        <p>**********</p>
                     </div>
                 </CardContent>
             </Card>
             <div className='mt-4 flex gap-2'>
-                <DialogEditProfile handleEditProfile={handleEditProfile} user={user} />
+                <DialogEditProfile handleEditProfile={handleUpdateUser} user={user}/>
             </div>
-        </SessionProvider>
+        </>
     )
 }

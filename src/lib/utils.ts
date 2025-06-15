@@ -193,7 +193,6 @@ export async function callApiToAll<T>({url, method, data, headers}: ApiCallOptio
         };
     }
 }
-
 export async function callApiToObject<T>({url, method, data, headers}: ApiCallOptions): Promise<T | string> {
     try {
         const local = await getLocale();

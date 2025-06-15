@@ -258,6 +258,7 @@
   "password_min": "Mật khẩu phải có ít nhất 3 ký tự",
   "phone_required": "Bắt buộc nhập số điện thoại",
   "phone_digits": "Số điện thoại chỉ được chứa số",
+  "phone_min": "Số điện thoại phải có ít nhất 10 ký tự",
   "username_min": "Tên đăng nhập phải có ít nhất 5 ký tự",
   "username_max": "Tên đăng nhập tối đa 30 ký tự",
   "passwords_not_match": "Mật khẩu nhập lại không khớp",
@@ -309,6 +310,7 @@
   "Order Items": "Sản phẩm trong đơn hàng",
   "Returns Policy": "Chính sách hoàn trả",
   "Place Your Order": "Đặt hàng",
+  "UpdateProfileSuccess": "Cập nhật thông tin cá nhân thành công",
   "with in": "Trong vòng 30 ngày kể từ khi nhận hàng, bạn có thể trả lại sản phẩm mới, chưa mở, còn nguyên vẹn. Có thể áp dụng các trường hợp ngoại lệ và hạn chế",
   "we will send": "nút, chúng tôi sẽ gửi cho bạn một email xác nhận đã nhận được đơn đặt hàng của bạn. Hợp đồng mua hàng sẽ chỉ được hoàn tất khi chúng tôi gửi cho bạn một email thông báo rằng mặt hàng đã được gửi đi. Bằng việc đặt hàng, bạn đồng ý với"
 }

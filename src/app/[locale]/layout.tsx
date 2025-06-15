@@ -55,9 +55,11 @@ export default async function AppLayout({
         >
 
         <NextIntlClientProvider locale={locale} messages={messages}>
+            <SessionProvider>
                 <CurrencyProvider>
                     {children}
                 </CurrencyProvider>
+            </SessionProvider>
         </NextIntlClientProvider>
         </body>
         </html>

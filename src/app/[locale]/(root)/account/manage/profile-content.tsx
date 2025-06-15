@@ -9,12 +9,14 @@ import {useTranslations} from "next-intl";
 import {useEffect, useState} from "react";
 import {updateUser} from "@/lib/api/user";
 import {toast} from "@/hooks/use-toast";
+import {useSession} from "next-auth/react";
 
 export default function ProfileContent({user}: {
     user: IUser,
 }) {
     const t = useTranslations()
     const [currentUser, setCurrentUser] = useState<IUser>(user)
+    const { update } = useSession();
     useEffect(() => {
         setCurrentUser(user)
     },[user])
@@ -27,6 +29,7 @@ export default function ProfileContent({user}: {
                 variant: "destructive"
            })
         } else {
+            await update();
             toast({
                 title: t("Toast.Success"),
                 description: t("UpdateProfileSuccess"),

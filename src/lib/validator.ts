@@ -28,8 +28,9 @@ export const Password = (t: (key: string) => string) =>
 export const Phone = (t: (key: string) => string) =>
     z
         .string()
-        .min(9, { message: t("phone_required") })
-        .regex(/^\d+$/, { message: t("phone_digits") });
+        .regex(/^\d+$/, { message: t("phone_digits") })
+        .optional()
+        .or(z.literal(""));
 
 export const UserName = (t: (key: string) => string) =>
     z
@@ -42,7 +43,20 @@ export const getUserSignInSchema = (t: (key: string) => string) =>
         username: UserName(t),
         password: Password(t),
     });
-
+export const getUserEditSchema = (t: (key: string) => string) =>
+    z.object({
+        username: UserName(t),
+        email: Email(t),
+        phoneNumber: Phone(t),
+        fullName: z.string().min(1, { message: t("full_name_required") }),
+        dateOfBirth: z.string().optional().or(z.literal("")),
+        gender: z.enum(["0", "1"], {
+            required_error: t("Please select a gender"),
+        }),
+        role: z.enum(["ADMIN", "USER"], {
+            required_error: "Please select a role",
+        }),
+    })
 export const getUserSignUpSchema = (t: (key: string) => string) =>
     getUserSignInSchema(t)
         .extend({

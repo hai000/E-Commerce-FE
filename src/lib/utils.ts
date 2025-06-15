@@ -67,7 +67,7 @@ export async function callApiToArrayWithPage<T>({
                                                     method,
                                                     data,
                                                     headers
-                                                }: ApiCallOptions): Promise<ArrayWithPage<T> | string> {
+                                                }: ApiCallOptions): Promise<ArrayWithPage<T>> {
     try {
         const local = await getLocale();
         const options: RequestInit = {
@@ -87,19 +87,19 @@ export async function callApiToArrayWithPage<T>({
                 page: 0,
                 size: 0,
                 totalItem: 0,
-                data: []
-            };
+                data: [] as T[]
+            } as ArrayWithPage<T>;
         }
         const result = await response.json();
-        return result.data as ArrayWithPage<T> | string;
+        return result.data as ArrayWithPage<T>;
     } catch (error) {
         console.error('Error:', error);
         return {
             page: 0,
             size: 0,
             totalItem: 0,
-            data: []
-        };
+            data: [] as T[]
+        } as ArrayWithPage<T>;
     }
 }
 

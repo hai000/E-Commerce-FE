@@ -79,6 +79,7 @@
     "Your order has been successfully paid by PayPal": "Your order has been successfully paid by PayPal"
   },
   "User": {
+    "User": "User",
     "Admin": "Admin",
     "Your account": "Your account",
     "Phone number": "Phone number",
@@ -112,6 +113,7 @@
     "Please enter your username and password": "Please enter your username and password"
   },
   "Placeholder": {
+    "Filter by role": "Filter by role",
     "Enter your review": "Enter your review",
     "Enter address": "Enter address",
     "Select ward": "Select ward",
@@ -164,6 +166,20 @@
     "Create a new product by filling out the information below": "Create a new product by filling out the information below",
     "Product Name": "Product Name"
   },
+  "Please select a role":"Please select a role",
+  "Please select a gender": "Please select a gender",
+  "users": "users",
+  "Showing": "Showing",
+  "No users found": "No users found",
+  "Created": "Created",
+  "Role": "Role",
+  "Contact": "Contact",
+  "Customer": "Customer",
+  "Admin": "Admin",
+  "All roles": "All roles",
+  "Add User": "Add user",
+  "User Management": "User management",
+  "Manage users and their information": "Manage users and their information",
   "Origin price": "Origin price",
   "Loading": "Loading...",
   "See more reviews": "See more reviews",

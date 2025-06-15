@@ -79,6 +79,7 @@
     "Your order has been successfully paid by PayPal": "Đơn hàng của bạn đã được thanh toán thành công qua PayPal"
   },
   "User": {
+    "User": "Người dùng",
     "Admin": "Admin",
     "Your account": "Tài khoản của bạn",
     "Phone number": "Số điện thoại",
@@ -112,6 +113,7 @@
     "Please enter your username and password": "Vui lòng nhập tên đăng nhập và mật khẩu của bạn"
   },
   "Placeholder": {
+    "Filter by role": "Filter by role",
     "Enter your review": "Nhập đánh giá của bạn",
     "Select ward": "Chọn phường/xã",
     "Select district": "Chọn quận/huyện",
@@ -164,6 +166,20 @@
     "Create a new product by filling out the information below": "Tạo sản phẩm mới bằng cách điền thông tin dưới đây",
     "Product Name": "Tên sản phẩm"
   },
+  "Please select a role": "Please select a role",
+  "Please select a gender": "Vui lòng chọn giới tính",
+  "users": "nguời dùng",
+  "Showing": "Đang hiển thị",
+  "No users found": "Không tìm thấy người dùng",
+  "Created": "Đã tạo",
+  "Role": "Vai trò",
+  "Contact": "Liên hệ",
+  "Customer": "Khách hàng",
+  "Admin": "Quản trị",
+  "All roles": "Tất cả vai trò",
+  "Add User": "Thêm người dùng",
+  "User Management": "Quản lý người dùng",
+  "Manage users and their information": "Quản lý người dùng và thông tin của họ",
   "Loading": "Đang tải...",
   "See more reviews": "Xem thêm đánh giá",
   "to write a review": "để viết đánh giá",

@@ -28,6 +28,19 @@ export async function updateUser(request: UpdateUserRequest) {
         headers: generateHeaderAccessToken(session)
     })
 }
+export async function updateUserById(id: string,request: UpdateUserRequest) {
+    const session = await auth()
+    if (!session || !session.accessToken) {
+        return redirect('/sign-in');
+    }
+
+    return callApiToObject<IUser>({
+        url: '/identity/users/changeInfo',
+        method: PUT_METHOD,
+        data: request,
+        headers: generateHeaderAccessToken(session)
+    })
+}
 export async function getUserById(id: string) {
     return callApiToObject<IUser>({
         url: `/identity/users/id/${id}`,

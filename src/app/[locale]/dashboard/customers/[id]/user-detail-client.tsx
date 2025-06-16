@@ -12,8 +12,8 @@ import {useLocale, useTranslations} from "next-intl";
 import {getGenderText, getRoleIntl} from "@/lib/utils";
 
 
-const formatDateTime = (date: Date | string | undefined,local: string): string => {
-    if (!date) return "Not available"
+const formatDateTime = (date: Date | string | undefined,local: string, t: (key: string)=> string): string => {
+    if (!date) return t("Not available")
     return new Date(date).toLocaleString(local, {
         year: "numeric",
         month: "long",
@@ -204,14 +204,14 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
                                     <label className="text-sm font-medium text-muted-foreground">Email</label>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Mail className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-sm">{user.email || "Not provided"}</p>
+                                        <p className="text-sm">{user.email || t("Not provided")}</p>
                                     </div>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">{t('User.Phone number')}</label>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Phone className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-sm">{user.phoneNumber || "Not provided"}</p>
+                                        <p className="text-sm">{user.phoneNumber || t("Not provided")}</p>
                                     </div>
                                 </div>
                             </div>
@@ -223,17 +223,17 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Shield className="h-5 w-5" />
-                                Account Information
+                                {t("Account Information")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="text-sm font-medium text-muted-foreground">User ID</label>
+                                    <label className="text-sm font-medium text-muted-foreground">{t("User ID")}</label>
                                     <p className="text-sm mt-1 font-mono">{user.id}</p>
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Role</label>
+                                    <label className="text-sm font-medium text-muted-foreground">{t("Role")}</label>
                                     <div className="mt-1">
                                         <Badge variant={getRoleColor(user.role) as any}>{user.role}</Badge>
                                     </div>
@@ -244,17 +244,17 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Account Created</label>
+                                    <label className="text-sm font-medium text-muted-foreground">{t('Account Created')}</label>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Clock className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-sm">{formatDateTime(user.createdAt,local)}</p>
+                                        <p className="text-sm">{formatDateTime(user.createdAt,local,t)}</p>
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
+                                    <label className="text-sm font-medium text-muted-foreground">{t('Last Updated')}</label>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Clock className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-sm">{formatDateTime(user.updatedAt,local)}</p>
+                                        <p className="text-sm">{formatDateTime(user.updatedAt,local,t)}</p>
                                     </div>
                                 </div>
                             </div>

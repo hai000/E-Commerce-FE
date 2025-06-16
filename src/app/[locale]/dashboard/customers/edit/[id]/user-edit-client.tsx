@@ -19,8 +19,8 @@ import type { IUser } from "@/lib/response/user"
 import {getUserEditSchema} from "@/lib/validator";
 import {useTranslations} from "next-intl";
 import {UpdateUserRequest} from "@/lib/request/user";
-import {updateUserById} from "@/lib/api/user";
 import {genderOptions, roleOptions} from "@/lib/utils";
+import {updateUserById} from "@/lib/api/user";
 
 // Validation schema
 
@@ -46,6 +46,7 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
 
     const form = useForm<UserEditFormData>({
         resolver: zodResolver(shema),
+        mode:"onChange",
         defaultValues: {
             username: user.username,
             email: user.email || "",
@@ -69,6 +70,7 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
                 email: data.email,
                 phoneNumber: data.phoneNumber,
                 dateOfBirth: data.dateOfBirth,
+                role: data.role,
             } as UpdateUserRequest
 
             // Here you would implement your API call to update the user
@@ -76,25 +78,24 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
 
             if (typeof updateUser === "string" ) {
                 toast({
-                    title: "Error",
-                    description: "Failed to update user information. Please try again.",
+                    title: t("Toast.Error"),
+                    description: updateUser,
                     variant: "destructive",
                 })
             }else {
                 toast({
                     variant: "success",
-                    title: "Success",
-                    description: "User information has been updated successfully.",
+                    title: t("Toast.Success"),
+                    description: t("User information has been updated successfully"),
                 })
                 router.push(`/dashboard/customers/${user.id}`)
             }
 
 
         } catch (error) {
-            console.error("Error updating user:", error)
             toast({
-                title: "Error",
-                description: "Failed to update user information. Please try again.",
+                title: t("Toast.Error"),
+                description: t("Failed to update user information Please try again"),
                 variant: "destructive",
             })
         } finally {
@@ -117,11 +118,11 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
                 <div className="flex items-center gap-4">
                     <Button variant="outline" size="sm" onClick={handleBack}>
                         <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back
+                        {t('Back')}
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold">Edit User</h1>
-                        <p className="text-muted-foreground">Update user information and settings</p>
+                        <h1 className="text-2xl font-bold">{t('Edit user')}</h1>
+                        <p className="text-muted-foreground">{t('Update user information and settings')}</p>
                     </div>
                 </div>
             </div>
@@ -138,12 +139,12 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
                                 </Avatar>
                             </div>
                             <CardTitle className="text-xl">{form.watch("fullName") || user.fullName}</CardTitle>
-                            <CardDescription>@{form.watch("username") || user.username}</CardDescription>
+                            <CardDescription>{form.watch("username") || user.username}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="text-center text-sm text-muted-foreground">
-                                <p>User ID: {user.id}</p>
-                                <p>Created: {new Date(user.createdAt || "").toLocaleDateString()}</p>
+                                <p>{t('User ID')}: {user.id}</p>
+                                <p>{t('Created')}: {new Date(user.createdAt || "").toLocaleDateString()}</p>
                             </div>
                         </CardContent>
                     </Card>
@@ -153,24 +154,24 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
                 <div className="lg:col-span-2">
                     <Card>
                         <CardHeader>
-                            <CardTitle>User Information</CardTitle>
-                            <CardDescription>Update the user's personal and account information</CardDescription>
+                            <CardTitle>{t('User Information')}</CardTitle>
+                            <CardDescription>{t('Update the user personal and account information')}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Form {...form}>
                                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                                     {/* Personal Information */}
                                     <div>
-                                        <h3 className="text-lg font-medium mb-4">Personal Information</h3>
+                                        <h3 className="text-lg font-medium mb-4">{t('Personal Information')}</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <FormField
                                                 control={form.control}
                                                 name="fullName"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel>Full Name</FormLabel>
+                                                        <FormLabel>{t('Full Name')}</FormLabel>
                                                         <FormControl>
-                                                            <Input placeholder="Enter full name" {...field} />
+                                                            <Input placeholder={t("Placeholder.Enter full name")} {...field} />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -182,13 +183,10 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
                                                 name="username"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel>Username</FormLabel>
+                                                        <FormLabel>{t('Username')}</FormLabel>
                                                         <FormControl>
-                                                            <Input placeholder="Enter username" {...field} />
+                                                            <Input placeholder={t('Placeholder.Enter username')} {...field} />
                                                         </FormControl>
-                                                        <FormDescription>
-                                                            Username must be unique and contain only letters, numbers, and underscores
-                                                        </FormDescription>
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}
@@ -199,11 +197,11 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
                                                 name="gender"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel>Gender</FormLabel>
+                                                        <FormLabel>{t('Gender')}</FormLabel>
                                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                             <FormControl>
                                                                 <SelectTrigger>
-                                                                    <SelectValue placeholder="Select gender" />
+                                                                    <SelectValue placeholder={t("Select gender")} />
                                                                 </SelectTrigger>
                                                             </FormControl>
                                                             <SelectContent>
@@ -224,7 +222,7 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
                                                 name="dateOfBirth"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel>Date of Birth</FormLabel>
+                                                        <FormLabel>{t("Date of Birth")}</FormLabel>
                                                         <FormControl>
                                                             <Input type="date" {...field} />
                                                         </FormControl>
@@ -239,16 +237,16 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
 
                                     {/* Contact Information */}
                                     <div>
-                                        <h3 className="text-lg font-medium mb-4">Contact Information</h3>
+                                        <h3 className="text-lg font-medium mb-4">{t("Contact Information")}</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <FormField
                                                 control={form.control}
                                                 name="email"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel>Email Address</FormLabel>
+                                                        <FormLabel>Email</FormLabel>
                                                         <FormControl>
-                                                            <Input type="email" placeholder="Enter email address" {...field} />
+                                                            <Input type="email" placeholder={t("Placeholder.Enter email")} {...field} />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -260,9 +258,9 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
                                                 name="phoneNumber"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel>Phone Number</FormLabel>
+                                                        <FormLabel>{t('Checkout.Phone number')}</FormLabel>
                                                         <FormControl>
-                                                            <Input type="tel" placeholder="Enter phone number" {...field} />
+                                                            <Input type="tel" placeholder={t("Placeholder.Enter phone number")} {...field} />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -275,18 +273,18 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
 
                                     {/* Account Settings */}
                                     <div>
-                                        <h3 className="text-lg font-medium mb-4">Account Settings</h3>
+                                        <h3 className="text-lg font-medium mb-4">{t('Account Settings')}</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <FormField
                                                 control={form.control}
                                                 name="role"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel>Role</FormLabel>
+                                                        <FormLabel>{t('Role')}</FormLabel>
                                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                             <FormControl>
                                                                 <SelectTrigger>
-                                                                    <SelectValue placeholder="Select role" />
+                                                                    <SelectValue placeholder={t("Select role")} />
                                                                 </SelectTrigger>
                                                             </FormControl>
                                                             <SelectContent>
@@ -297,7 +295,7 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
-                                                        <FormDescription>Determines user permissions and access level</FormDescription>
+                                                        <FormDescription>{t('Determines user permissions and access level')}</FormDescription>
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}

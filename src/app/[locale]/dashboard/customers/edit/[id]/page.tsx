@@ -14,7 +14,6 @@ export default async function UserEditPage(props: {
     }
 }) {
     const { id } = props.params
-    console.log(id)
     try {
         const user = await getUserById(id)
         if (!user || typeof user === "string") {

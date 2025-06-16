@@ -6,9 +6,9 @@ import {Address} from "@/lib/response/address";
 
 interface LocationStore {
     isInitialized: boolean,
-    provinces?: Province[],
-    districts?: District[],
-    wards?: Ward[],
+    provinces: Province[],
+    districts: District[],
+    wards: Ward[],
     myAddresses?: Address[] | null,
     districtByProvince?: District[] | null,
     wardsByDistrict?: Ward[] | null,
@@ -19,6 +19,9 @@ interface LocationStore {
 }
 
 const initialState: LocationStore = {
+    provinces: [],
+    districts: [],
+    wards: [],
     isInitialized: false,
     provinceSelected: null,
     districtSelected: null,
@@ -29,6 +32,9 @@ const initialState: LocationStore = {
 interface LocationState {
     location: LocationStore;
     init: () => Promise<void>,
+    getProvinces: () => Province[] ,
+    getDistricts: () => District[],
+    getWards: () => Ward[] | undefined,
     setProvinceSelected: (province: Province) => void,
     setDistrictSelected: (district: District) => void,
     setWardSelected: (ward: Ward) => void,
@@ -84,6 +90,15 @@ export const useLocationStore = create(
                     }
                 }))
             },
+            getProvinces: () => {
+                return get().location.provinces;
+            },
+            getDistricts: () => {
+                return get().location.districts;
+            },
+            getWards: () => {
+                return get().location.wards;
+            },
             init: async () => {
                 const provincesRes = await getAllProvinces();
                 const districtsRes = await getAllDistricts();
@@ -102,9 +117,9 @@ export const useLocationStore = create(
                     location: {
                         ...get().location,
                         isInitialized: isInitialized,
-                        provinces: provinces,
-                        districts: districts,
-                        wards: wards,
+                        provinces: provinces||[],
+                        districts: districts||[],
+                        wards: wards||[],
                     },
                 })
             },

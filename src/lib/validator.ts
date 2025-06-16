@@ -10,6 +10,13 @@ export const getCategorySchema = (t: (key: string) => string) =>
         imagePath: z.nullable(z.string().min(1, {message: t("image_required")})),
         description: z.nullable(z.string().min(1, {message: t("description_required")})),
     });
+
+export const AddressSchema = (t:(key:string)=> string) => z.object({
+    houseNumber: z.string().min(1, t("House number is required")),
+    provinceId: z.string().min(1, t("Please select a province")),
+    districtId: z.string().min(1, t("Please select a district")),
+    wardId: z.string().min(1, t("Please select a ward")),
+})
 export const getReviewSchema = (t: (key: string) => string) =>
     z.object({
         ratingScore: z

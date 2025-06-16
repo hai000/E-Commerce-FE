@@ -17,21 +17,10 @@ import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Form
 import {useToast} from "@/hooks/use-toast"
 import {createUserAdmin} from "@/lib/api/user";
 import {CreateUserAdminRequest} from "@/lib/request/user";
-import {genderOptions, roleOptions} from "@/lib/utils";
+import {genderOptions, getUserInitials, roleOptions} from "@/lib/utils";
 import {useTranslations} from "next-intl";
 import {CreateUserSchema} from "@/lib/validator";
 
-
-// Get user initials for avatar fallback
-const getUserInitials = (fullName: string): string => {
-    if (!fullName) return "N/A"
-    return fullName
-        .split(" ")
-        .map((name) => name.charAt(0))
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-}
 
 
 export default function UserCreatePageClient() {

@@ -19,20 +19,11 @@ import type { IUser } from "@/lib/response/user"
 import {getUserEditSchema} from "@/lib/validator";
 import {useTranslations} from "next-intl";
 import {UpdateUserRequest} from "@/lib/request/user";
-import {genderOptions, roleOptions} from "@/lib/utils";
+import {genderOptions, getUserInitials, roleOptions} from "@/lib/utils";
 import {updateUserById} from "@/lib/api/user";
 
 // Validation schema
 
-// Get user initials for avatar fallback
-const getUserInitials = (fullName: string): string => {
-    return fullName
-        .split(" ")
-        .map((name) => name.charAt(0))
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-}
 
 export default function UserEditPageClient({ user }: { user: IUser }) {
     const router = useRouter()

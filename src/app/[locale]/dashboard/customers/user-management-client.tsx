@@ -26,19 +26,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import type { IUser } from "@/lib/response/user"
-import {ArrayWithPage, getGenderText, getRoleColor} from "@/lib/utils"
+import {ArrayWithPage, getGenderText, getRoleColor, getUserInitials} from "@/lib/utils"
 import { useRouter, useSearchParams } from "next/navigation"
 import {useTranslations} from "next-intl";
 
-// Get user initials for avatar fallback
-const getUserInitials = (fullName: string): string => {
-    return fullName
-        .split(" ")
-        .map((name) => name.charAt(0))
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-}
 
 export default function UserManagementPageClient({
                                                      usersWithPage,

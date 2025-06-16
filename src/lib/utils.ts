@@ -193,7 +193,14 @@ export async function callApiToAll<T>({url, method, data, headers}: ApiCallOptio
         };
     }
 }
-
+export const getUserInitials = (fullName?: string): string => {
+    return fullName?fullName
+        .split(" ")
+        .map((name) => name.charAt(0))
+        .join("")
+        .toUpperCase()
+        .slice(0, 2):'UK'
+}
 export function getRoleIntl(role: string, t: (key: string) => string): string {
     switch (role.toLowerCase()) {
         case 'admin':

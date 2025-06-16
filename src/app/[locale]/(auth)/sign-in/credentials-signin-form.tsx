@@ -47,7 +47,7 @@ export default function CredentialsSignInForm() {
             if (res?.error) {
                 toast({
                     title: t('Toast.Error'),
-                    description: res.error || t('User.Username or password is incorrect'),
+                    description: t('User.Username or password is incorrect'),
                     variant: 'destructive',
                 });
                 return;

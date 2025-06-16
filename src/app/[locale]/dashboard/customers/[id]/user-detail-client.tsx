@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import type { IUser } from "@/lib/response/user"
 import { useRouter } from "next/navigation"
 import {useLocale, useTranslations} from "next-intl";
-import {getGenderText, getRoleIntl} from "@/lib/utils";
+import {getGenderText, getRoleIntl, getUserInitials} from "@/lib/utils";
 
 
 const formatDateTime = (date: Date | string | undefined,local: string, t: (key: string)=> string): string => {
@@ -34,16 +34,6 @@ const getRoleColor = (role: string): string => {
         default:
             return "outline"
     }
-}
-
-// Get user initials for avatar fallback
-const getUserInitials = (fullName: string): string => {
-    return fullName
-        .split(" ")
-        .map((name) => name.charAt(0))
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
 }
 
 // Format date

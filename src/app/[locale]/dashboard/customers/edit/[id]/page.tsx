@@ -13,7 +13,7 @@ export default async function UserEditPage(props: {
         id: string
     }
 }) {
-    const { id } = props.params
+    const { id } = await props.params
     try {
         const user = await getUserById(id)
         if (!user || typeof user === "string") {

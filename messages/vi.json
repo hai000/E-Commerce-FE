@@ -87,7 +87,8 @@
     "Username": "Tên đăng nhập",
     "Password": "Mật khẩu",
     "Username or password is incorrect": "Tên đăng nhập hoặc mật khẩu không chính xác",
-    "Refresh token is not valid": "Mã làm mới (refresh token) không hợp lệ"
+    "Refresh token is not valid": "Mã làm mới (refresh token) không hợp lệ",
+    "Confirm Password incorrect": "Mật khẩu xác nhận không chính xác"
   },
   "Toast": {
     "Error": "Lỗi",
@@ -96,6 +97,7 @@
     "Info": "Thông tin"
   },
   "Login": {
+    "Create account": "Tạo tài khoản",
     "Create account successfully": "Tạo tài khoản thành công",
     "By creating an account, you agree to": "Bằng việc tạo tài khoản, bạn đồng ý với",
     "Create your": "Tạo tài khoản",
@@ -109,8 +111,11 @@
     "Already have an account": "Đã có tài khoản",
     "Login to your account": "Đăng nhập vào tài khoản của bạn",
     "Create a new account": "Tạo tài khoản mới",
-    "Please enter your username and password": "Vui lòng nhập tên đăng nhập và mật khẩu của bạn"
+    "Please enter your username and password": "Vui lòng nhập tên đăng nhập và mật khẩu của bạn",
+    "Username invalid": "Tên đăng nhập tối thiểu 5 ký tự",
+    "Password invalid": "Mật khẩu tối thiểu 6 ký tự"
   },
+
   "Placeholder": {
     "Enter your review": "Nhập đánh giá của bạn",
     "Select ward": "Chọn phường/xã",
@@ -294,5 +299,6 @@
   "Returns Policy": "Chính sách hoàn trả",
   "Place Your Order": "Đặt hàng",
   "with in": "Trong vòng 30 ngày kể từ khi nhận hàng, bạn có thể trả lại sản phẩm mới, chưa mở, còn nguyên vẹn. Có thể áp dụng các trường hợp ngoại lệ và hạn chế",
-  "we will send": "nút, chúng tôi sẽ gửi cho bạn một email xác nhận đã nhận được đơn đặt hàng của bạn. Hợp đồng mua hàng sẽ chỉ được hoàn tất khi chúng tôi gửi cho bạn một email thông báo rằng mặt hàng đã được gửi đi. Bằng việc đặt hàng, bạn đồng ý với"
+  "we will send": "nút, chúng tôi sẽ gửi cho bạn một email xác nhận đã nhận được đơn đặt hàng của bạn. Hợp đồng mua hàng sẽ chỉ được hoàn tất khi chúng tôi gửi cho bạn một email thông báo rằng mặt hàng đã được gửi đi. Bằng việc đặt hàng, bạn đồng ý với",
+  "phone number invalid": "Số điện thoại không hợp lệ"
 }

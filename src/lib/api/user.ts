@@ -9,7 +9,7 @@ import {
 } from "@/lib/utils";
 import {PAGE_SIZE, POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {IUser} from "@/lib/response/user";
-import {IUserLoginRequest, IUserRegisterRequest, UpdateUserRequest} from "@/lib/request/user";
+import {CreateUserAdminRequest, IUserLoginRequest, IUserRegisterRequest, UpdateUserRequest} from "@/lib/request/user";
 import {ILogin} from "@/lib/response/login";
 import {auth, signOut} from "@/auth";
 import {redirect} from "next/navigation";
@@ -65,7 +65,19 @@ export async function refreshToken(request: { refreshToken?: string }) {
 export async function register(request: IUserRegisterRequest) {
     return callApiToObject<IUser>({url: '/identity/users/register', method: POST_METHOD, data: request});
 }
+export async function createUserAdmin(request: CreateUserAdminRequest) {
+    const session = await auth()
+    if (!session || !session.accessToken) {
+        return redirect('/sign-in');
+    }
+    return callApiToObject<IUser>({
+        url: '/identity/users/admin',
+        method: POST_METHOD,
+        data: request,
+        headers: generateHeaderAccessToken(session)
+    })
 
+}
 export const SignOut = async () => {
     const redirectTo = await signOut({redirect: false})
     redirect(redirectTo.redirect)

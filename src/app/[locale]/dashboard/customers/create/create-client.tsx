@@ -1,22 +1,22 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Save, Loader2, User } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import {useState} from "react"
+import {useRouter} from "next/navigation"
+import {ArrowLeft, Loader2, Save, User} from "lucide-react"
+import {useForm} from "react-hook-form"
+import {zodResolver} from "@hookform/resolvers/zod"
 import * as z from "zod"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { useToast } from "@/hooks/use-toast"
-import {register} from "@/lib/api/user";
-import {IUserRegisterRequest} from "@/lib/request/user";
+import {Button} from "@/components/ui/button"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Input} from "@/components/ui/input"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
+import {Separator} from "@/components/ui/separator"
+import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
+import {useToast} from "@/hooks/use-toast"
+import {createUserAdmin} from "@/lib/api/user";
+import {CreateUserAdminRequest} from "@/lib/request/user";
 import {genderOptions, roleOptions} from "@/lib/utils";
 import {useTranslations} from "next-intl";
 import {CreateUserSchema} from "@/lib/validator";
@@ -36,13 +36,14 @@ const getUserInitials = (fullName: string): string => {
 
 export default function UserCreatePageClient() {
     const router = useRouter()
-    const { toast } = useToast()
+    const {toast} = useToast()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const t = useTranslations()
     const createUserSchema = CreateUserSchema(t)
     type UserCreateFormData = z.infer<typeof createUserSchema>
     const form = useForm<UserCreateFormData>({
         resolver: zodResolver(createUserSchema),
+        mode:"onChange",
         defaultValues: {
             username: "",
             email: "",
@@ -62,46 +63,38 @@ export default function UserCreatePageClient() {
         try {
             // Convert form data to match API expectations
             const createData = {
-                confirmPassword: data.confirmPassword,
-                username: data.username,
                 email: data.email,
-                phoneNumber: data.phoneNumber || undefined,
+                phoneNumber: data.phoneNumber,
+                dateOfBirth: data.dateOfBirth,
                 fullName: data.fullName,
-                dateOfBirth: data.dateOfBirth || undefined,
-                gender: Number.parseInt(data.gender),
-                role: data.role,
+                gender: parseInt(data.gender)||0,
                 password: data.password,
-                avtPath: "", // Default empty avatar path
-            } as IUserRegisterRequest
+                role: data.role,
+                username: data.username
+            } as CreateUserAdminRequest
 
             // Create user via API
-            const newUser = await register(createData)
+            const newUser = await createUserAdmin(createData)
 
-            toast({
-                title: "Success",
-                description: `User "${data.fullName}" has been created successfully.`,
-            })
-
-            // Navigate to the new user's detail page or back to users list
-            if (newUser && typeof newUser !== "string") {
-                router.push(`/dashboard/users/${newUser.id}`)
+            if (newUser && typeof newUser !== "string" && typeof newUser!== "undefined") {
+                toast({
+                    title: t("Toast.Success"),
+                    description: `${t("User.User")} ${data.fullName} ${t('has been created successfully')}.`,
+                    variant: "success",
+                })
+                router.push(`/dashboard/customers/${newUser.id}`)
             } else {
-                router.push("/dashboard/users")
+                toast({
+                    title: t("Toast.Error"),
+                    description: newUser,
+                    variant: "success",
+                })
             }
         } catch (error: any) {
-            console.error("Error creating user:", error)
-
-            // Handle specific error messages
-            let errorMessage = "Failed to create user. Please try again."
-            if (error.message?.includes("username")) {
-                errorMessage = "Username already exists. Please choose a different username."
-            } else if (error.message?.includes("email")) {
-                errorMessage = "Email already exists. Please use a different email address."
-            }
 
             toast({
-                title: "Error",
-                description: errorMessage,
+                title: t("Toast.Error"),
+                description: t("Failed to create user Please try again"),
                 variant: "destructive",
             })
         } finally {
@@ -121,17 +114,17 @@ export default function UserCreatePageClient() {
     const watchedValues = form.watch()
 
     return (
-        <div className="container mx-auto py-8 px-4 max-w-4xl">
+        <div className="container mx-auto py-8 px-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
                     <Button variant="outline" size="sm" onClick={handleBack}>
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back
+                        <ArrowLeft className="h-4 w-4 mr-2"/>
+                        {t('Back')}
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold">Create New User</h1>
-                        <p className="text-muted-foreground">Add a new user to the system</p>
+                        <h1 className="text-2xl font-bold">{t('Create New User')}</h1>
+                        <p className="text-muted-foreground">{t('Add a new user to the system')}</p>
                     </div>
                 </div>
             </div>
@@ -143,8 +136,9 @@ export default function UserCreatePageClient() {
                         <CardHeader className="text-center">
                             <div className="flex justify-center mb-4">
                                 <Avatar className="h-24 w-24">
-                                    <AvatarImage src="/placeholder.svg" alt="New User" />
-                                    <AvatarFallback className="text-2xl">{getUserInitials(watchedValues.fullName)}</AvatarFallback>
+                                    <AvatarImage src="/placeholder.svg" alt="New User"/>
+                                    <AvatarFallback
+                                        className="text-2xl">{getUserInitials(watchedValues.fullName)}</AvatarFallback>
                                 </Avatar>
                             </div>
                             <CardTitle className="text-xl">{watchedValues.fullName || "New User"}</CardTitle>
@@ -152,36 +146,36 @@ export default function UserCreatePageClient() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-center text-sm text-muted-foreground">
-                                <p>Role: {watchedValues.role || "Not selected"}</p>
-                                <p>Email: {watchedValues.email || "Not provided"}</p>
+                                <p>{t('Role')}: {watchedValues.role || t("Not selected")}</p>
+                                <p>Email: {watchedValues.email || t("Not provided")}</p>
                             </div>
                         </CardContent>
                     </Card>
 
                     {/* Password Requirements */}
-                    <Card className="mt-6">
-                        <CardHeader>
-                            <CardTitle className="text-lg">Password Requirements</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
-                                <span>At least 8 characters long</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
-                                <span>One uppercase letter</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
-                                <span>One lowercase letter</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
-                                <span>One number</span>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    {/*<Card className="mt-6">*/}
+                    {/*    <CardHeader>*/}
+                    {/*        <CardTitle className="text-lg">{t('Password Requirements')}</CardTitle>*/}
+                    {/*    </CardHeader>*/}
+                    {/*    <CardContent className="space-y-2 text-sm">*/}
+                    {/*        <div className="flex items-center gap-2">*/}
+                    {/*            <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>*/}
+                    {/*            <span>At least 8 characters long</span>*/}
+                    {/*        </div>*/}
+                    {/*        <div className="flex items-center gap-2">*/}
+                    {/*            <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>*/}
+                    {/*            <span>One uppercase letter</span>*/}
+                    {/*        </div>*/}
+                    {/*        <div className="flex items-center gap-2">*/}
+                    {/*            <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>*/}
+                    {/*            <span>One lowercase letter</span>*/}
+                    {/*        </div>*/}
+                    {/*        <div className="flex items-center gap-2">*/}
+                    {/*            <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>*/}
+                    {/*            <span>One number</span>*/}
+                    {/*        </div>*/}
+                    {/*    </CardContent>*/}
+                    {/*</Card>*/}
                 </div>
 
                 {/* Create Form */}
@@ -189,28 +183,27 @@ export default function UserCreatePageClient() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <User className="h-5 w-5" />
-                                User Information
+                                <User className="h-5 w-5"/>
+                                {t('User Information')}
                             </CardTitle>
-                            <CardDescription>Enter the new user's personal and account information</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Form {...form}>
                                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                                     {/* Personal Information */}
                                     <div>
-                                        <h3 className="text-lg font-medium mb-4">Personal Information</h3>
+                                        <h3 className="text-lg font-medium mb-4">{t('Personal Information')}</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <FormField
                                                 control={form.control}
                                                 name="fullName"
-                                                render={({ field }) => (
+                                                render={({field}) => (
                                                     <FormItem>
-                                                        <FormLabel>Full Name *</FormLabel>
+                                                        <FormLabel>{t('Full Name')} *</FormLabel>
                                                         <FormControl>
-                                                            <Input placeholder="Enter full name" {...field} />
+                                                            <Input placeholder={t('Placeholder.Enter full name')} {...field} />
                                                         </FormControl>
-                                                        <FormMessage />
+                                                        <FormMessage/>
                                                     </FormItem>
                                                 )}
                                             />
@@ -218,13 +211,13 @@ export default function UserCreatePageClient() {
                                             <FormField
                                                 control={form.control}
                                                 name="username"
-                                                render={({ field }) => (
+                                                render={({field}) => (
                                                     <FormItem>
-                                                        <FormLabel>Username *</FormLabel>
+                                                        <FormLabel>{t('Username')} *</FormLabel>
                                                         <FormControl>
-                                                            <Input placeholder="Enter username" {...field} />
+                                                            <Input placeholder={t("Placeholder.Enter username")} {...field} />
                                                         </FormControl>
-                                                        <FormMessage />
+                                                        <FormMessage/>
                                                     </FormItem>
                                                 )}
                                             />
@@ -232,13 +225,14 @@ export default function UserCreatePageClient() {
                                             <FormField
                                                 control={form.control}
                                                 name="gender"
-                                                render={({ field }) => (
+                                                render={({field}) => (
                                                     <FormItem>
-                                                        <FormLabel>Gender</FormLabel>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <FormLabel>{t('Gender')}</FormLabel>
+                                                        <Select onValueChange={field.onChange}
+                                                                defaultValue={field.value}>
                                                             <FormControl>
                                                                 <SelectTrigger>
-                                                                    <SelectValue />
+                                                                    <SelectValue/>
                                                                 </SelectTrigger>
                                                             </FormControl>
                                                             <SelectContent>
@@ -249,7 +243,7 @@ export default function UserCreatePageClient() {
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
-                                                        <FormMessage />
+                                                        <FormMessage/>
                                                     </FormItem>
                                                 )}
                                             />
@@ -257,36 +251,37 @@ export default function UserCreatePageClient() {
                                             <FormField
                                                 control={form.control}
                                                 name="dateOfBirth"
-                                                render={({ field }) => (
+                                                render={({field}) => (
                                                     <FormItem>
-                                                        <FormLabel>Date of Birth</FormLabel>
+                                                        <FormLabel>{t('Date of Birth')}</FormLabel>
                                                         <FormControl>
                                                             <Input type="date" {...field} />
                                                         </FormControl>
-                                                        <FormDescription>Optional</FormDescription>
-                                                        <FormMessage />
+                                                        <FormDescription>{t('Optional')}</FormDescription>
+                                                        <FormMessage/>
                                                     </FormItem>
                                                 )}
                                             />
                                         </div>
                                     </div>
 
-                                    <Separator />
+                                    <Separator/>
 
                                     {/* Contact Information */}
                                     <div>
-                                        <h3 className="text-lg font-medium mb-4">Contact Information</h3>
+                                        <h3 className="text-lg font-medium mb-4">{t('Contact Information')}</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <FormField
                                                 control={form.control}
                                                 name="email"
-                                                render={({ field }) => (
+                                                render={({field}) => (
                                                     <FormItem>
-                                                        <FormLabel>Email Address *</FormLabel>
+                                                        <FormLabel>Email *</FormLabel>
                                                         <FormControl>
-                                                            <Input type="email" placeholder="Enter email address" {...field} />
+                                                            <Input type="email"
+                                                                   placeholder={t("Placeholder.Enter email")} {...field} />
                                                         </FormControl>
-                                                        <FormMessage />
+                                                        <FormMessage/>
                                                     </FormItem>
                                                 )}
                                             />
@@ -294,35 +289,37 @@ export default function UserCreatePageClient() {
                                             <FormField
                                                 control={form.control}
                                                 name="phoneNumber"
-                                                render={({ field }) => (
+                                                render={({field}) => (
                                                     <FormItem>
-                                                        <FormLabel>Phone Number *</FormLabel>
+                                                        <FormLabel>{t('Checkout.Phone number')} *</FormLabel>
                                                         <FormControl>
-                                                            <Input type="tel" placeholder="Enter phone number" {...field} />
+                                                            <Input type="tel"
+                                                                   placeholder={t("Placeholder.Enter phone number")} {...field} />
                                                         </FormControl>
-                                                        <FormMessage />
+                                                        <FormMessage/>
                                                     </FormItem>
                                                 )}
                                             />
                                         </div>
                                     </div>
 
-                                    <Separator />
+                                    <Separator/>
 
                                     {/* Account Settings */}
                                     <div>
-                                        <h3 className="text-lg font-medium mb-4">Account Settings</h3>
+                                        <h3 className="text-lg font-medium mb-4">{t('Account Settings')}</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <FormField
                                                 control={form.control}
                                                 name="role"
-                                                render={({ field }) => (
+                                                render={({field}) => (
                                                     <FormItem>
-                                                        <FormLabel>Role *</FormLabel>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <FormLabel>{t('Role')} *</FormLabel>
+                                                        <Select onValueChange={field.onChange}
+                                                                defaultValue={field.value}>
                                                             <FormControl>
                                                                 <SelectTrigger>
-                                                                    <SelectValue placeholder="Select role" />
+                                                                    <SelectValue placeholder="Select role"/>
                                                                 </SelectTrigger>
                                                             </FormControl>
                                                             <SelectContent>
@@ -333,30 +330,30 @@ export default function UserCreatePageClient() {
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
-                                                        <FormDescription>Determines user permissions and access level</FormDescription>
-                                                        <FormMessage />
+                                                        <FormMessage/>
                                                     </FormItem>
                                                 )}
                                             />
                                         </div>
                                     </div>
 
-                                    <Separator />
+                                    <Separator/>
 
                                     {/* Password Settings */}
                                     <div>
-                                        <h3 className="text-lg font-medium mb-4">Password Settings</h3>
+                                        <h3 className="text-lg font-medium mb-4">{t('Password Settings')}</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <FormField
                                                 control={form.control}
                                                 name="password"
-                                                render={({ field }) => (
+                                                render={({field}) => (
                                                     <FormItem>
-                                                        <FormLabel>Password *</FormLabel>
+                                                        <FormLabel>{t('User.Password')} *</FormLabel>
                                                         <FormControl>
-                                                            <Input type="password" placeholder="Enter password" {...field} />
+                                                            <Input type="password"
+                                                                   placeholder={t("Placeholder.Enter password")} {...field} />
                                                         </FormControl>
-                                                        <FormMessage />
+                                                        <FormMessage/>
                                                     </FormItem>
                                                 )}
                                             />
@@ -364,13 +361,14 @@ export default function UserCreatePageClient() {
                                             <FormField
                                                 control={form.control}
                                                 name="confirmPassword"
-                                                render={({ field }) => (
+                                                render={({field}) => (
                                                     <FormItem>
-                                                        <FormLabel>Confirm Password *</FormLabel>
+                                                        <FormLabel>{t('User.Confirm Password')} *</FormLabel>
                                                         <FormControl>
-                                                            <Input type="password" placeholder="Confirm password" {...field} />
+                                                            <Input type="password"
+                                                                   placeholder={t("User.Confirm Password")} {...field} />
                                                         </FormControl>
-                                                        <FormMessage />
+                                                        <FormMessage/>
                                                     </FormItem>
                                                 )}
                                             />
@@ -379,19 +377,21 @@ export default function UserCreatePageClient() {
 
                                     {/* Form Actions */}
                                     <div className="flex justify-end gap-4 pt-6">
-                                        <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
-                                            Cancel
+                                        <Button type="button" variant="outline" onClick={handleCancel}
+                                                disabled={isSubmitting}>
+                                            {t('Cancel')}
                                         </Button>
                                         <Button type="submit" disabled={isSubmitting}>
                                             {isSubmitting ? (
                                                 <>
-                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                    Creating User...
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                                                    {t('Creating User')}...
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Save className="mr-2 h-4 w-4" />
-                                                    Create User
+                                                    <Save className="mr-2 h-4 w-4"/>
+                                                    {t('Create User')}
+
                                                 </>
                                             )}
                                         </Button>

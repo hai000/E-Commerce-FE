@@ -5,6 +5,16 @@ export interface IUserRegisterRequest {
     email: string;
     phoneNumber: string;
 }
+export interface CreateUserAdminRequest {
+    username: string;
+    password: string;
+    fullName: string;
+    dateOfBirth?: string;
+    phoneNumber: string;
+    email: string;
+    gender: number;
+    role: string;
+}
 export interface IUserLoginRequest {
     username: string;
     password: string;

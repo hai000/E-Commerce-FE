@@ -330,7 +330,7 @@ export function DialogAddProduct() {
                             {/* Giá */}
                             <div className="grid grid-cols-10 items-center gap-4">
                                 <Label htmlFor="default_price" className="text-left col-span-3">
-                                    {t('Product.Default Price')}
+                                    {t('Product.Default Price')} (VND)
                                 </Label>
                                 <Controller
                                     name="defaultPrice"

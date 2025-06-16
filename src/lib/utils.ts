@@ -199,9 +199,9 @@ export function getRoleIntl(role: string, t: (key: string) => string): string {
         case 'admin':
             return t('Admin');
         case 'user':
-            return t('User');
+            return t('User.User');
         default:
-            return t('User');
+            return t('User.User');
     }
 
 }

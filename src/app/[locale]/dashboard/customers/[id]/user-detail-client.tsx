@@ -47,8 +47,8 @@ const getUserInitials = (fullName: string): string => {
 }
 
 // Format date
-const formatDate = (date: Date | string | undefined,local: string): string => {
-    if (!date) return "Not provided"
+const formatDate = (date: Date | string | undefined,local: string,t: (key: string)=> string): string => {
+    if (!date) return t("Not provided")
     return new Date(date).toLocaleDateString(local, {
         year: "numeric",
         month: "long",
@@ -58,8 +58,8 @@ const formatDate = (date: Date | string | undefined,local: string): string => {
 
 
 // Calculate age from date of birth
-const calculateAge = (dateOfBirth: string | undefined): string => {
-    if (!dateOfBirth) return "Not provided"
+const calculateAge = (dateOfBirth: string | undefined,t : (key:string)=> string): string => {
+    if (!dateOfBirth) return t("Not provided")
     const today = new Date()
     const birthDate = new Date(dateOfBirth)
     let age = today.getFullYear() - birthDate.getFullYear()
@@ -144,7 +144,7 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
                                 <Calendar className="h-4 w-4 text-muted-foreground" />
                                 <div>
                                     <p className="text-sm font-medium">{t('Age')}</p>
-                                    <p className="text-sm text-muted-foreground">{calculateAge(user.dateOfBirth)}</p>
+                                    <p className="text-sm text-muted-foreground">{calculateAge(user.dateOfBirth,t)}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
@@ -184,7 +184,7 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">{t('Date of Birth')}</label>
-                                    <p className="text-sm mt-1">{formatDate(user.dateOfBirth,local)}</p>
+                                    <p className="text-sm mt-1">{formatDate(user.dateOfBirth,local,t)}</p>
                                 </div>
                             </div>
                         </CardContent>

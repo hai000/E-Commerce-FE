@@ -44,6 +44,7 @@ export default function EditTabDescriptionContent({
     const [category, setCategory] = useState<Category>(initialProduct.category);
     const [brand, setBrand] = useState(initialProduct.brand);
     const [allCategories, setAllCategories] = useState<Category[]>([]);
+    const t = useTranslations()
     useEffect(() => {
         setName(initialProduct.name);
         setDescription(initialProduct.description || "");
@@ -91,21 +92,21 @@ export default function EditTabDescriptionContent({
     return (
         <div className="space-y-4 w-full">
             <div className="">
-                <p className="p-2 text-lg font-semibold">Description</p>
+                <p className="p-2 text-lg font-semibold">{t('Product.Description')}</p>
                 <Card className={"w-full rounded-md p-4 space-y-2"}>
-                    <p className="text-sm text-muted-foreground">Product name</p>
+                    <p className="text-sm text-muted-foreground">{t('Product name')}</p>
                     <Input value={name} onChange={handleNameChange}/>
-                    <p className="text-sm text-muted-foreground">Brand</p>
+                    <p className="text-sm text-muted-foreground">{t('Product.Brand')}</p>
                     <Input value={brand} onChange={handleBrandChange}/>
-                    <p className="text-sm text-muted-foreground">Description</p>
+                    <p className="text-sm text-muted-foreground">{t('Product.Description')}</p>
                     <Textarea className={"resize-none"} rows={6} value={description}
                               onChange={handleDescriptionChange}/>
-                    <p className="text-sm text-muted-foreground">Default price</p>
+                    <p className="text-sm text-muted-foreground">{t('Default price')} (VND)</p>
                     <Input disabled={true} value={initialProduct.defaultPrice}/>
                 </Card>
-                <p className="p-2 text-lg font-semibold">Category</p>
+                <p className="p-2 text-lg font-semibold">{t('Product.Category')}</p>
                 <Card className={"rounded-md p-4 space-y-2"}>
-                    <p className="text-sm text-muted-foreground">Product category</p>
+                    <p className="text-sm text-muted-foreground">{t('Product category')}</p>
                     <div className={"grid-cols-7 grid"}>
                         <ComboboxCategories setCategoryId={(id) => {
                             const category = allCategories.find(category => category.id == id);
@@ -249,10 +250,10 @@ export function EditTabDetailContent({
     return (
         <div className="space-y-4 w-full">
             <div className="">
-                <p className="p-2 text-lg font-semibold">Detail</p>
+                <p className="p-2 text-lg font-semibold">{t('Detail')}</p>
                 <Card className={"rounded-md p-4 space-y-4"}>
                     <div className={colors.length > 0 ? "" : "hidden"}>
-                        <p className={"text-sm"}>Color</p>
+                        <p className={"text-sm"}>{t('Product.Color')}</p>
                         <div className='space-x-2 space-y-2'>
                             {colors?.map(colorObject => (
                                 <Button
@@ -276,7 +277,7 @@ export function EditTabDetailContent({
                         </div>
 
                     </div>
-                    <p className={"text-sm"}>Size</p>
+                    <p className={"text-sm"}>{t('Product.Size')}</p>
                     <div className='space-x-2 space-y-2'>
                         {(sizes.map((sizeObject: IProductSize) => (
                                 <Button
@@ -298,7 +299,7 @@ export function EditTabDetailContent({
                         )}
                         <DialogProductSizeProperty addSize={handleAddSize}/>
                     </div>
-                    <p className={"text-sm "}>Price</p>
+                    <p className={"text-sm "}>{t('Price')}</p>
                     <Input type={"number"} value={price} onChange={(e) => {
                         setPrice(e.target.valueAsNumber)
                     }}/>

@@ -10,6 +10,7 @@ import {useEffect, useState} from "react";
 import {updateUser} from "@/lib/api/user";
 import {toast} from "@/hooks/use-toast";
 import {useSession} from "next-auth/react";
+import {getGenderText} from "@/lib/utils";
 
 export default function ProfileContent({user}: {
     user: IUser,
@@ -80,7 +81,7 @@ export default function ProfileContent({user}: {
                 <CardContent className='p-4 flex justify-between flex-wrap'>
                     <div>
                         <h3 className='font-bold'>{t('Gender')}</h3>
-                        <p>{currentUser.gender === 0 ? t('Female') : t('Male')}</p>
+                        <p>{getGenderText(currentUser.gender,t)}</p>
                     </div>
                 </CardContent>
                 <Separator/>

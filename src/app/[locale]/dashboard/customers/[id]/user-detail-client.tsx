@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowLeft, Edit, Trash2, Mail, Phone, Calendar, User, Shield, Clock } from "lucide-react"
+import { ArrowLeft, Edit, Mail, Phone, Calendar, User, Shield, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -9,28 +8,10 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import type { IUser } from "@/lib/response/user"
 import { useRouter } from "next/navigation"
-import {useLocale} from "next-intl";
-import {
-    AlertDialog, AlertDialogAction, AlertDialogCancel,
-    AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger
-} from "@/components/ui/alert-dialog";
+import {useLocale, useTranslations} from "next-intl";
+import {getGenderText, getRoleIntl} from "@/lib/utils";
 
-// Gender mapping
-const getGenderText = (gender: number): string => {
-    switch (gender) {
-        case 0:
-            return "Female"
-        case 1:
-            return "Male"
-        case 2:
-            return "Other"
-        default:
-            return "Not specified"
-    }
-}
+
 const formatDateTime = (date: Date | string | undefined,local: string): string => {
     if (!date) return "Not available"
     return new Date(date).toLocaleString(local, {
@@ -79,7 +60,6 @@ const formatDate = (date: Date | string | undefined,local: string): string => {
 // Calculate age from date of birth
 const calculateAge = (dateOfBirth: string | undefined): string => {
     if (!dateOfBirth) return "Not provided"
-
     const today = new Date()
     const birthDate = new Date(dateOfBirth)
     let age = today.getFullYear() - birthDate.getFullYear()
@@ -89,82 +69,40 @@ const calculateAge = (dateOfBirth: string | undefined): string => {
         age--
     }
 
-    return `${age} years old`
+    return `${age}`
 }
 
 export default function UserDetailPageClient({ user }: { user: IUser }) {
     const router = useRouter()
-    const [isDeleting, setIsDeleting] = useState(false)
+    const t = useTranslations()
     const local = useLocale()
     const handleEdit = () => {
         router.push(`/dashboard/customers/edit/${user.id}`)
     }
-
-    const handleDelete = async () => {
-        setIsDeleting(true)
-        try {
-            // Implement delete API call here
-            // await deleteUser(user.id)
-
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-
-            // Navigate back to users list
-            router.push("/dashboard/customers")
-        } catch (error) {
-            console.error("Error deleting user:", error)
-            // Show error message
-        } finally {
-            setIsDeleting(false)
-        }
-    }
-
     const handleBack = () => {
         router.back()
     }
 
     return (
-        <div className="container mx-auto py-8 px-4 max-w-4xl">
+        <div className="container mx-auto py-8 px-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
                     <Button variant="outline" size="sm" onClick={handleBack}>
                         <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back
+                        {t('Back')}
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold">User Details</h1>
-                        <p className="text-muted-foreground">View and manage user information</p>
+                        <h1 className="text-2xl font-bold">{t('User Details')}</h1>
+                        <p className="text-muted-foreground">{t('View and manage user information')}</p>
                     </div>
                 </div>
                 <div className="flex gap-2">
                     <Button onClick={handleEdit} className="flex items-center gap-2">
                         <Edit className="h-4 w-4" />
-                        Edit User
+                       {t('Edit user')}
                     </Button>
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive" className="flex items-center gap-2">
-                                <Trash2 className="h-4 w-4" />
-                                Delete User
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the user account for{" "}
-                                    <strong>{user.fullName}</strong> and remove all associated data.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                                    {isDeleting ? "Deleting..." : "Delete User"}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+
                 </div>
             </div>
 
@@ -180,7 +118,7 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
                                 </Avatar>
                             </div>
                             <CardTitle className="text-xl">{user.fullName}</CardTitle>
-                            <CardDescription>@{user.username}</CardDescription>
+                            <CardDescription>{user.username}</CardDescription>
                             <div className="flex justify-center mt-2">
                                 <Badge variant={getRoleColor(user.role) as any} className="text-sm">
                                     {user.role}
@@ -192,28 +130,28 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
                     {/* Quick Stats */}
                     <Card className="mt-6">
                         <CardHeader>
-                            <CardTitle className="text-lg">Quick Info</CardTitle>
+                            <CardTitle className="text-lg"> {t('Quick Info')}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center gap-3">
                                 <User className="h-4 w-4 text-muted-foreground" />
                                 <div>
-                                    <p className="text-sm font-medium">Gender</p>
-                                    <p className="text-sm text-muted-foreground">{getGenderText(user.gender)}</p>
+                                    <p className="text-sm font-medium">{t('Gender')}</p>
+                                    <p className="text-sm text-muted-foreground">{getGenderText(user.gender,t)}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
                                 <Calendar className="h-4 w-4 text-muted-foreground" />
                                 <div>
-                                    <p className="text-sm font-medium">Age</p>
+                                    <p className="text-sm font-medium">{t('Age')}</p>
                                     <p className="text-sm text-muted-foreground">{calculateAge(user.dateOfBirth)}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
                                 <Shield className="h-4 w-4 text-muted-foreground" />
                                 <div>
-                                    <p className="text-sm font-medium">Role</p>
-                                    <p className="text-sm text-muted-foreground capitalize">{user.role}</p>
+                                    <p className="text-sm font-medium">{t('Role')}</p>
+                                    <p className="text-sm text-muted-foreground capitalize">{getRoleIntl(user.role,t)}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -227,25 +165,25 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <User className="h-5 w-5" />
-                                Personal Information
+                                {t('Personal Information')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Full Name</label>
+                                    <label className="text-sm font-medium text-muted-foreground">{t('Full Name')}</label>
                                     <p className="text-sm mt-1">{user.fullName}</p>
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Username</label>
-                                    <p className="text-sm mt-1">@{user.username}</p>
+                                    <label className="text-sm font-medium text-muted-foreground">{t('Username')}</label>
+                                    <p className="text-sm mt-1">{user.username}</p>
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Gender</label>
-                                    <p className="text-sm mt-1">{getGenderText(user.gender)}</p>
+                                    <label className="text-sm font-medium text-muted-foreground">{t('Gender')}</label>
+                                    <p className="text-sm mt-1">{getGenderText(user.gender,t)}</p>
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
+                                    <label className="text-sm font-medium text-muted-foreground">{t('Date of Birth')}</label>
                                     <p className="text-sm mt-1">{formatDate(user.dateOfBirth,local)}</p>
                                 </div>
                             </div>
@@ -257,20 +195,20 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Mail className="h-5 w-5" />
-                                Contact Information
+                                {t('Contact Information')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                                    <label className="text-sm font-medium text-muted-foreground">Email</label>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Mail className="h-4 w-4 text-muted-foreground" />
                                         <p className="text-sm">{user.email || "Not provided"}</p>
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
+                                    <label className="text-sm font-medium text-muted-foreground">{t('User.Phone number')}</label>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Phone className="h-4 w-4 text-muted-foreground" />
                                         <p className="text-sm">{user.phoneNumber || "Not provided"}</p>

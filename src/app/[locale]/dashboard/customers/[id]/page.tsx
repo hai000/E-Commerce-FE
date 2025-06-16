@@ -13,8 +13,10 @@ export default async function UserDetailPage(props: {
         id: string
     }
 }) {
-    const { id } = props.params
-
+    const { id } = await props.params
+    if (!id) {
+        notFound()
+    }
     try {
         const user = await getUserById(id)
 

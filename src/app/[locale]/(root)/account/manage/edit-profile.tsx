@@ -16,8 +16,8 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {UpdateUserRequest} from "@/lib/request/user";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import * as React from "react";
-import {toast} from "@/hooks/use-toast";
 import {useTranslations} from "next-intl";
+import {genderOptions, roleOptions} from "@/lib/utils";
 
 export function DialogEditProfile({
                                       user,
@@ -31,7 +31,7 @@ export function DialogEditProfile({
     const [email, setEmail] = useState(user.email??'')
     const [phone,setPhone] = useState(user.phoneNumber??'')
     const [dob,setDob] = useState(user.dateOfBirth??'')
-    const [gender,setGender] = useState<number>(user.gender??-1)
+    const [gender,setGender] = useState<number>(user.gender??0)
     // eslint-disable-next-line
     const [avtPath,setAvtPath] = useState(user.avtPath|| '')
     const handleSubmit = async () => {
@@ -114,8 +114,11 @@ export function DialogEditProfile({
                                 <SelectValue placeholder="Chọn giới tính" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="0">Nữ</SelectItem>
-                                <SelectItem value="1">Nam</SelectItem>
+                                {genderOptions(t).map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>

@@ -193,6 +193,58 @@ export async function callApiToAll<T>({url, method, data, headers}: ApiCallOptio
         };
     }
 }
+
+export function getRoleIntl(role: string, t: (key: string) => string): string {
+    switch (role.toLowerCase()) {
+        case 'admin':
+            return t('Admin');
+        case 'user':
+            return t('User');
+        default:
+            return t('User');
+    }
+
+}
+
+export function genderOptions(t: (key: string) => string) {
+    return [
+        {value: "0", label: t("Unknown")},
+        {value: "1", label: t("Male")},
+        {value: "2", label: t("Female")},
+        {value: "3", label: t("Other")},
+    ]
+}
+
+export function roleOptions(t: (key: string) => string) {
+    return [{value: "ADMIN", label: t('Admin')},
+        {value: "USER", label: t("User.User")},
+    ]
+}
+
+export function getRoleColor(role: string): string {
+    switch (role.toLowerCase()) {
+        case "admin":
+            return "destructive"
+        case "user":
+            return "secondary"
+        default:
+            return "outline"
+    }
+}
+
+export function getGenderText(gender: number, t: (key: string) => string): string {
+    switch (gender) {
+        case 0:
+            return t("Unknown")
+        case 2:
+            return t("Female")
+        case 1:
+            return t("Male")
+        default:
+            return t("Other")
+    }
+}
+
 export async function callApiToObject<T>({url, method, data, headers}: ApiCallOptions): Promise<T | string> {
     try {
         const local = await getLocale();

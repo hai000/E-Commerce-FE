@@ -88,7 +88,8 @@
     "Username": "Username",
     "Password": "Password",
     "Username or password is incorrect": "Username or password is incorrect",
-    "Refresh token is not valid": "Refresh token is not valid"
+    "Refresh token is not valid": "Refresh token is not valid",
+    "Confirm Password incorrect": "Confirm password incorrect"
   },
   "Toast": {
     "Error": "Error",
@@ -97,6 +98,7 @@
     "Info": "Info"
   },
   "Login": {
+    "Create account": "Create account",
     "Create account successfully": "Create account successfully",
     "By creating an account, you agree to": "By creating an account, you agree to",
     "Create your": "Create your",
@@ -110,7 +112,10 @@
     "Already have an account": "Already have an account",
     "Login to your account": "Login to your account",
     "Create a new account": "Create a new account",
-    "Please enter your username and password": "Please enter your username and password"
+    "Please enter your username and password": "Please enter your username and password",
+    "Username invalid": "Username must be at least 5 characters",
+    "Password invalid": "Password must be at least 6 characters"
+
   },
   "Placeholder": {
     "Filter by role": "Filter by role",
@@ -166,6 +171,8 @@
     "Create a new product by filling out the information below": "Create a new product by filling out the information below",
     "Product Name": "Product Name"
   },
+  "Other": "Other",
+  "Username": "Username",
   "Please select a role":"Please select a role",
   "Please select a gender": "Please select a gender",
   "users": "users",
@@ -256,6 +263,8 @@
   "phone_digits": "Phone number must contain only digits",
   "username_min": "Username must be at least 5 characters",
   "username_max": "Username must be at most 30 characters",
+  "Date of Birth": "Date of Birth",
+  "Contact Information": "Contact Information",
   "passwords_not_match": "Passwords don't match",
   "full_name_required": "Full name is required",
   "street_required": "Address is required",
@@ -263,6 +272,18 @@
   "district_required": "District is required",
   "ward_required": "Ward is required",
   "all": "All",
+  "Edit user": "Edit user",
+  "Delete User": "Delete user",
+  "Back": "Back",
+  "User Details": "User Details",
+  "Quick Info": "Quick Info",
+  "Age": "Age",
+  "Personal Information": "Personal Information",
+  "View and manage user information": "View and manage user information",
+  "Open menu": "Open menu",
+  "View Details": "View details",
+  "Unknown": "Unknown",
+  "Search users": "Search users",
   "Search Site": "Search Site",
   "Close": "Close",
   "All": "All",
@@ -299,6 +320,7 @@
   "You need to buy this product to write a review": "You need to successfully purchase this product to write a review",
   "or": "or",
   "out of 5": "out of 5",
+  "phone_invalid": "Phone number is invalid",
   "ratings": "ratings",
   "See customer reviews": "See customer reviews",
   "No reviews yet": "No reviews yet",
@@ -311,5 +333,6 @@
   "Place Your Order": "Place Your Order",
   "UpdateProfileSuccess": "Update profile successfully",
   "with in": "Within 30 days of delivery, you may return new, unopened merchandise in its original condition. Exceptions and restrictions apply",
-  "we will send": "button, we will send you an e-mail acknowledging receipt of your order. Your contract to purchase an item will not be complete until we send you an e-mail notifying you that the item has been shipped to you. By placing your order, you agree to"
+  "we will send": "button, we will send you an e-mail acknowledging receipt of your order. Your contract to purchase an item will not be complete until we send you an e-mail notifying you that the item has been shipped to you. By placing your order, you agree to",
+  "phone number invalid": "Phone number invalid"
 }

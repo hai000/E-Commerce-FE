@@ -21,39 +21,14 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+    DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import type { IUser } from "@/lib/response/user"
-import type { ArrayWithPage } from "@/lib/utils"
+import {ArrayWithPage, getGenderText, getRoleColor} from "@/lib/utils"
 import { useRouter, useSearchParams } from "next/navigation"
 import {useTranslations} from "next-intl";
-
-// Gender mapping
-const getGenderText = (gender: number): string => {
-    switch (gender) {
-        case 0:
-            return "Female"
-        case 1:
-            return "Male"
-        default:
-            return "Unknown"
-    }
-}
-
-// Role color mapping
-const getRoleColor = (role: string): string => {
-    switch (role.toLowerCase()) {
-        case "admin":
-            return "destructive"
-        case "user":
-            return "secondary"
-        default:
-            return "outline"
-    }
-}
 
 // Get user initials for avatar fallback
 const getUserInitials = (fullName: string): string => {
@@ -127,23 +102,6 @@ export default function UserManagementPageClient({
         router.push(`/dashboard/customers/edit/${userId}`)
     }
 
-    const handleDeleteUser = async (userId: string) => {
-        if (confirm("Are you sure you want to delete this user?")) {
-            try {
-                // Implement delete API call here
-                // await deleteUser(userId)
-
-                // Remove user from local state
-                setUsers(users.filter((user) => user.id !== userId))
-                // Show success message
-                console.log("User deleted successfully")
-            } catch (error) {
-                console.error("Error deleting user:", error)
-                // Show error message
-            }
-        }
-    }
-
     // Format date
     const formatDate = (date: Date | string | undefined): string => {
         if (!date) return "N/A"
@@ -202,7 +160,7 @@ export default function UserManagementPageClient({
     }
 
     return (
-        <div className="container mx-auto py-8 px-4">
+        <div className="container mx-auto w-full py-8">
             <Card className="shadow-lg">
                 <CardHeader>
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -210,7 +168,7 @@ export default function UserManagementPageClient({
                             <CardTitle className="text-2xl font-bold">{t('User Management')}</CardTitle>
                             <CardDescription>{t('Manage users and their information')}</CardDescription>
                         </div>
-                        <Button onClick={() => router.push("/customers/users/create")} className="flex items-center gap-2">
+                        <Button onClick={() => router.push("/dashboard/customers/create")} className="flex items-center gap-2">
                             <Plus className="h-4 w-4" />
                            {t('Add User')}
                         </Button>
@@ -223,7 +181,7 @@ export default function UserManagementPageClient({
                                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     type="search"
-                                    placeholder="Search users..."
+                                    placeholder={t("Search users")}
                                     className="pl-8 w-full"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -283,7 +241,7 @@ export default function UserManagementPageClient({
                                                 </div>
                                             </TableCell>
                                             <TableCell className="hidden lg:table-cell">
-                                                <span className="text-sm">{getGenderText(user.gender)}</span>
+                                                <span className="text-sm">{getGenderText(user.gender,t)}</span>
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant={getRoleColor(user.role) as any}>{user.role}</Badge>
@@ -295,24 +253,19 @@ export default function UserManagementPageClient({
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="ghost" className="h-8 w-8 p-0">
-                                                            <span className="sr-only">Open menu</span>
+                                                            <span className="sr-only">{t('Open menu')}</span>
                                                             <MoreHorizontal className="h-4 w-4" />
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuLabel>{t('Actions')}</DropdownMenuLabel>
                                                         <DropdownMenuItem onClick={() => handleViewUser(user.id)}>
                                                             <Eye className="mr-2 h-4 w-4" />
-                                                            View Details
+                                                            {t('View Details')}
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => handleEditUser(user.id)}>
                                                             <Edit className="mr-2 h-4 w-4" />
-                                                            Edit User
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem onClick={() => handleDeleteUser(user.id)} className="text-red-600">
-                                                            <Trash2 className="mr-2 h-4 w-4" />
-                                                            Delete User
+                                                            {t('Edit user')}
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>

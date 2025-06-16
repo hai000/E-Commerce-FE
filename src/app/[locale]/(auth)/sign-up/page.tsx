@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import SignUpForm from './signup-form'
 import {Toaster} from "@/components/ui/toaster";
 import {auth} from "../../../../auth";
+import {getTranslations} from "next-intl/server";
 
 export const metadata: Metadata = {
     title: 'Sign Up',
@@ -17,7 +18,7 @@ export default async function SignUpPage(props: {
     }>
 }) {
     const searchParams = await props.searchParams
-
+    const t = await getTranslations()
     const { callbackUrl } = searchParams
     const session = await auth()
     if (session) {
@@ -28,7 +29,7 @@ export default async function SignUpPage(props: {
         <div className='w-full'>
             <Card>
                 <CardHeader>
-                    <CardTitle className='text-2xl'>Create account</CardTitle>
+                    <CardTitle className='text-2xl'>{t('Login.Create account')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <SignUpForm />

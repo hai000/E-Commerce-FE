@@ -87,7 +87,8 @@
     "Username": "Username",
     "Password": "Password",
     "Username or password is incorrect": "Username or password is incorrect",
-    "Refresh token is not valid": "Refresh token is not valid"
+    "Refresh token is not valid": "Refresh token is not valid",
+    "Confirm Password incorrect": "Confirm password incorrect"
   },
   "Toast": {
     "Error": "Error",
@@ -96,6 +97,7 @@
     "Info": "Info"
   },
   "Login": {
+    "Create account": "Create account",
     "Create account successfully": "Create account successfully",
     "By creating an account, you agree to": "By creating an account, you agree to",
     "Create your": "Create your",
@@ -109,7 +111,10 @@
     "Already have an account": "Already have an account",
     "Login to your account": "Login to your account",
     "Create a new account": "Create a new account",
-    "Please enter your username and password": "Please enter your username and password"
+    "Please enter your username and password": "Please enter your username and password",
+    "Username invalid": "Username must be at least 5 characters",
+    "Password invalid": "Password must be at least 6 characters"
+
   },
   "Placeholder": {
     "Enter your review": "Enter your review",
@@ -293,5 +298,6 @@
   "Returns Policy": "Returns Policy",
   "Place Your Order": "Place Your Order",
   "with in": "Within 30 days of delivery, you may return new, unopened merchandise in its original condition. Exceptions and restrictions apply",
-  "we will send": "button, we will send you an e-mail acknowledging receipt of your order. Your contract to purchase an item will not be complete until we send you an e-mail notifying you that the item has been shipped to you. By placing your order, you agree to"
+  "we will send": "button, we will send you an e-mail acknowledging receipt of your order. Your contract to purchase an item will not be complete until we send you an e-mail notifying you that the item has been shipped to you. By placing your order, you agree to",
+  "phone number invalid": "Phone number invalid"
 }

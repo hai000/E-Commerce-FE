@@ -1,5 +1,5 @@
 'use server'
-import {callApiToObject, generateHeaderAccessTokenString} from "@/lib/utils";
+import {callApiToAll, callApiToObject, generateHeaderAccessTokenString, ResponseData} from "@/lib/utils";
 import {POST_METHOD, PUT_METHOD} from "@/lib/constants";
 import {IUser} from "@/lib/response/user";
 import {IUserLoginRequest, IUserRegisterRequest, UpdateUserRequest} from "@/lib/request/user";
@@ -38,3 +38,9 @@ export async function getInfo({
     return callApiToObject<IUser>({url:`/identity/users/myInfo`,headers: generateHeaderAccessTokenString(accessToken)});
 }
 
+export async function validEmail(email:string) {
+    return callApiToAll<string>({url: `/identity/users/validEmail/${email}`});
+}
+export async function validatePhoneNumber(phoneNumber:string) {
+    return callApiToAll<string>({url: `/identity/users/validPhoneNumber/${phoneNumber}`});
+}

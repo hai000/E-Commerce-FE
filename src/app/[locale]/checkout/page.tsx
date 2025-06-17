@@ -1,6 +1,5 @@
 import {Metadata} from "next";
 import { redirect } from 'next/navigation'
-import {getMyAddresses} from "@/lib/api/address";
 import {auth} from "@/auth";
 import CheckoutForm from "@/app/[locale]/checkout/checkout-form";
 import {AVAILABLE_PAYMENT_METHODS} from "@/lib/constants";
@@ -13,7 +12,6 @@ export default async function CheckoutPage() {
     if (!session) {
         redirect('/sign-in?callbackUrl=/checkout');
     }
-    const allAddress = await getMyAddresses()
     const paymentMethods  = await AVAILABLE_PAYMENT_METHODS()
-    return (<CheckoutForm paymentMethods={paymentMethods}  allAddress={typeof allAddress === "string"? undefined : allAddress}/>)
+    return (<CheckoutForm paymentMethods={paymentMethods} />)
 }

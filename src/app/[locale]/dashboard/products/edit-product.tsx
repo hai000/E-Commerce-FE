@@ -10,6 +10,7 @@ import {getProductById, updateProduct} from "@/lib/api/product";
 import {toast} from "@/hooks/use-toast";
 import {getProductDetailById} from "@/lib/api/product-detail";
 import EditTabDescriptionContent, {EditTabDetailContent} from "@/app/[locale]/dashboard/products/edit-component";
+import {useTranslations} from "next-intl";
 
 export function EditDescriptionProduct({
                                            className,
@@ -19,6 +20,7 @@ export function EditDescriptionProduct({
     const discard = () => {
         setProduct(initialProduct ? {...initialProduct} : undefined);
     };
+    const t = useTranslations()
     const handleProductChange = (newProduct: IProduct) => {
         setProduct(newProduct);
     };
@@ -30,7 +32,7 @@ export function EditDescriptionProduct({
         if (typeof productUpdated !== "string") {
             toast(
                 {
-                    title: "Success",
+                    title: t("Toast.Success"),
                     description: `${productUpdated.name} updated successfully.`,
                     variant: "success"
                 }
@@ -38,7 +40,7 @@ export function EditDescriptionProduct({
         } else {
             toast(
                 {
-                    title: "Failed",
+                    title: t("Toast.Error"),
                     description: `${productUpdated}`,
                     variant: "destructive"
                 }
@@ -53,10 +55,10 @@ export function EditDescriptionProduct({
                         <EditTabDescriptionContent onProductChange={handleProductChange} product={product}/>
                         <div className="flex justify-end space-x-4 w-full">
                             <Button onClick={discard} className="hover:bg-destructive bg-red-600  w-[70px]">
-                                Discard
+                                {t('Discard')}
                             </Button>
                             <Button onClick={save} className="w-[70px]">
-                                Save
+                                {t('Save')}
                             </Button>
                         </div>
                     </CardContent>
@@ -76,13 +78,13 @@ export function EditDetailProduct({
     const [product, setProduct] = useState(productSelected ? {...productSelected} : undefined);
     const [productDe, setProductDe] = useState(productDetails ? productDetails : []);
     const [isReload, setIsReload] = useState(false);
-
+    const t = useTranslations()
     useEffect(() => {
         const fetchData = async () => {
             const productFetch = await getProductById(product?.id || '');
             if (typeof productFetch === 'string') {
                 toast({
-                    title: "Error",
+                    title: t("Toast.Error"),
                     description: `${productFetch}`,
                     variant: "destructive"
                 })
@@ -92,7 +94,7 @@ export function EditDetailProduct({
             const productDetailsTemp = await getProductDetailById({productId: product?.id || ''});
             if (typeof productDetailsTemp === "string") {
                 toast({
-                    title: "Error",
+                    title: t("Toast.Error"),
                     description: `${productDetailsTemp}`,
                     variant: "destructive"
                 })

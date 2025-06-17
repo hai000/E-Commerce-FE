@@ -22,7 +22,7 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog";
 import {Checkbox} from "@/components/ui/checkbox";
-import {callApiToAll, isValidHexColor, toSlug} from "@/lib/utils";
+import {isValidHexColor, toSlug} from "@/lib/utils";
 import {AddColorRequest, AddProductRequest, AddSizeRequest} from "@/lib/request/product";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import MultiImageUpload from "@/components/shared/imag-upload-on-submit";
@@ -138,6 +138,8 @@ export function DialogAddProduct() {
                     variant: "success"
                 })
                 reset()
+                setColors([])
+                setSizes([])
             }else {
                 toast({
                     title: t("Toast.Error"),
@@ -328,7 +330,7 @@ export function DialogAddProduct() {
                             {/* Giá */}
                             <div className="grid grid-cols-10 items-center gap-4">
                                 <Label htmlFor="default_price" className="text-left col-span-3">
-                                    {t('Product.Default Price')}
+                                    {t('Product.Default Price')} (VND)
                                 </Label>
                                 <Controller
                                     name="defaultPrice"

@@ -13,13 +13,14 @@ export default async function ProfilePage() {
     if (session == null) {
         redirect("/sign-in")
     }
-    const user = await getInfo({accessToken: session?.accessToken as string})
+    // eslint-disable-next-line
+    let user = await getInfo({accessToken: session?.accessToken as string})
     if (typeof user === "string") {
         redirect("/sign-in")
     }
     return (
         <div className='mb-24'>
-            <ProfileContent user={user} session={session} />
+            <ProfileContent user={user}/>
         </div>
     )
 }

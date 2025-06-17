@@ -13,8 +13,6 @@ import {
     login,
     register,
     signInWithCredentials,
-    validatePhoneNumber,
-    validEmail
 } from "@/lib/api/user";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from "next-intl";
@@ -45,32 +43,11 @@ export default function SignUpForm() {
     const { reloadCart } = useCartStore();
     const form = useForm<IUserRegisterRequest>({
         resolver: zodResolver(getUserSignUpSchema(t)),
+        mode: "onChange",
         defaultValues: signUpDefaultValues,
     });
 
     const { control, handleSubmit, setError, clearErrors, formState: { errors } } = form;
-
-    const validateEmail = async (email: string) => {
-        try {
-            const res = await validEmail(email);
-            if (res.success === false) {
-                setError('email', { type: 'manual', message: res.data });
-            }
-        } catch (error) {
-            console.error('Lỗi khi kiểm tra email:', error);
-        }
-    };
-
-    const validPhoneNumber = async (phoneNumber: string) => {
-        try {
-            const res = await validatePhoneNumber(phoneNumber);
-            if (res.success === false) {
-                setError('phoneNumber', { type: 'manual', message: res.data });
-            }
-        } catch (error) {
-            console.error('Lỗi khi kiểm tra số điện thoại:', error);
-        }
-    };
 
     const onSubmit = async (data: IUserRegisterRequest) => {
         // Kiểm tra xem có lỗi nào không
@@ -165,13 +142,6 @@ export default function SignUpForm() {
                                         {...field}
                                         onChange={(e) => {
                                             field.onChange(e);
-                                            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                                            if (!emailPattern.test(e.target.value)) {
-                                                setError('email', { type: 'manual', message: t('email_invalid') });
-                                            } else {
-                                                clearErrors('email');
-                                                validateEmail(e.target.value);
-                                            }
                                         }}
                                     />
                                 </FormControl>
@@ -192,14 +162,6 @@ export default function SignUpForm() {
                                         {...field}
                                         onChange={(e) => {
                                             field.onChange(e);
-                                            const PHONE_REGEX_1 = /^0\d{9}$/;
-                                            const PHONE_REGEX_2 = /^\+\d{2} \d{9}$/;
-                                            if (!PHONE_REGEX_1.test(e.target.value) && !PHONE_REGEX_2.test(e.target.value)) {
-                                                setError('phoneNumber', { type: 'manual', message: t('phone number invalid') });
-                                            } else {
-                                                clearErrors('phoneNumber');
-                                                validPhoneNumber(e.target.value);
-                                            }
                                         }}
                                     />
                                 </FormControl>

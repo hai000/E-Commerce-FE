@@ -23,6 +23,7 @@ import {getProductDetailById} from "@/lib/api/product-detail";
 import {toast} from "@/hooks/use-toast";
 import {addProductImport} from "@/lib/api/product-import";
 import {ProductImportAddRequest} from "@/lib/request/product-import";
+import {useTranslations} from "next-intl";
 
 // Update the getVariantKey function to handle products without colors or sizes
 const getVariantKey = (productId: string, colorId?: string, sizeId?: string) => {
@@ -60,6 +61,7 @@ export default function ProductQuantityPageClient({
                                                   }: {
     productsWithPage: ArrayWithPage<IProduct>
 }) {
+    const t = useTranslations()
     const router = useRouter()
     const searchParams = useSearchParams()
     const [products, setProducts] = useState<IProduct[]>(productsWithPage.data)
@@ -80,7 +82,6 @@ export default function ProductQuantityPageClient({
     // Pagination state
     const currentPage = productsWithPage.page || 1
     const totalPages = Math.ceil(productsWithPage.totalItem / productsWithPage.size)
-
     // Initialize selected variants with first option for each product
     useEffect(() => {
         const fetchData = async () => {
@@ -89,8 +90,7 @@ export default function ProductQuantityPageClient({
                 quantity: number;
                 price: number;
             }> = {}
-            await Promise.all(products.map(async (product) => {
-                console.log(product.id)
+            await Promise.all(productsWithPage.data.map(async (product) => {
                 if (product.colors?.length || product.sizes?.length) {
                     initialVariants[product.id] = {
                         colorId: product.colors?.[0]?.id,
@@ -100,7 +100,7 @@ export default function ProductQuantityPageClient({
                     const productDetail = await getProductDetailById({productId: product.id})
                     if (typeof productDetail === "string") {
                         toast({
-                            title: "Error",
+                            title: t("Toast.Error"),
                             description: productDetail,
                             variant: "destructive",
                         })
@@ -121,14 +121,14 @@ export default function ProductQuantityPageClient({
                     }
                 }
             }))
+            setQuantities({})
             setPricingInit({...initialVariantsQuantity});
             setImportData(initialVariantsQuantity);
             setSelectedVariants(initialVariants)
             setProducts(productsWithPage.data)
         }
         fetchData()
-    }, [productsWithPage.data])
-
+    }, [productsWithPage])
     // Filter products based on search term
     const filteredProducts = products.filter(
         (product) =>
@@ -288,7 +288,7 @@ export default function ProductQuantityPageClient({
                     } else {
                         toast(
                             {
-                                title: "Error",
+                                title: t("Toast.Error"),
                                 description: resProductImport,
                                 variant: "destructive",
                             },
@@ -332,7 +332,7 @@ export default function ProductQuantityPageClient({
                         } else {
                             toast(
                                 {
-                                    title: "Error",
+                                    title: t("Toast.Error"),
                                     description: resProductImport,
                                     variant: "destructive",
                                 },
@@ -437,8 +437,8 @@ export default function ProductQuantityPageClient({
         <div className="container mx-auto py-8 px-4">
             <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-bold">Update Product Quantities</CardTitle>
-                    <CardDescription>Add or update quantities for imported products by color and size</CardDescription>
+                    <CardTitle className="text-2xl font-bold">{t('Update Product Quantities')}</CardTitle>
+                    <CardDescription>{t('Add or update quantities for imported products by color and size')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -446,7 +446,7 @@ export default function ProductQuantityPageClient({
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/>
                             <Input
                                 type="search"
-                                placeholder="Search products..."
+                                placeholder={t("Placeholder.Search products")}
                                 className="pl-8 w-full"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -455,7 +455,7 @@ export default function ProductQuantityPageClient({
                         <div className="flex gap-2 w-full md:w-auto">
                             <Button variant="outline" onClick={handleReset} className="flex items-center gap-1">
                                 <RefreshCw className="h-4 w-4"/>
-                                Reset
+                                {t('Reset')}
                             </Button>
                             <Button
                                 onClick={handleSaveChanges}
@@ -463,7 +463,7 @@ export default function ProductQuantityPageClient({
                                 className="flex items-center gap-1"
                             >
                                 <Save className="h-4 w-4"/>
-                                {isSaving ? "Saving..." : "Save Changes"}
+                                    {isSaving ? t("Saving") : t("Save Changes")}
                             </Button>
                         </div>
                     </div>
@@ -472,14 +472,14 @@ export default function ProductQuantityPageClient({
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Product Name</TableHead>
-                                    <TableHead className="hidden md:table-cell">Category</TableHead>
-                                    <TableHead className="text-right">Total Stock</TableHead>
-                                    <TableHead>Color</TableHead>
-                                    <TableHead>Size</TableHead>
-                                    <TableHead className="text-center">Variant Stock</TableHead>
-                                    <TableHead className="text-center">Price</TableHead>
-                                    <TableHead className="text-center">Add Quantity</TableHead>
+                                    <TableHead>{t('Product name')}</TableHead>
+                                    <TableHead className="hidden md:table-cell">{t('Product.Category')}</TableHead>
+                                    <TableHead className="text-right">{t('Total Stock')}</TableHead>
+                                    <TableHead>{t('Product.Color')}</TableHead>
+                                    <TableHead>{t('Product.Size')}</TableHead>
+                                    <TableHead className="text-center">{t('Variant Stock')}</TableHead>
+                                    <TableHead className="text-center">{t('Price')}</TableHead>
+                                    <TableHead className="text-center">{t('Add Quantity')}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -576,7 +576,7 @@ export default function ProductQuantityPageClient({
                                 ) : (
                                     <TableRow>
                                         <TableCell colSpan={6} className="h-24 text-center">
-                                            No products found.
+                                            {t('No products found')}
                                         </TableCell>
                                     </TableRow>
                                 )}
@@ -612,7 +612,7 @@ export default function ProductQuantityPageClient({
 
                     <div className="mt-4 text-sm text-muted-foreground">
                         <p className="mt-1">
-                            Showing {productsWithPage.data.length} of {productsWithPage.totalItem} products
+                            {t('Showing')} {productsWithPage.data.length} {t('of')} {productsWithPage.totalItem} {t('products')}
                         </p>
                     </div>
                 </CardContent>

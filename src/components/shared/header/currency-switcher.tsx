@@ -9,11 +9,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {currencyConfig} from "@/config/currency-config";
 import {useCurrency} from "@/hooks/use-currency";
+import {useTranslations} from "next-intl";
 
 export default function CurrencySwitcher() {
     const { currencies } = currencyConfig
     const { currency, setCurrency } = useCurrency()
-
+    const t = useTranslations()
     return (
         <div className='w-[88px] flex items-center'>
             <DropdownMenu>
@@ -26,7 +27,7 @@ export default function CurrencySwitcher() {
                     </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className='w-56'>
-                    <DropdownMenuLabel>Currency</DropdownMenuLabel>
+                    <DropdownMenuLabel>{t('Currency')}</DropdownMenuLabel>
                     <DropdownMenuRadioGroup value={currency} onValueChange={setCurrency}>
                         {currencies.map((c) => (
                             <DropdownMenuRadioItem key={c.code} value={c.code}>

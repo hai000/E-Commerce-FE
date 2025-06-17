@@ -47,7 +47,6 @@ export default async function ProductDetails(props: {
         description: '',
     } as unknown as IProductSize : undefined
     const {id} = await props.params
-
     const product = await getProductById(id)
     if (typeof product === 'string') {
         return <div>{t('Product.Product not found or an error occurred')}</div>

@@ -11,6 +11,7 @@ import {DialogAddProduct} from "@/app/[locale]/dashboard/products/dialog-add-pro
 import {PAGE_SIZE} from "@/lib/constants";
 import Pagination from "@/components/shared/pagination";
 import * as React from "react";
+import {getTranslations} from "next-intl/server";
 
 export default async function ProductsPage(props: {
     searchParams: Promise<{
@@ -20,6 +21,7 @@ export default async function ProductsPage(props: {
     }>
     }
 ) {
+    const t = await getTranslations()
     const searchParams = await props.searchParams
     const { id = "" , page = 1, size=PAGE_SIZE  } = searchParams
     const products = await getAllProduct({
@@ -49,12 +51,12 @@ export default async function ProductsPage(props: {
                 <Card className="">
                     <CardHeader>
                         <CardTitle className="flex justify-between text-xl font-bold">
-                            Products
+                            {t('Products')}
                             <DialogAddProduct/>
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col justify-between h-[79vh] space-y-3">
-                        <ProductList className={'xsm:overflow-auto xlsm:overflow-auto sm:overflow-auto'} products={products.data} productIdSelected={productSelected?.id} />
+                        <ProductList className={'xsm:overflow-auto xlsm:overflow-auto sm:overflow-auto'} currentPage={page} products={products.data} productIdSelected={productSelected?.id} />
                         <div className={'align-bottom'}>
                             <Pagination page={page} totalPages={Math.ceil(products.totalItem / size)!}/>
                         </div>
@@ -63,17 +65,17 @@ export default async function ProductsPage(props: {
                 <Tabs defaultValue="descriptions" className="space-y-4">
                     <TabsList className="flex">
                         <TabsTrigger value="descriptions" className="flex-grow min-w-0 text-center">
-                            Description
+                            {t('Product.Description')}
                         </TabsTrigger>
                         <TabsTrigger value="details" className="flex-grow min-w-0 text-center">
-                            Detail
+                            {t('Detail')}
                         </TabsTrigger>
                     </TabsList>
                     {productSelected &&
                         <Card className={"w-full rounded-md gap-4"}>
                             <CardHeader className="flex-wrap">
                                 <CardTitle className="text-xl font-bold ">
-                                    Edit Products
+                                    {t('Edit Products')}
                                 </CardTitle>
                             </CardHeader>
                             <div className={'h-[73vh] overflow-auto'}>

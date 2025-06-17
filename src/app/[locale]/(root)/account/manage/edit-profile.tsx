@@ -16,6 +16,8 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {UpdateUserRequest} from "@/lib/request/user";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import * as React from "react";
+import {useTranslations} from "next-intl";
+import {genderOptions} from "@/lib/utils";
 
 export function DialogEditProfile({
                                       user,
@@ -24,17 +26,16 @@ export function DialogEditProfile({
     user: IUser,
     handleEditProfile: (request: UpdateUserRequest) => void,
 }) {
+    const t = useTranslations()
     const [fullName,setFullName] = useState(user.fullName??'')
     const [email, setEmail] = useState(user.email??'')
     const [phone,setPhone] = useState(user.phoneNumber??'')
     const [dob,setDob] = useState(user.dateOfBirth??'')
-    const [gender,setGender] = useState<number>(user.gender??-1)
+    const [gender,setGender] = useState<number>(user.gender??0)
     // eslint-disable-next-line
     const [avtPath,setAvtPath] = useState(user.avtPath|| '')
-    const [password,setPassword] = useState('')
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const request = {
-            password: password,
             email: email,
             phoneNumber: phone,
             fullName: fullName,
@@ -102,14 +103,6 @@ export function DialogEditProfile({
                         }} className="col-span-3" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="password" className="text-right">
-                            New password
-                        </Label>
-                        <Input id="password" value={password} onChange={(e) => {
-                            setPassword(e.target.value)
-                        }} className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="gender" className="text-right">
                             Gender
                         </Label>
@@ -121,8 +114,11 @@ export function DialogEditProfile({
                                 <SelectValue placeholder="Chọn giới tính" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="0">Nam</SelectItem>
-                                <SelectItem value="1">Nữ</SelectItem>
+                                {genderOptions(t).map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>

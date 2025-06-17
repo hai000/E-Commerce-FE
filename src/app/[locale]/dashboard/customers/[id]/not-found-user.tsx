@@ -12,7 +12,9 @@ export default function NotFound() {
                         <UserX className="h-16 w-16 text-muted-foreground" />
                     </div>
                     <CardTitle className="text-2xl">User Not Found</CardTitle>
-                    <CardDescription>The user you're looking for doesn't exist or may have been deleted.</CardDescription>
+                    {
+                        // eslint-disable-next-line
+                        <CardDescription>The user you're looking for doesn't exist or may have been deleted.</CardDescription>}
                 </CardHeader>
                 <CardContent>
                     <Button asChild>

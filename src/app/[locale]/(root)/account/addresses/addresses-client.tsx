@@ -1,18 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Edit, Trash2, MapPin, Home, Building, MoreHorizontal, Star } from "lucide-react"
+import { Plus, Edit, Trash2, MapPin, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -21,7 +12,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
 import {
     AlertDialog,
     AlertDialogAction,

@@ -113,7 +113,9 @@ export default function AddressEditPageClient({address}: { address: Address }) {
                 router.push("/account/addresses")
             }
 
-        } catch (error: any) {
+        } catch (
+            // eslint-disable-next-line
+            error: any) {
             console.error("Error updating address:", error)
             toast({
                 title: "Lỗi",

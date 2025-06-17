@@ -1,6 +1,5 @@
 import {Metadata} from "next";
 import { redirect } from 'next/navigation'
-import {getMyAddresses} from "@/lib/api/address";
 import {auth} from "@/auth";
 import CheckoutForm from "@/app/[locale]/checkout/checkout-form";
 import {AVAILABLE_PAYMENT_METHODS} from "@/lib/constants";

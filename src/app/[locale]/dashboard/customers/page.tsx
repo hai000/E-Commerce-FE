@@ -9,12 +9,12 @@ export const metadata: Metadata = {
 }
 
 export default async function UserManagementPage(props: {
-    searchParams: {
+    searchParams : Promise<{
         search?: string
         page?: string
         size?: string
         role?: string
-    }
+    }>
 }) {
     const searchParams = await props.searchParams;
     const { search = "", page = "1", size = PAGE_SIZE.toString(), role = "" } = searchParams;

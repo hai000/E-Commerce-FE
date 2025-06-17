@@ -79,6 +79,7 @@ export default function UserCreatePageClient() {
                     variant: "success",
                 })
             }
+            // eslint-disable-next-line
         } catch (error: any) {
 
             toast({

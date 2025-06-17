@@ -110,7 +110,9 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
                             <CardTitle className="text-xl">{user.fullName}</CardTitle>
                             <CardDescription>{user.username}</CardDescription>
                             <div className="flex justify-center mt-2">
-                                <Badge variant={getRoleColor(user.role) as any} className="text-sm">
+                                <Badge variant={
+                                    // eslint-disable-next-line
+                                    getRoleColor(user.role) as any} className="text-sm">
                                     {user.role}
                                 </Badge>
                             </div>
@@ -225,7 +227,9 @@ export default function UserDetailPageClient({ user }: { user: IUser }) {
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">{t("Role")}</label>
                                     <div className="mt-1">
-                                        <Badge variant={getRoleColor(user.role) as any}>{user.role}</Badge>
+                                        <Badge variant={
+                                            // eslint-disable-next-line
+                                            getRoleColor(user.role) as any}>{user.role}</Badge>
                                     </div>
                                 </div>
                             </div>

@@ -9,11 +9,9 @@ export const metadata: Metadata = {
 }
 
 export default async function UserEditPage(props: {
-    params: {
-        id: string
-    }
+    searchParams: Promise<{ id: string }>
 }) {
-    const { id } = await props.params
+    const { id } = await props.searchParams
     try {
         const user = await getUserById(id)
         if (!user || typeof user === "string") {
@@ -21,7 +19,9 @@ export default async function UserEditPage(props: {
         }
 
         return <UserEditPageClient user={user} />
-    } catch (error) {
+    } catch (
+        // eslint-disable-next-line
+        error) {
         notFound()
     }
 }

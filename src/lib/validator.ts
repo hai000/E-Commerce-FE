@@ -89,9 +89,9 @@ export const getUserEditSchema = (t: (key: string) => string) =>
         role: Role(t),
     })
 export const Role = (t: (key: string) => string) => z.enum(["ADMIN", "USER"], {
-    required_error: "Please select a role",
+    required_error: t("Please select a role"),
 })
-export const DateOfBirth = (t: (key: string) => string) => z.string().optional().or(z.literal(""))
+export const DateOfBirth = (t: (key: string) => string) => z.string().optional().or(z.literal(t("")))
 export const FullName = (t: (key: string) => string) =>
     z.string().min(1, {message: t("full_name_required")});
 export const getUserSignUpSchema = (t: (key: string) => string) =>

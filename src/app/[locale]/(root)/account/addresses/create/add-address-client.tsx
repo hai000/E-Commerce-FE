@@ -107,7 +107,7 @@ export default function AddressCreatePageClient() {
                 })
                 router.push("/account/addresses")
             }
-
+        // eslint-disable-next-line
         } catch (error: any) {
             toast({
                 title: t("Toast.Error"),

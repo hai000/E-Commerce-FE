@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Plus, Edit, Trash2, Eye, MoreHorizontal } from "lucide-react"
+import { Search, Plus, Edit, Eye, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -235,7 +235,9 @@ export default function UserManagementPageClient({
                                                 <span className="text-sm">{getGenderText(user.gender,t)}</span>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant={getRoleColor(user.role) as any}>{user.role}</Badge>
+                                                <Badge variant={
+                                                    // eslint-disable-next-line
+                                                    getRoleColor(user.role) as any}>{user.role}</Badge>
                                             </TableCell>
                                             <TableCell className="hidden lg:table-cell">
                                                 <span className="text-sm text-muted-foreground">{formatDate(user.createdAt)}</span>

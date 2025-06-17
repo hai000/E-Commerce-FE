@@ -17,7 +17,7 @@ import {UpdateUserRequest} from "@/lib/request/user";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import * as React from "react";
 import {useTranslations} from "next-intl";
-import {genderOptions, roleOptions} from "@/lib/utils";
+import {genderOptions} from "@/lib/utils";
 
 export function DialogEditProfile({
                                       user,

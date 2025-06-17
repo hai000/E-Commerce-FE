@@ -1,5 +1,5 @@
 'use server'
-import {callApiGetStatus, callApiToAll, callApiToArray, callApiToObject, generateHeaderAccessToken} from "@/lib/utils";
+import {callApiToAll, callApiToArray, callApiToObject, generateHeaderAccessToken} from "@/lib/utils";
 import {Address, InfoShippingAddress} from "@/lib/response/address";
 import {auth} from "@/auth";
 import {getTranslations} from "next-intl/server";

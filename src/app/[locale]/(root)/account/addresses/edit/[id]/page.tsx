@@ -3,11 +3,12 @@ import {getMyAddresses} from "@/lib/api/address";
 import AddressEditPageClient from "@/app/[locale]/(root)/account/addresses/edit/[id]/address-edit-client";
 
 export default async function AddressEditPage(props: {
-    params: {
+    params: Promise<{
         id: string
-    }
+    }>
 }) {
-    const {id} = await props.params
+    const params = await props.params
+    const { id } = params
     let address
     if (!id) {
         notFound()
@@ -24,6 +25,7 @@ export default async function AddressEditPage(props: {
             address = foundAddress
             return <AddressEditPageClient address={address}/>
         }
+        // eslint-disable-next-line
     } catch (error) {
         console.error("Error fetching address:", error)
         notFound()

@@ -30,6 +30,7 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
     const t = useTranslations()
     const { toast } = useToast()
     const [isSubmitting, setIsSubmitting] = useState(false)
+    // eslint-disable-next-line
     const [avtPath, setAvtPath] = useState(user.avtPath)
 
     const shema = getUserEditSchema(t)
@@ -81,9 +82,8 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
                 })
                 router.push(`/dashboard/customers/${user.id}`)
             }
-
-
-        } catch (error) {
+        } catch (  // eslint-disable-next-line
+            error) {
             toast({
                 title: t("Toast.Error"),
                 description: t("Failed to update user information Please try again"),

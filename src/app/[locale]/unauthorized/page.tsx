@@ -1,6 +1,7 @@
 import {useTranslations} from "next-intl";
 
 export default function UnauthorizedPage() {
+    console.log('a')
     const t = useTranslations()
     return (
         <div style={{ textAlign: 'center', marginTop: 40 }}>

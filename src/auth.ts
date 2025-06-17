@@ -81,11 +81,16 @@ export const { handlers ,signIn, signOut, auth } = NextAuth({
                 //token is valid
                 return token
             }
-            return refreshTokens(token);
+            const refreshed = await refreshTokens(token);
+            // Đảm bảo refreshTokens trả về token có role!
+            return {
+                ...refreshed,
+                role: token.role,
+            };
         },
         session: async ({ session, token }) => {
             if (token) {
-                const user = await getUserById(token.id as string)
+                const user = await getInfo({accessToken: token.accessToken as string})
                 if (typeof user !== "string") {
                     session.user = session.user || {};
                     session.user.id = user.id as string;
@@ -97,6 +102,7 @@ export const { handlers ,signIn, signOut, auth } = NextAuth({
                     session.user.id = token.id as string;
                     session.user.name = token.name as string;
                     session.user.email = token.email as string;
+                    session.user.role = `${token.role}`;
                 }
                 session.accessToken = token.accessToken as string ;
                 session.refreshToken = token.refreshToken as string;

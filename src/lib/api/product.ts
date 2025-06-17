@@ -3,9 +3,10 @@
 
 import {IProduct, IProductColor, IProductSize} from "@/lib/response/product";
 import {PAGE_SIZE, POST_METHOD, PUT_METHOD} from "@/lib/constants";
-import {callApiToArray, callApiToArrayWithPage, callApiToObject} from "@/lib/utils";
+import {callApiToArray, callApiToArrayWithPage, callApiToObject, generateHeaderAccessToken} from "@/lib/utils";
 import {AddColorRequest, AddProductRequest, AddSizeRequest} from "@/lib/request/product";
 import {getTranslations} from "next-intl/server";
+import {auth} from "@/auth";
 
 export async function getAllProductByFilter(filter: Filter) {
     filter.limit = filter.limit || PAGE_SIZE;
@@ -109,6 +110,7 @@ export async function updateProduct(product?: IProduct) {
     if (!product) {
         return t("Product can't missing")
     }
+    const session = await auth()
     // console.log(JSON.stringify(product));
     const updateProductRequest = {
         id: product.id,
@@ -121,7 +123,7 @@ export async function updateProduct(product?: IProduct) {
         description: product.description,
         brand: product.brand,
     }
-    return callApiToObject<IProduct>({url: '/identity/products', data: updateProductRequest, method: PUT_METHOD})
+    return callApiToObject<IProduct>({url: '/identity/products', data: updateProductRequest, method: PUT_METHOD, headers: generateHeaderAccessToken(session)})
 }
 
 export async function getProductById(id: string) {

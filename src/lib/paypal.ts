@@ -1,10 +1,12 @@
 import {HOST_API} from "@/lib/constants";
+import {Session} from "@/types/next-auth";
+import {generateHeaderAccessToken} from "@/lib/utils";
 
 export const paypal = {
-    capturePayment: async function capturePayment(orderId: string) {
+    capturePayment: async function capturePayment(orderId: string,session: Session) {
         const res = await fetch(`${HOST_API}/identity/payment/paypal/capture`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: generateHeaderAccessToken(session),
             body: JSON.stringify({ orderId: orderId })
         });
         return handleResponse(res)

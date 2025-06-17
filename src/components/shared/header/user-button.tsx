@@ -1,5 +1,6 @@
-import {cn} from "@/lib/utils";
-import {auth} from "@/auth";
+'use client'
+
+import { cn } from "@/lib/utils";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -7,23 +8,24 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import {ChevronDown} from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
-import {Button, buttonVariants} from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import React from "react";
-import {SignOut} from "@/lib/api/user";
-import {getTranslations} from "next-intl/server";
+import { useTranslations } from "next-intl";
+import { signOut, useSession } from "next-auth/react";
 
-export default async function UserButton() {
-    const session = await auth()
-    const t = await getTranslations()
+export default function UserButton() {
+    const { data: session } = useSession();
+    const t = useTranslations();
+
     return (
         <div className='w-40 flex items-center'>
             <DropdownMenu>
                 <DropdownMenuTrigger className='w-full header-button' asChild>
                     <div className='flex w-full justify-between items-center'>
                         <div className='flex flex-col text-xs text-left'>
-                            <span>{t('hello')}, {session ? session.user.name : t('sign in')}</span>
+                            <span>{t('hello')}, {session?.user?.name ?? t('sign in')}</span>
                             <span className='font-bold'>{t('Account & Orders')}</span>
                         </div>
                         <ChevronDown />
@@ -48,23 +50,20 @@ export default async function UserButton() {
                             <Link className='w-full' href='/account/orders'>
                                 <DropdownMenuItem>{t('Order.Your orders')}</DropdownMenuItem>
                             </Link>
-
-                            {session.user.role == 'ADMIN' && (
-                                <Link className='w-full' href='/admin/overview'>
+                            {session.user.role === 'ADMIN' && (
+                                <Link className='w-full' href='/dashboard/overview'>
                                     <DropdownMenuItem>{t('User.Admin')}</DropdownMenuItem>
                                 </Link>
                             )}
                         </DropdownMenuGroup>
                         <DropdownMenuItem className='p-0 mb-1'>
-                            <form action={SignOut} className='w-full'>
-                                <Button
-                                    className='w-full py-4 px-2 h-4 justify-start'
-                                    variant='ghost'
-                                >
-                                    {t('Login.Sign out')}
-
-                                </Button>
-                            </form>
+                            <Button
+                                className='w-full py-4 px-2 h-4 justify-start'
+                                variant='ghost'
+                                onClick={() => signOut({ callbackUrl: '/' })}
+                            >
+                                {t('Login.Sign out')}
+                            </Button>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 ) : (
@@ -88,5 +87,5 @@ export default async function UserButton() {
                 )}
             </DropdownMenu>
         </div>
-    )
+    );
 }

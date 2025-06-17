@@ -6,6 +6,7 @@ import {routing} from '@/i18n/routing'
 import {notFound} from 'next/navigation'
 import data from "@/lib/data";
 import {CurrencyProvider} from "@/hooks/use-currency";
+import {SessionProvider} from "next-auth/react";
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -54,9 +55,11 @@ export default async function AppLayout({
         >
 
         <NextIntlClientProvider locale={locale} messages={messages}>
-            <CurrencyProvider>
-                {children}
-            </CurrencyProvider>
+            <SessionProvider>
+                <CurrencyProvider>
+                    {children}
+                </CurrencyProvider>
+            </SessionProvider>
         </NextIntlClientProvider>
         </body>
         </html>

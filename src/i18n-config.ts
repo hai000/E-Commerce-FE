@@ -3,7 +3,7 @@ export const i18n = {
         { code: 'en', name: 'English', icon: 'us' },
         { code: 'vi', name: 'Tiếng việt', icon: 'vi' },
     ],
-    defaultLocale: 'en',
+    defaultLocale: 'vi',
 }
 export type I18nConfig = typeof i18n
 export type Locale = I18nConfig['locales'][number]

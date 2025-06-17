@@ -1,5 +1,5 @@
 'use client'
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Input} from "@/components/ui/input";
 import {useTranslations} from "next-intl";
 import {Button} from "@/components/ui/button";
@@ -14,7 +14,14 @@ export default function MultiImageUpload({
 }) {
     const t = useTranslations()
     const inputRef = useRef<HTMLInputElement | null>(null);
-    const [previews, setPreviews] = useState<string[]>([]);//previews for images
+    const [previews, setPreviews] = useState<string[]>([]);
+    useEffect(() => {
+        if (!files || files.length === 0) {
+            setPreviews([]);
+        } else {
+            setPreviews(files.map(file => URL.createObjectURL(file)));
+        }
+    }, [files]);
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const fileList = Array.from(e.target.files);
@@ -34,23 +41,6 @@ export default function MultiImageUpload({
     const handleButtonClick = () => {
         inputRef.current?.click();
     };
-    // const handleSubmit = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-    //     if (!files.length) return;
-    //     // Gửi từng file lên server, hoặc gửi tất cả 1 lần nếu backend hỗ trợ
-    //     const uploaded: string[] = [];
-    //     for (const file of files) {
-    //         const formData = new FormData();
-    //         formData.append("file", file);
-    //         const res = await fetch("/api/upload", {
-    //             method: "POST",
-    //             body: formData,
-    //         });
-    //         const data = await res.json();
-    //         uploaded.push(data.imageUrl); // imageUrl là đường dẫn trả về từ API
-    //     }
-    //     setUploadedUrls(uploaded);
-    // };
 
     return (
         <>

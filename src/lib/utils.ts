@@ -67,7 +67,7 @@ export async function callApiToArrayWithPage<T>({
                                                     method,
                                                     data,
                                                     headers
-                                                }: ApiCallOptions): Promise<ArrayWithPage<T> | string> {
+                                                }: ApiCallOptions): Promise<ArrayWithPage<T>> {
     try {
         const local = await getLocale();
         const options: RequestInit = {
@@ -87,19 +87,19 @@ export async function callApiToArrayWithPage<T>({
                 page: 0,
                 size: 0,
                 totalItem: 0,
-                data: []
-            };
+                data: [] as T[]
+            } as ArrayWithPage<T>;
         }
         const result = await response.json();
-        return result.data as ArrayWithPage<T> | string;
+        return result.data as ArrayWithPage<T>;
     } catch (error) {
         console.error('Error:', error);
         return {
             page: 0,
             size: 0,
             totalItem: 0,
-            data: []
-        };
+            data: [] as T[]
+        } as ArrayWithPage<T>;
     }
 }
 
@@ -191,6 +191,64 @@ export async function callApiToAll<T>({url, method, data, headers}: ApiCallOptio
             success: false,
             data: error as T
         };
+    }
+}
+export const getUserInitials = (fullName?: string): string => {
+    return fullName?fullName
+        .split(" ")
+        .map((name) => name.charAt(0))
+        .join("")
+        .toUpperCase()
+        .slice(0, 2):'UK'
+}
+export function getRoleIntl(role: string, t: (key: string) => string): string {
+    switch (role.toLowerCase()) {
+        case 'admin':
+            return t('Admin');
+        case 'user':
+            return t('User.User');
+        default:
+            return t('User.User');
+    }
+
+}
+
+export function genderOptions(t: (key: string) => string) {
+    return [
+        {value: "0", label: t("Unknown")},
+        {value: "1", label: t("Male")},
+        {value: "2", label: t("Female")},
+        {value: "3", label: t("Other")},
+    ]
+}
+
+export function roleOptions(t: (key: string) => string) {
+    return [{value: "ADMIN", label: t('Admin')},
+        {value: "USER", label: t("User.User")},
+    ]
+}
+
+export function getRoleColor(role: string): string {
+    switch (role.toLowerCase()) {
+        case "admin":
+            return "destructive"
+        case "user":
+            return "secondary"
+        default:
+            return "outline"
+    }
+}
+
+export function getGenderText(gender: number, t: (key: string) => string): string {
+    switch (gender) {
+        case 0:
+            return t("Unknown")
+        case 2:
+            return t("Female")
+        case 1:
+            return t("Male")
+        default:
+            return t("Other")
     }
 }
 

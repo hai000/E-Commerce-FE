@@ -16,25 +16,22 @@ import {useToast} from "@/hooks/use-toast"
 import {useLocationStore} from "@/hooks/use-location";
 import {District, Province, Ward} from "@/lib/response/abstract-location";
 import {Address} from "@/lib/response/address";
-
-// Validation schema for address editing
-const addressEditSchema = z.object({
-    houseNumber: z.string().min(1, "Số nhà không được để trống").max(200, "Số nhà không được quá 200 ký tự"),
-    provinceId: z.string().min(1, "Vui lòng chọn tỉnh/thành phố"),
-    districtId: z.string().min(1, "Vui lòng chọn quận/huyện"),
-    wardId: z.string().min(1, "Vui lòng chọn phường/xã"),
-})
-
-type AddressEditFormData = z.infer<typeof addressEditSchema>
+import {AddressSchema} from "@/lib/validator";
+import {useTranslations} from "next-intl";
+import {updateAddress} from "@/lib/api/address";
+import {UpdateAddressRequest} from "@/lib/request/addresses";
 
 export default function AddressEditPageClient({address}: { address: Address }) {
     const router = useRouter()
+    const t = useTranslations()
     const {toast} = useToast()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [provinces, setProvinces] = useState<Province[]>([])
     const [districts, setDistricts] = useState<District[]>([])
     const [wards, setWards] = useState<Ward[]>([])
     const {location, init} = useLocationStore()
+    const addressEditSchema = AddressSchema(t)
+    type AddressEditFormData = z.infer<typeof addressEditSchema>
     const form = useForm<AddressEditFormData>({
         resolver: zodResolver(addressEditSchema),
         defaultValues: {
@@ -93,24 +90,31 @@ export default function AddressEditPageClient({address}: { address: Address }) {
 
             // Update address via API
             const updateData = {
+                addressId: address.id,
                 houseNumber: data.houseNumber,
-                province: selectedProvince,
-                district: selectedDistrict,
-                ward: selectedWard,
+                provinceId: selectedProvince.id,
+                districtId: selectedDistrict.id,
+                wardId: selectedWard.id,
+            } as UpdateAddressRequest
+
+            const res =await updateAddress( updateData)
+            if (typeof res === "string") {
+                toast({
+                    title: t("Toast.Error"),
+                    description: res,
+                    variant: "destructive",
+                })
+            }else {
+                toast({
+                    title: t("Toast.Success"),
+                    description: "Địa chỉ đã được cập nhật thành công.",
+                    variant: "success",
+                })
+                router.push("/account/addresses")
             }
 
-            // await updateAddress(address.id, updateData)
-
-            toast({
-                title: "Thành công",
-                description: "Địa chỉ đã được cập nhật thành công.",
-            })
-
-            // Navigate back to addresses list
-            router.push("/dashboard/addresses")
         } catch (error: any) {
             console.error("Error updating address:", error)
-
             toast({
                 title: "Lỗi",
                 description: error.message || "Không thể cập nhật địa chỉ. Vui lòng thử lại.",
@@ -130,7 +134,7 @@ export default function AddressEditPageClient({address}: { address: Address }) {
     }
 
     return (
-        <div className="container mx-auto py-8 px-4 max-w-2xl">
+        <div className="container mx-auto py-8 px-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">

@@ -4,3 +4,6 @@ export interface AddAddressRequest {
     wardId: string;
     houseNumber: string;
 }
+export interface UpdateAddressRequest extends AddAddressRequest {
+    addressId: string
+}

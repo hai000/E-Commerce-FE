@@ -1,12 +1,12 @@
 'use client'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardFooter} from '@/components/ui/card'
+import {Card, CardContent, CardFooter, CardHeader} from '@/components/ui/card'
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage,} from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from '@/components/ui/select'
-import {calculateFutureDate, cn, formatDateTime, getImageUrl, timeUntilMidnight,} from '@/lib/utils'
+import {calculateFutureDate, formatDateTime, getImageUrl, timeUntilMidnight,} from '@/lib/utils'
 import {zodResolver} from '@hookform/resolvers/zod'
 import Image from 'next/image'
 import {useRouter} from 'next/navigation'
@@ -19,20 +19,26 @@ import useCartStore from '@/hooks/use-cart-store'
 import ProductPrice from '@/components/shared/product/product-price'
 import {APP_NAME} from '@/lib/constants'
 import {ShippingAddress} from "@/lib/request/location";
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import {Check, ChevronsUpDown} from "lucide-react";
-import {Command, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {useLocationStore} from "@/hooks/use-location";
 import {Address, InfoShippingAddress} from "@/lib/response/address";
-import {getInfoShips} from "@/lib/api/address";
+import {getInfoShips, getMyAddresses} from "@/lib/api/address";
 import {toast} from "@/hooks/use-toast";
 import {createMyOrder} from "@/lib/api/order";
 import {getShippingAddressSchema} from "@/lib/validator";
 import {useLocale, useTranslations} from "next-intl";
 import {PaymentMethod} from "@/lib/response/payment";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import {Edit, MapPin, MoreHorizontal, Plus} from "lucide-react";
 
 
-const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMethod[],allAddress?: Address[] }) => {
+const CheckoutForm = ({paymentMethods}: { paymentMethods: PaymentMethod[] }) => {
     const router = useRouter()
     const {
         cart: {
@@ -53,6 +59,7 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
         setDeliveryDateIndex,
         clearCart
     } = useCartStore()
+    const t = useTranslations();
     const {
         location,
         init,
@@ -63,12 +70,15 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
     } = useLocationStore()
     const [defaultShippingAddress, setDefaultShippingAddress] = useState<ShippingAddress>({
         fullName: '',
-        street: '',
-        city: '',
-        district: '',
-        ward: '',
         phone: '',
+        id: '',
     });
+    const shippingAddressForm = useForm<ShippingAddress>({
+        resolver: zodResolver(getShippingAddressSchema(t)),
+        defaultValues: defaultShippingAddress,
+    });
+    const [allAddress, setAllAddress] = useState<Address[]>([]);
+    const [addSelected, setAddSelected] = useState<Address | null>(null);
     // Khi allAddress có dữ liệu, gán địa chỉ đầu làm mặc định
     useEffect(() => {
         if (cartChecked.length === 0) {
@@ -77,29 +87,34 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
         if (!location.isInitialized) {
             init();
         }
-        if (allAddress && allAddress.length > 0) {
-            const addressDef = allAddress[0];
-            setMyAddresses(allAddress);
-            setProvinceSelected(addressDef.province);
-            setDistrictSelected(addressDef.district);
-            setWardSelected(addressDef.ward);
-            setDefaultShippingAddress({
-                fullName: '',
-                street: addressDef.houseNumber || '',
-                city: addressDef.province?.name || '',
-                district: addressDef.district?.name || '',
-                ward: addressDef.ward?.name || '',
-                phone: '',
-            });
+        const initialAddress = async () => {
+            const allAddress = await getMyAddresses()
+            if (allAddress && typeof allAddress !== 'string' && allAddress.length > 0) {
+                const addressDef = allAddress[0];
+                setMyAddresses(allAddress);
+                setProvinceSelected(addressDef.province);
+                setDistrictSelected(addressDef.district);
+                setWardSelected(addressDef.ward);
+                setDefaultShippingAddress({
+                    fullName: '',
+                    phone: '',
+                    id: ''
+                });
+                setAllAddress(allAddress);
+                setAddSelected(addressDef)
+                shippingAddressForm.setValue('id', addressDef.id);
+            }
         }
-    }, [allAddress]);
-    const t = useTranslations();
+        initialAddress()
+    }, []);
     const isMounted = useIsMounted();
-    const shippingAddressForm = useForm<ShippingAddress>({
-        resolver: zodResolver(getShippingAddressSchema(t)),
-        defaultValues: defaultShippingAddress,
-    });
 
+    const handleCreateAddress = () => {
+        router.push("/account/addresses/create")
+    }
+    const handleEditAddress = (addressId: string) => {
+        router.push(`/account/addresses/edit/${addressId}`)
+    }
     const [isAddressSelected, setIsAddressSelected] = useState(false);
     const [infoShips, setInfoShips] = useState<InfoShippingAddress[]>([]);
     const [indexInfoShips, setIndexInfoShips] = useState(0);
@@ -110,20 +125,20 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
         shippingAddressForm.reset(defaultShippingAddress);
     }, [defaultShippingAddress, shippingAddressForm]);
 
-    // Đồng bộ shippingAddress vào form
     useEffect(() => {
         if (!isMounted || !shippingAddress) return;
         shippingAddressForm.setValue('fullName', shippingAddress.fullName || '');
-        shippingAddressForm.setValue('street', shippingAddress.street || '');
-        shippingAddressForm.setValue('city', shippingAddress.city || '');
-        shippingAddressForm.setValue('district', shippingAddress.district || '');
-        shippingAddressForm.setValue('ward', shippingAddress.ward || '');
         shippingAddressForm.setValue('phone', shippingAddress.phone || '');
+        shippingAddressForm.setValue('id', shippingAddress.id || '');
     }, [isMounted, shippingAddress, shippingAddressForm]);
     const local = useLocale()
+    const handleSelectAddressSelect = (address: Address) => {
+        setAddSelected(address);
+        shippingAddressForm.setValue('id', address.id.toString());
+    }
     const onSubmitShippingAddress: SubmitHandler<ShippingAddress> = async (values) => {
         // Lấy phí ship
-        const infoShips = await getInfoShips(location.myAddressSelected?.id);
+        const infoShips = await getInfoShips(addSelected?.id);
         let priceShip = 0;
         if (typeof infoShips !== 'string' && infoShips.length > 0) {
             setInfoShips(infoShips);
@@ -134,17 +149,17 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
     };
     const handlePlaceOrder = async () => {
         // order
-        if (location.myAddressSelected?.id) {
-            if (cartItems.length>0) {
+        if (addSelected && addSelected.id) {
+            if (cartItems.length > 0) {
                 const idPaymentMethod = paymentMethods.find(
                     (method) => method.methodName == paymentMethod
                 )?.id;
                 const createOrderTemp = createOrder(
-                    location.myAddressSelected.id,
+                    addSelected.id,
                     infoShips[indexInfoShips],
                     '',
                     '',
-                    idPaymentMethod??'',
+                    idPaymentMethod ?? '',
                 )
                 const res = await createMyOrder(createOrderTemp)
                 if (typeof res === 'string') {
@@ -161,7 +176,7 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
                     router.push(`/checkout/${res.orderId}`)
 
                 }
-            }else {
+            } else {
                 toast({
                     title: 'Error',
                     description: 'Your cart is empty',
@@ -254,7 +269,7 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
             </CardContent>
         </Card>
     )
-    return (cartChecked.length === 0 || !cartChecked) ? null :(
+    return (cartChecked.length === 0 || !cartChecked) ? null : (
         <main className='max-w-6xl mx-auto highlight-link'>
             <div className='grid md:grid-cols-4 gap-6'>
                 <div className='md:col-span-3'>
@@ -269,8 +284,8 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
                                 <div className='col-span-5 '>
                                     <p>
                                         {shippingAddress.fullName} <br/>
-                                        {shippingAddress.street} <br/>
-                                        {`${shippingAddress.city}, ${shippingAddress.district}, ${shippingAddress.ward}`}
+                                        {addSelected?.houseNumber ?? ''} <br/>
+                                        {`${addSelected?.province.name ?? ''}, ${addSelected?.district.name ?? ''}, ${addSelected?.ward.name ?? ''}`}
                                     </p>
                                 </div>
                                 <div className='col-span-2'>
@@ -323,24 +338,6 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
                                                             </FormItem>
                                                         )}
                                                     />
-                                                </div>
-                                                <div className='flex flex-col gap-5 md:flex-row'>
-                                                    <FormField
-                                                        control={shippingAddressForm.control}
-                                                        name='street'
-                                                        render={({field}) => (
-                                                            <FormItem className='w-full'>
-                                                                <FormLabel>{t('Checkout.Address')}</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder={t('Placeholder.Enter address')}
-                                                                        {...field}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage/>
-                                                            </FormItem>
-                                                        )}
-                                                    />
                                                     <FormField
                                                         control={shippingAddressForm.control}
                                                         name='phone'
@@ -358,217 +355,78 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
                                                         )}
                                                     />
                                                 </div>
-                                                <div className='flex flex-row flex-wrap gap-5'>
-                                                    {!location.provinces || !location.districts || !location.wards ?
-                                                        ( `<p>${t("Cant load page")}</p>`) : (
-                                                            <>
-                                                                <FormField
-                                                                    control={shippingAddressForm.control}
-                                                                    name='city'
-                                                                    render={({field}) => (
-                                                                        <FormItem className='w-[250px]'>
-                                                                            <FormLabel>{t('Checkout.City')}</FormLabel>
-                                                                            <FormControl>
-                                                                                <Popover>
-                                                                                    <PopoverTrigger asChild>
-                                                                                        <FormControl>
-                                                                                            <Button
-                                                                                                variant="outline"
-                                                                                                role="combobox"
-                                                                                                className={cn(
-                                                                                                    "w-[250px] justify-between",
-                                                                                                    !field.value && "text-muted-foreground"
-                                                                                                )}
-                                                                                            >
-                                                                                                {field.value && field.value != ""
-                                                                                                    ? location.provinces?.find(
-                                                                                                        (province) => location.provinceSelected?.id == province.id
-                                                                                                    )?.name
-                                                                                                    : t("Checkout.Select city")}
-                                                                                                <ChevronsUpDown
-                                                                                                    className="opacity-50"/>
-                                                                                            </Button>
-                                                                                        </FormControl>
-                                                                                    </PopoverTrigger>
-                                                                                    <PopoverContent
-                                                                                        className="w-[200px] p-0">
-                                                                                        <Command>
-                                                                                            <CommandInput
-                                                                                                placeholder={t("Placeholder.Search city")}
-                                                                                                className="h-9"
-                                                                                            />
-                                                                                            <CommandList>
-                                                                                                <CommandGroup>
-                                                                                                    {location.provinces?.map((province) => (
-                                                                                                        <CommandItem
-                                                                                                            value={province.id}
-                                                                                                            key={province.id}
-                                                                                                            onSelect={() => {
-                                                                                                                setProvinceSelected(province)
-                                                                                                                shippingAddressForm.setValue("city", province.name)
-                                                                                                                shippingAddressForm.setValue('district', '')
-                                                                                                                shippingAddressForm.setValue('ward', '')
-                                                                                                            }}
-                                                                                                        >
-                                                                                                            {province.name}
-                                                                                                            <Check
-                                                                                                                className={cn(
-                                                                                                                    "ml-auto",
-                                                                                                                    province.id == location.provinceSelected?.id
-                                                                                                                        ? "opacity-100"
-                                                                                                                        : "opacity-0"
-                                                                                                                )}
-                                                                                                            />
-                                                                                                        </CommandItem>
-                                                                                                    ))}
-                                                                                                </CommandGroup>
-                                                                                            </CommandList>
-                                                                                        </Command>
-                                                                                    </PopoverContent>
-                                                                                </Popover>
-                                                                            </FormControl>
-                                                                            <FormMessage/>
-                                                                        </FormItem>
-                                                                    )}
-                                                                />
-                                                                <FormField
-                                                                    control={shippingAddressForm.control}
-                                                                    name='district'
-                                                                    render={({field}) => (
-                                                                        <FormItem className='w-[250px]'> {/* hoặc flex-1 min-w-[200px] */}
-                                                                            <FormLabel>{t('Checkout.District')}</FormLabel>
-                                                                            <FormControl>
-                                                                                <Popover>
-                                                                                    <PopoverTrigger asChild>
-                                                                                        <FormControl>
-                                                                                            <Button
-                                                                                                variant="outline"
-                                                                                                role="combobox"
-                                                                                                className={cn(
-                                                                                                    "w-[250px] justify-between",
-                                                                                                    !field.value && "text-muted-foreground"
-                                                                                                )}
-                                                                                            >
-                                                                                                {field.value && field.value != ""
-                                                                                                    ? location.districtByProvince?.find(
-                                                                                                        (district) => location.districtSelected?.id == district.id
-                                                                                                    )?.name
-                                                                                                    : t("Placeholder.Select district")}
-                                                                                                <ChevronsUpDown
-                                                                                                    className="opacity-50"/>
-                                                                                            </Button>
-                                                                                        </FormControl>
-                                                                                    </PopoverTrigger>
-                                                                                    <PopoverContent
-                                                                                        className="w-[200px] p-0">
-                                                                                        <Command>
-                                                                                            <CommandInput
-                                                                                                placeholder="Search district..."
-                                                                                                className="h-9"
-                                                                                            />
-                                                                                            <CommandList>
-                                                                                                <CommandGroup>
-                                                                                                    {location.districtByProvince?.map((district) => (
-                                                                                                        <CommandItem
-                                                                                                            value={district.id}
-                                                                                                            key={district.id}
-                                                                                                            onSelect={() => {
-                                                                                                                setDistrictSelected(district)
-                                                                                                                shippingAddressForm.setValue('district', district.name)
-                                                                                                                shippingAddressForm.setValue('ward', '')
-                                                                                                            }}
-                                                                                                        >
-                                                                                                            {district.name}
-                                                                                                            <Check
-                                                                                                                className={cn(
-                                                                                                                    "ml-auto",
-                                                                                                                    district.id == location.districtSelected?.id
-                                                                                                                        ? "opacity-100"
-                                                                                                                        : "opacity-0"
-                                                                                                                )}
-                                                                                                            />
-                                                                                                        </CommandItem>
-                                                                                                    ))}
-                                                                                                </CommandGroup>
-                                                                                            </CommandList>
-                                                                                        </Command>
-                                                                                    </PopoverContent>
-                                                                                </Popover>
-                                                                            </FormControl>
-                                                                            <FormMessage/>
-                                                                        </FormItem>
-                                                                    )}
-                                                                />
-                                                                <FormField
-                                                                    control={shippingAddressForm.control}
-                                                                    name='ward'
-                                                                    render={({field}) => (
-                                                                        <FormItem className='w-[250px]'> {/* hoặc flex-1 min-w-[200px] */}
-                                                                            <FormLabel>{t('Checkout.Ward')}</FormLabel>
-                                                                            <FormControl>
-                                                                                <Popover>
-                                                                                    <PopoverTrigger asChild>
-                                                                                        <FormControl>
-                                                                                            <Button
-                                                                                                variant="outline"
-                                                                                                role="combobox"
-                                                                                                className={cn(
-                                                                                                    "w-[250px] justify-between",
-                                                                                                    !field.value && "text-muted-foreground"
-                                                                                                )}
-                                                                                            >
-                                                                                                {field.value && field.value != ""
-                                                                                                    ? location.wardsByDistrict?.find(
-                                                                                                        (ward) => location.wardSelected?.id == ward.id
-                                                                                                    )?.name
-                                                                                                    : t("Placeholder.Select ward")}
-                                                                                                <ChevronsUpDown
-                                                                                                    className="opacity-50"/>
-                                                                                            </Button>
-                                                                                        </FormControl>
-                                                                                    </PopoverTrigger>
-                                                                                    <PopoverContent
-                                                                                        className="w-[200px] p-0">
-                                                                                        <Command>
-                                                                                            <CommandInput
-                                                                                                placeholder="Search ward..."
-                                                                                                className="h-9"
-                                                                                            />
-                                                                                            <CommandList>
-                                                                                                <CommandGroup>
-                                                                                                    {location.wardsByDistrict?.map((ward) => (
-                                                                                                        <CommandItem
-                                                                                                            value={ward.id}
-                                                                                                            key={ward.id}
-                                                                                                            onSelect={() => {
-                                                                                                                setWardSelected(ward)
-                                                                                                                shippingAddressForm.setValue("ward", ward.name)
-                                                                                                            }}
-                                                                                                        >
-                                                                                                            {ward.name}
-                                                                                                            <Check
-                                                                                                                className={cn(
-                                                                                                                    "ml-auto",
-                                                                                                                    ward.id == location.wardSelected?.id
-                                                                                                                        ? "opacity-100"
-                                                                                                                        : "opacity-0"
-                                                                                                                )}
-                                                                                                            />
-                                                                                                        </CommandItem>
-                                                                                                    ))}
-                                                                                                </CommandGroup>
-                                                                                            </CommandList>
-                                                                                        </Command>
-                                                                                    </PopoverContent>
-                                                                                </Popover>
-                                                                            </FormControl>
-                                                                            <FormMessage/>
-                                                                        </FormItem>
-                                                                    )}
-                                                                />
-                                                            </>
-                                                        )}
-                                                </div>
+                                                <FormField
+                                                    control={shippingAddressForm.control}
+                                                    name='id'
+                                                    render={() => (
+                                                        <FormItem className='w-full'>
+                                                            <FormLabel>{t('Select your address')}</FormLabel>
+                                                            <FormMessage/>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                {allAddress.length > 0 ? (
+                                                    <div
+                                                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                        {allAddress.map((address) => (
+                                                            <Card key={address.id} className={` ${addSelected?.id == address.id ? "border-2 border-black" : ""} max-w-64 relative`}
+                                                                  onClick={()=>{handleSelectAddressSelect(address)}}
+                                                            >
+                                                                <CardHeader className="pb-3">
+                                                                    <div>
+                                                                        <p className="font-medium">ID: {address.id}</p>
+                                                                    </div>
+                                                                </CardHeader>
+                                                                <CardContent
+                                                                    className="flex flex-row items-center  justify-between pt-0">
+                                                                    <div className="space-y-2">
+                                                                        <div className="text-sm">
+                                                                            <p>{address.houseNumber}</p>
+                                                                            <p>
+                                                                                {address.ward.name}, {address.district.name}
+                                                                            </p>
+                                                                            <p>{address.province.name}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex items-start justify-between">
+                                                                        <DropdownMenu>
+                                                                            <DropdownMenuTrigger asChild>
+                                                                                <Button variant="ghost"
+                                                                                        className="h-8 w-8 p-0">
+                                                                                    <span
+                                                                                        className="sr-only">{t('Open menu')}</span>
+                                                                                    <MoreHorizontal
+                                                                                        className="h-4 w-4"/>
+                                                                                </Button>
+                                                                            </DropdownMenuTrigger>
+                                                                            <DropdownMenuContent align="end">
+                                                                                <DropdownMenuLabel>{t('Actions')}</DropdownMenuLabel>
+                                                                                <DropdownMenuItem
+                                                                                    onClick={() => handleEditAddress(address.id)}>
+                                                                                    <Edit className="mr-2 h-4 w-4"/>
+                                                                                    {t('Edit')}
+                                                                                </DropdownMenuItem>
+                                                                                <DropdownMenuSeparator/>
+                                                                            </DropdownMenuContent>
+                                                                        </DropdownMenu>
+                                                                    </div>
+                                                                </CardContent>
+                                                            </Card>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center py-12">
+                                                        <MapPin
+                                                            className="h-12 w-12 text-muted-foreground mx-auto mb-4"/>
+                                                        <h3 className="text-lg font-medium mb-2">{t('Not yet addressed')}</h3>
+                                                        <p className="text-muted-foreground mb-4">{t('Add first address to use')}</p>
+                                                        <Button onClick={handleCreateAddress}>
+                                                            <Plus className="h-4 w-4 mr-2"/>
+                                                            {t('Add new address')}
+                                                        </Button>
+                                                    </div>
+                                                )
+                                                }
                                             </CardContent>
                                             <CardFooter className='  p-4'>
                                                 <Button
@@ -724,7 +582,7 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
                                                             <Image
                                                                 onError={
                                                                     (e) => {
-                                                                        e.currentTarget.srcset= "/images/imagenotfound.png";
+                                                                        e.currentTarget.srcset = "/images/imagenotfound.png";
                                                                     }
                                                                 }
                                                                 src={getImageUrl(item.images[0])}
@@ -739,7 +597,7 @@ const CheckoutForm = ({allAddress,paymentMethods}: { paymentMethods: PaymentMeth
 
                                                         <div className='flex-1'>
                                                             <p className='font-semibold'>
-                                                                {item.productName}, {item.color?.colorName?item.color?.colorName+ ', ': ''} {item.size?.size}
+                                                                {item.productName}, {item.color?.colorName ? item.color?.colorName + ', ' : ''} {item.size?.size}
                                                             </p>
                                                             <p className='font-bold'>
                                                                 <ProductPrice price={item.price} plain/>

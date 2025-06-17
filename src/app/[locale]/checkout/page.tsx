@@ -13,7 +13,6 @@ export default async function CheckoutPage() {
     if (!session) {
         redirect('/sign-in?callbackUrl=/checkout');
     }
-    const allAddress = await getMyAddresses()
     const paymentMethods  = await AVAILABLE_PAYMENT_METHODS()
-    return (<CheckoutForm paymentMethods={paymentMethods}  allAddress={typeof allAddress === "string"? undefined : allAddress}/>)
+    return (<CheckoutForm paymentMethods={paymentMethods} />)
 }

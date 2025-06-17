@@ -108,10 +108,7 @@ export const getUserSignUpSchema = (t: (key: string) => string) =>
 
 export const getShippingAddressSchema = (t: (key: string) => string) =>
     z.object({
+        id: z.string().min(1, {message: t("address_required")}),
         fullName: UserName(t),
-        street: z.string().min(1, {message: t("street_required")}),
-        city: z.string().min(1, {message: t("city_required")}),
-        district: z.string().min(1, {message: t("district_required")}),
         phone: Phone(t),
-        ward: z.string().min(1, {message: t("ward_required")}),
     });

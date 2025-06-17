@@ -17,7 +17,7 @@ export default async function UserDetailPage(props: {
     }
     try {
         const user = await getUserById(id)
-
+        console.log("User Detail Page - User:", user)
         if (!user || typeof user === "string") {
             notFound()
         }

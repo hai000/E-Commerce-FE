@@ -30,17 +30,17 @@ export default auth((req) => {
         } else {
             const pathname = req.nextUrl.pathname
             const userRole = (req.auth?.user?.role||'').toLowerCase()
-            if ((userRole == '' || userRole == 'user') && pathname.startsWith('/dashboard')) {
+            if ((userRole == '' || userRole == 'user') && pathname.startsWith('(.*)/dashboard')) {
                 const newUrl = new URL('/unauthorized', req.nextUrl.origin)
                 return Response.redirect(newUrl)
             }
             // Nếu là employee và truy cập KHÔNG PHẢI /dashboard/employee hoặc /dashboard/overviews => chặn
             if (
                 userRole == 'employee' &&
-                pathname.startsWith('/dashboard') &&
-                pathname !== '/dashboard/products' &&
-                pathname !== '/dashboard/product-quantities' &&
-                pathname !== '/dashboard/overview'
+                pathname !== '(.*)/dashboard' &&
+                pathname !== '(.*)/dashboard/products' &&
+                pathname !== '(.*)/dashboard/product-quantities' &&
+                pathname !== '(.*)/dashboard/overview'
             ) {
                 const newUrl = new URL('/unauthorized', req.nextUrl.origin)
                 return Response.redirect(newUrl)

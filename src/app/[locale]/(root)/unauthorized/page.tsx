@@ -1,8 +1,7 @@
-import {useTranslations} from "next-intl";
+import {getTranslations} from "next-intl/server";
 
-export default function UnauthorizedPage() {
-    console.log('a')
-    const t = useTranslations()
+export default async function UnauthorizedPage() {
+    const t = await getTranslations()
     return (
         <div style={{ textAlign: 'center', marginTop: 40 }}>
             <h1>{t('No permission')}</h1>

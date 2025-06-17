@@ -22,31 +22,29 @@ export default auth((req) => {
         'i'
     )
     const isPublicPage = publicPathnameRegex.test(req.nextUrl.pathname)
-    const pathname = req.nextUrl.pathname
-    const userRole = (req.auth?.user?.role||'user').toLowerCase()
-    // Nếu là user và truy cập /dashboard => chặn
-    if (userRole == 'user' && pathname.startsWith('/dashboard')) {
-        const newUrl = new URL('/unauthorized', req.nextUrl.origin)
-        return Response.redirect(newUrl)
-    }
-    // Nếu là employee và truy cập KHÔNG PHẢI /dashboard/employee hoặc /dashboard/overviews => chặn
-    if (
-        userRole == 'employee' &&
-        pathname.startsWith('/dashboard') &&
-        pathname !== '/dashboard/products' &&
-        pathname !== '/dashboard/product-quantities' &&
-        pathname !== '/dashboard/overview'
-    ) {
-        const newUrl = new URL('/unauthorized', req.nextUrl.origin)
-        return Response.redirect(newUrl)
-    }
     if (isPublicPage) {
-        // return NextResponse.next()
         return intlMiddleware(req)
     } else {
         if (!req.auth) {
             returnLogin(req)
         } else {
+            const pathname = req.nextUrl.pathname
+            const userRole = (req.auth?.user?.role||'').toLowerCase()
+            if ((userRole == '' || userRole == 'user') && pathname.startsWith('(.*)/dashboard')) {
+                const newUrl = new URL('/unauthorized', req.nextUrl.origin)
+                return Response.redirect(newUrl)
+            }
+            // Nếu là employee và truy cập KHÔNG PHẢI /dashboard/employee hoặc /dashboard/overviews => chặn
+            if (
+                userRole == 'employee' &&
+                pathname !== '(.*)/dashboard' &&
+                pathname !== '(.*)/dashboard/products' &&
+                pathname !== '(.*)/dashboard/product-quantities' &&
+                pathname !== '(.*)/dashboard/overview'
+            ) {
+                const newUrl = new URL('/unauthorized', req.nextUrl.origin)
+                return Response.redirect(newUrl)
+            }
             if (!allowedRoles.includes(userRole)) {
                 const newUrl = new URL('/unauthorized', req.nextUrl.origin)
                 return Response.redirect(newUrl)

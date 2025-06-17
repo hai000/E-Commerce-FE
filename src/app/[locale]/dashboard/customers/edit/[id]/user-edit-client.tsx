@@ -46,7 +46,7 @@ export default function UserEditPageClient({ user }: { user: IUser }) {
             fullName: user.fullName,
             dateOfBirth: user.dateOfBirth || "",
             gender: user.gender.toString() as "0" | "1",
-            role: user.role as "ADMIN" | "USER",
+            role: user.role as "ADMIN" | "USER" | "EMPLOYEE",
         },
     })
 

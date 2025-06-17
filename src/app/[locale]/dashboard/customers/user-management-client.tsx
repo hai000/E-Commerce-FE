@@ -191,7 +191,8 @@ export default function UserManagementPageClient({
                                 <SelectContent>
                                     <SelectItem value="all">{t('All roles')}</SelectItem>
                                     <SelectItem value="admin">{t('Admin')}</SelectItem>
-                                    <SelectItem value="user">{t('Customer')}</SelectItem>
+                                    <SelectItem value="employee">{t('Employee')}</SelectItem>
+                                    <SelectItem value="user">{t('User.User')}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

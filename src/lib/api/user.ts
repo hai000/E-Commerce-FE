@@ -42,8 +42,13 @@ export async function updateUserById(id: string,request: UpdateUserRequest) {
     })
 }
 export async function getUserById(id: string) {
+    const session = await auth()
+    if (!session || !session.accessToken) {
+        return redirect('/sign-in');
+    }
     return callApiToObject<IUser>({
         url: `/identity/users/id/${id}`,
+        headers: generateHeaderAccessToken(session)
     });
 }
 export async function login(request: IUserLoginRequest) {

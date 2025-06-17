@@ -9,15 +9,15 @@ export const metadata: Metadata = {
 }
 
 export default async function UserDetailPage(props: {
-    searchParams: Promise<{ id: string }>
+    params: Promise<{ id: string }>
 }) {
-    const { id } = await props.searchParams
+    const { id } = await props.params
     if (!id) {
         notFound()
     }
     try {
         const user = await getUserById(id)
-
+        console.log("User Detail Page - User:", user)
         if (!user || typeof user === "string") {
             notFound()
         }

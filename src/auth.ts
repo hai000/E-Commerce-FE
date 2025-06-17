@@ -90,7 +90,7 @@ export const { handlers ,signIn, signOut, auth } = NextAuth({
         },
         session: async ({ session, token }) => {
             if (token) {
-                const user = await getUserById(token.id as string)
+                const user = await getInfo({accessToken: token.accessToken as string})
                 if (typeof user !== "string") {
                     session.user = session.user || {};
                     session.user.id = user.id as string;

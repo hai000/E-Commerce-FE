@@ -1,7 +1,9 @@
 'use server'
-import {callApiToArray, callApiToObject} from "@/lib/utils";
+import {callApiToArray, callApiToObject, generateHeaderAccessToken} from "@/lib/utils";
 import {IProductDetail} from "@/lib/response/product";
 import {PUT_METHOD} from "@/lib/constants";
+import {auth} from "@/auth";
+import {getTranslations} from "next-intl/server";
 
 export async function getProductDetailById({productId}: { productId: string }) {
     return await callApiToArray<IProductDetail>({url: `/identity/productDetails/product/${productId}`})
@@ -50,9 +52,15 @@ export async function updateProductDetail(data: {
     discount: number,
     price: number
 }) {
+    const t = await getTranslations()
+    const session = await auth()
+    if (!session || !session.accessToken) {
+        return t('Session timeout')
+    }
     return await callApiToObject<IProductDetail>({
         url: `/identity/productDetails`,
         method: PUT_METHOD,
+        headers: generateHeaderAccessToken(session),
         data: data,
     });
 }

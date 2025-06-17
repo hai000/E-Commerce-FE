@@ -46,33 +46,32 @@ export async function getMyOrders({
 }
 
 export async function getOrderById(orderId: string) {
-    return callApiToObject<Order>({url: `/identity/orders/${orderId}`})
+    const t = await getTranslations("Product")
+    const session = await auth()
+    if (!session) {
+        return t('Session timeout');
+    }
+    return callApiToObject<Order>({url: `/identity/orders/${orderId}`,headers: generateHeaderAccessToken(session)})
 }
 
 export async function createPayPalOrder(orderId: string) {
-    const t = await getTranslations("Order")
+    const t = await getTranslations()
+    const session = await auth()
+    if (!session) {
+        return t('Product.Session timeout');
+    }
     try {
         const res = await fetch(`${HOST_API}/identity/payment/paypal/create-order?orderId=${orderId}`, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: generateHeaderAccessToken(session),
         });
         const data = await res.json()
         return {
             success: true,
-            message: t('PayPal order created successfully'),
+            message: t('Order.PayPal order created successfully'),
             data: data.orderId,
         }
-        // const orderRes = await getOrderById(orderId);
-        // if (typeof orderRes !== "string") {
-        //     const paypalOrder = await paypal.createOrder(orderRes.totalPrice, orderId)
-        //     return {
-        //         success: true,
-        //         message: t('PayPal order created successfully'),
-        //         data: paypalOrder.id,
-        //     }
-        // } else {
-        //     throw new Error(t('Order not found'))
-        // }
+
     } catch (err) {
         return {success: false, message: err}
     }
@@ -82,9 +81,10 @@ export async function approvePayPalOrder(
     orderId: string,
     data: { orderID: string }
 ) {
+    const session = await auth()
     const t = await getTranslations("Order")
     try {
-        const captureData = await paypal.capturePayment(data.orderID)
+        const captureData = await paypal.capturePayment(data.orderID,session)
         if (
             !captureData ||
             captureData.result != 'COMPLETED'

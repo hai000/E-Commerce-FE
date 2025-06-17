@@ -25,7 +25,6 @@ export default async function UserManagementPage(props: {
         size: Number.parseInt(size),
         role,
     })
-    console.log("users", users)
     return (
         <UserManagementPageClient
             usersWithPage={users}

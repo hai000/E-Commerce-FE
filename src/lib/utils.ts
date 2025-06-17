@@ -205,8 +205,8 @@ export function getRoleIntl(role: string, t: (key: string) => string): string {
     switch (role.toLowerCase()) {
         case 'admin':
             return t('Admin');
-        case 'user':
-            return t('User.User');
+        case 'employee':
+            return t('Employee');
         default:
             return t('User.User');
     }
@@ -225,6 +225,7 @@ export function genderOptions(t: (key: string) => string) {
 export function roleOptions(t: (key: string) => string) {
     return [{value: "ADMIN", label: t('Admin')},
         {value: "USER", label: t("User.User")},
+        {value: "EMPLOYEE", label: t("Employee")},
     ]
 }
 
@@ -232,7 +233,7 @@ export function getRoleColor(role: string): string {
     switch (role.toLowerCase()) {
         case "admin":
             return "destructive"
-        case "user":
+        case "employee":
             return "secondary"
         default:
             return "outline"

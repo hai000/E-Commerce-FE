@@ -88,7 +88,7 @@ export const getUserEditSchema = (t: (key: string) => string) =>
         gender: Gender(t),
         role: Role(t),
     })
-export const Role = (t: (key: string) => string) => z.enum(["ADMIN", "USER"], {
+export const Role = (t: (key: string) => string) => z.enum(["ADMIN", "USER","EMPLOYEE"], {
     required_error: t("Please select a role"),
 })
 export const DateOfBirth = (t: (key: string) => string) => z.string().optional().or(z.literal(t("")))
